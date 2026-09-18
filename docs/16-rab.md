@@ -7,9 +7,12 @@ Dokumen ini merincikan alokasi anggaran biaya (Rp1.000.000) dan estimasi pengerj
 ## 1. Timeline & Budget Breakdown
 
 ```mermaid
+%%{init: { "gantt": { "leftPadding": 160, "useWidth": 900 } } }%%
 gantt
     title Timeline Pengerjaan Smart Canteen FEB (5-7 Hari)
     dateFormat  YYYY-MM-DD
+    axisFormat  %d %b
+    tickInterval 1day
     section Phase 1: Planning & Setup
     Doc & DB Schema with SoftDeletes  :active, p1, 2026-09-18, 1d
     section Phase 2: Core & Dual Payment
