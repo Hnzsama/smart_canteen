@@ -21,8 +21,8 @@ erDiagram
         string name
         string email
         string password
-        bigint tenant_id FK "nullable"
-        timestamp deleted_at "softDeletes"
+        bigint tenant_id FK
+        timestamp deleted_at
         timestamp created_at
     }
 
@@ -33,7 +33,7 @@ erDiagram
         text description
         string image
         boolean is_active
-        timestamp deleted_at "softDeletes"
+        timestamp deleted_at
         timestamp created_at
     }
 
@@ -48,41 +48,41 @@ erDiagram
     MENUS {
         bigint id PK
         bigint tenant_id FK
-        bigint category_id FK "nullable"
+        bigint category_id FK
         string name
         text description
         decimal price
         string image
         boolean is_available
-        timestamp deleted_at "softDeletes"
+        timestamp deleted_at
         timestamp created_at
     }
 
     ORDERS {
         bigint id PK
         string order_number UK
-        string pickup_code UK "Kode QR / Unik"
+        string pickup_code UK
         bigint user_id FK
         bigint tenant_id FK
         decimal total_amount
-        string payment_method "cashless, cash"
-        string payment_status "unpaid, paid, failed"
-        string status "pending, paid, processing, ready, completed, failed"
-        string snap_token "nullable"
+        string payment_method
+        string payment_status
+        string status
+        string snap_token
         timestamp paid_at
         timestamp processing_at
         timestamp ready_at
         timestamp completed_at
-        timestamp deleted_at "softDeletes"
+        timestamp deleted_at
         timestamp created_at
     }
 
     ORDER_ITEMS {
         bigint id PK
         bigint order_id FK
-        bigint menu_id FK "nullable"
-        string menu_name "snapshot"
-        decimal price "snapshot"
+        bigint menu_id FK
+        string menu_name
+        decimal price
         integer quantity
         decimal subtotal
         timestamp created_at

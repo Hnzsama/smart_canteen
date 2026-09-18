@@ -8,18 +8,18 @@ Smart Canteen FEB mendukung 2 metode pembayaran:
 
 ```mermaid
 flowchart TD
-    A[Checkout Mahasiswa] --> B{Pilih Metode Pembayaran}
+    A["Checkout Mahasiswa"] --> B{"Pilih Metode Pembayaran"}
 
-    B -- Cashless --> C[Midtrans Sandbox Snap Pop-up]
-    C --> D[Proses Pembayaran Digital]
-    D --> E[Midtrans Webhook Callback]
-    E --> F[Order Status: Dibayar]
+    B -->|"Cashless"| C["Midtrans Sandbox Snap Pop-up"]
+    C --> D["Proses Pembayaran Digital"]
+    D --> E["Midtrans Webhook Callback"]
+    E --> F["Order Status: Dibayar"]
 
-    B -- Cash Tunai --> G[Generate QR & pickup_code]
-    G --> H[Order Status: Menunggu Pembayaran Tunai]
-    H --> I[Mahasiswa Tunjukkan QR di Stand Tenant]
-    I --> J[Tenant Scan QR / Input Kode]
-    J --> K[Tenant Terima Uang & Konfirmasi]
+    B -->|"Cash Tunai"| G["Generate QR & pickup_code"]
+    G --> H["Order Status: Menunggu Pembayaran Tunai"]
+    H --> I["Mahasiswa Tunjukkan QR di Stand Tenant"]
+    I --> J["Tenant Scan QR / Input Kode"]
+    J --> K["Tenant Terima Uang & Konfirmasi"]
     K --> F
 ```
 

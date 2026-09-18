@@ -6,36 +6,36 @@ Status pesanan pada Smart Canteen FEB mengontrol alur dari awal pembuatan pesana
 
 ```mermaid
 stateDiagram-v2
-    [*] --> MenungguPembayaran : Order Created
+    [*] --> MenungguPembayaran
 
     state MenungguPembayaran {
-        [*] --> Unpaid_Cashless : Cashless (Waiting Midtrans)
-        [*] --> Unpaid_Cash : Cash (Waiting Tenant QR Scan)
+        [*] --> UnpaidCashless
+        [*] --> UnpaidCash
     }
 
-    Unpaid_Cashless --> Dibayar : Midtrans Callback Success
-    Unpaid_Cash --> Dibayar : Tenant Scan QR & Konfirmasi Terima Cash
+    UnpaidCashless --> Dibayar : Midtrans Callback Success
+    UnpaidCash --> Dibayar : Tenant Scan QR & Konfirmasi
 
     state Dibayar {
-        [*] --> Paid : Pesanan Masuk di Tenant
+        [*] --> Paid
     }
 
-    Dibayar --> Diproses : Tenant Klik "Proses Pesanan"
+    Dibayar --> Diproses : Tenant Klik Proses Pesanan
 
     state Diproses {
-        [*] --> Processing : Makanan sedang dimasak
+        [*] --> Processing
     }
 
-    Diproses --> SiapDiambil : Tenant Klik "Siap Diambil"
+    Diproses --> SiapDiambil : Tenant Klik Siap Diambil
 
     state SiapDiambil {
-        [*] --> ReadyForPickup : Mahasiswa Datang ke Stand (Self-Pickup)
+        [*] --> ReadyForPickup
     }
 
     SiapDiambil --> Selesai : Mahasiswa Ambil & Tenant Konfirmasi
 
     state Selesai {
-        [*] --> Completed : Transaksi Selesai
+        [*] --> Completed
     }
 ```
 

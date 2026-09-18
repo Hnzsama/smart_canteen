@@ -86,23 +86,23 @@ Admin dapat:
 ### 4.1 Cashless (Midtrans Sandbox)
 ```mermaid
 flowchart TD
-    Checkout[Mahasiswa Checkout Cashless] --> Snap[Tampil Pop-up Midtrans Sandbox]
-    Snap --> Simulator[Bayar via Midtrans Simulator]
-    Simulator --> Webhook[Callback Webhook Midtrans]
-    Webhook --> Paid[Status: Dibayar]
-    Paid --> TenantDashboard[Tampil di Tenant Dashboard]
+    Checkout["Mahasiswa Checkout Cashless"] --> Snap["Tampil Pop-up Midtrans Sandbox"]
+    Snap --> Simulator["Bayar via Midtrans Simulator"]
+    Simulator --> Webhook["Callback Webhook Midtrans"]
+    Webhook --> Paid["Status: Dibayar"]
+    Paid --> TenantDashboard["Tampil di Tenant Dashboard"]
 ```
 
 ### 4.2 Cash (Tunai di Stand Tenant)
 ```mermaid
 flowchart TD
-    Checkout[Mahasiswa Checkout Cash] --> GenCode[Generate QR / Kode Pengambilan]
-    GenCode --> Pending[Status: Menunggu Pembayaran Tunai]
-    Pending --> Stand[Mahasiswa Datang ke Stand Tenant]
-    Stand --> Scan[Tenant Scan QR / Input Kode di App Tenant]
-    Scan --> Confirm[Tenant Terima Uang & Klik Konfirmasi]
-    Confirm --> Paid[Status: Dibayar]
-    Paid --> Process[Tenant Memproses Pesanan]
+    Checkout["Mahasiswa Checkout Cash"] --> GenCode["Generate QR / Kode Pengambilan"]
+    GenCode --> Pending["Status: Menunggu Pembayaran Tunai"]
+    Pending --> Stand["Mahasiswa Datang ke Stand Tenant"]
+    Stand --> Scan["Tenant Scan QR / Input Kode di App Tenant"]
+    Scan --> Confirm["Tenant Terima Uang & Klik Konfirmasi"]
+    Confirm --> Paid["Status: Dibayar"]
+    Paid --> Process["Tenant Memproses Pesanan"]
 ```
 
 ---
@@ -125,29 +125,29 @@ Alur utama yang **WAJIB dapat didemokan**:
 sequenceDiagram
     autonumber
     actor M as Mahasiswa
-    participant SYS as Sistem Smart Canteen
-    participant MID as Midtrans Sandbox
+    participant SYS as "Sistem Smart Canteen"
+    participant MID as "Midtrans Sandbox"
     actor T as Tenant
 
-    M->>SYS: 1. Login & Pilih Tenant / Menu
-    M->>SYS: 2. Checkout (Pilih Cashless / Cash)
+    M->>SYS: Login dan Pilih Tenant / Menu
+    M->>SYS: Checkout (Pilih Cashless / Cash)
     alt Metode Cashless
         SYS->>MID: Request Snap Token
         MID-->>M: Tampilkan Midtrans Pop-up Sandbox
         M->>MID: Selesaikan Bayar di Sandbox
         MID-->>SYS: Callback Auto Webhook
-        SYS->>SYS: Update Status: "Dibayar"
+        SYS->>SYS: Update Status: Dibayar
     else Metode Cash (Tunai)
         SYS-->>M: Generate Kode QR / Pengambilan
-        M->>T: Tunjukkan Kode QR & Uang Tunai di Stand
+        M->>T: Tunjukkan Kode QR dan Uang Tunai di Stand
         T->>SYS: Scan QR / Input Kode Pesanan -> Konfirmasi Bayar
-        SYS->>SYS: Update Status: "Dibayar"
+        SYS->>SYS: Update Status: Dibayar
     end
     SYS-->>T: Pesanan Masuk di Dashboard
-    T->>SYS: Update Status: "Diproses"
-    T->>SYS: Update Status: "Siap Diambil"
+    T->>SYS: Update Status: Diproses
+    T->>SYS: Update Status: Siap Diambil
     M->>T: Datang Ambil Pesanan (Self-Pickup)
-    T->>SYS: Update Status: "Selesai"
+    T->>SYS: Update Status: Selesai
 ```
 
 ---
