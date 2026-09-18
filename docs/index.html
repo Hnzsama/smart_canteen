@@ -32,7 +32,7 @@
   <!-- Marked.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Mermaid.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -53,6 +53,22 @@
     .prose table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; margin-bottom: 1.5rem; font-size: 0.875rem; text-align: left; }
     .prose th { background-color: rgba(148,163,184,0.15); font-weight: 600; padding: 0.75rem; border: 1px solid rgba(148,163,184,0.25); }
     .prose td { padding: 0.75rem; border: 1px solid rgba(148,163,184,0.2); }
+
+    .mermaid-wrapper {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+      border: 1px solid rgba(148,163,184,0.2);
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .dark .mermaid-wrapper {
+      background: #0f172a;
+      border-color: rgba(148,163,184,0.1);
+    }
     
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -228,12 +244,6 @@
     mobileMenuBtn.addEventListener("click", toggleMobileMenu);
     backdrop.addEventListener("click", toggleMobileMenu);
 
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: document.documentElement.classList.contains("dark") ? "dark" : "default",
-      securityLevel: "loose"
-    });
-
     function formatTitle(filename) {
       const nameWithoutExt = filename.replace(".md", "");
       const parts = nameWithoutExt.split("-");
@@ -287,22 +297,24 @@
       document.getElementById("current-title").innerText = `${num}. ${title}`;
 
       const rawMd = docsData[filename];
-
-      const renderer = new marked.Renderer();
-      const originalCodeRenderer = renderer.code.bind(renderer);
-
-      renderer.code = function(code, language, isEscaped) {
-        if (language === "mermaid") {
-          return `<div class="mermaid-container my-6 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto shadow-sm flex justify-center"><div class="mermaid">${code}</div></div>`;
-        }
-        return originalCodeRenderer(code, language, isEscaped);
-      };
-
-      marked.setOptions({ renderer });
       const htmlContent = marked.parse(rawMd);
 
       const container = document.getElementById("markdown-container");
       container.innerHTML = htmlContent;
+
+      // Transform <pre><code class="language-mermaid"> into <div class="mermaid">
+      container.querySelectorAll('pre code.language-mermaid, pre code.lang-mermaid').forEach((block) => {
+        const pre = block.parentElement;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mermaid-wrapper';
+        
+        const innerDiv = document.createElement('div');
+        innerDiv.className = 'mermaid';
+        innerDiv.textContent = block.textContent;
+        
+        wrapper.appendChild(innerDiv);
+        pre.replaceWith(wrapper);
+      });
 
       renderMermaid();
       renderNav();
@@ -315,19 +327,23 @@
         const isDark = document.documentElement.classList.contains("dark");
         mermaid.initialize({
           startOnLoad: false,
-          theme: isDark ? "dark" : "default"
+          theme: isDark ? "dark" : "default",
+          securityLevel: "loose"
         });
-        
+
         document.querySelectorAll(".mermaid").forEach((el, index) => {
-          const code = el.innerText || el.textContent;
+          const code = el.getAttribute("data-raw") || el.textContent;
+          el.setAttribute("data-raw", code);
           el.removeAttribute("data-processed");
-          mermaid.render("mermaid-" + index + "-" + Date.now(), code).then(res => {
-            el.innerHTML = res.svg;
-          }).catch(err => {
-            console.error("Mermaid Render Error:", err);
-          });
+          el.innerHTML = code;
+          
+          try {
+            mermaid.run({ nodes: [el] });
+          } catch(e) {
+            console.error("Mermaid error:", e);
+          }
         });
-      }, 100);
+      }, 50);
     }
 
     const prevBtn = document.getElementById("prev-btn");
