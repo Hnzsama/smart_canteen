@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dokumentasi Smart Canteen FEB</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#ecfdf5",
+              100: "#d1fae5",
+              500: "#10b981",
+              600: "#059669",
+              700: "#047857",
+              900: "#064e3b"
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Marked.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body { font-family: "Inter", sans-serif; }
+    
+    /* Markdown Styles */
+    .prose h1 { font-size: 1.75rem; font-weight: 700; color: inherit; margin-top: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(148,163,184,0.2); padding-bottom: 0.5rem; }
+    .prose h2 { font-size: 1.35rem; font-weight: 600; color: inherit; margin-top: 1.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(148,163,184,0.15); padding-bottom: 0.25rem; }
+    .prose h3 { font-size: 1.15rem; font-weight: 600; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+    .prose p { color: inherit; line-height: 1.7; margin-top: 0.75rem; margin-bottom: 0.75rem; font-size: 0.95rem; opacity: 0.9; }
+    .prose ul { list-style-type: disc; list-style-position: inside; margin-top: 0.75rem; margin-bottom: 0.75rem; padding-left: 0.5rem; opacity: 0.9; }
+    .prose ol { list-style-type: decimal; list-style-position: inside; margin-top: 0.75rem; margin-bottom: 0.75rem; padding-left: 0.5rem; opacity: 0.9; }
+    .prose code { font-family: monospace; font-size: 0.875rem; background-color: rgba(16,185,129,0.15); color: #10b981; padding: 0.15rem 0.4rem; border-radius: 0.25rem; }
+    .prose pre { background-color: #0f172a; color: #f8fafc; padding: 1rem; border-radius: 0.75rem; overflow-x: auto; margin-top: 1rem; margin-bottom: 1rem; font-size: 0.875rem; font-family: monospace; }
+    .prose pre code { background-color: transparent; color: inherit; padding: 0; }
+    .prose blockquote { border-left: 4px solid #10b981; background-color: rgba(16,185,129,0.08); padding: 0.75rem 1rem; margin-top: 1rem; margin-bottom: 1rem; border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem; font-style: italic; }
+    .prose table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; margin-bottom: 1.5rem; font-size: 0.875rem; text-align: left; }
+    .prose th { background-color: rgba(148,163,184,0.15); font-weight: 600; padding: 0.75rem; border: 1px solid rgba(148,163,184,0.25); }
+    .prose td { padding: 0.75rem; border: 1px solid rgba(148,163,184,0.2); }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Header Top Bar -->
+  <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button id="mobile-menu-btn" class="lg:hidden text-slate-600 dark:text-slate-300 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 font-bold text-lg">
+          🍱
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-900 dark:text-white text-base leading-tight">Smart Canteen FEB</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Documentation Center</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search & Theme Switcher -->
+    <div class="flex items-center gap-3">
+      <div class="relative hidden sm:block w-64">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input type="text" id="search-input" placeholder="Cari dokumen..." class="w-full bg-slate-100 dark:bg-slate-800 text-xs pl-8 pr-4 py-2 rounded-lg border border-transparent focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 outline-none transition-all">
+      </div>
+
+      <button id="theme-toggle" class="p-2 w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-500 transition-colors flex items-center justify-center">
+        <i id="theme-icon" class="fa-solid fa-moon"></i>
+      </button>
+
+      <a href="https://github.com/Hnzsama/smart_canteen" target="_blank" class="hidden md:flex items-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors shadow-sm">
+        <i class="fa-brands fa-github text-sm"></i>
+        <span>GitHub Repo</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="flex-1 flex max-w-[1600px] w-full mx-auto relative">
+    
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed lg:sticky top-[61px] left-0 z-50 lg:z-10 w-72 h-[calc(100vh-61px)] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 -translate-x-full lg:translate-x-0">
+      
+      <div class="p-3 border-b border-slate-100 dark:border-slate-800/80 sm:hidden">
+        <input type="text" id="mobile-search-input" placeholder="Cari dokumen..." class="w-full bg-slate-100 dark:bg-slate-800 text-xs px-3 py-2 rounded-lg outline-none">
+      </div>
+
+      <div class="px-4 py-3 flex items-center justify-between text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wider uppercase">
+        <span>Daftar Dokumen (17)</span>
+        <span class="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-bold">SPA</span>
+      </div>
+
+      <nav id="doc-nav" class="flex-1 overflow-y-auto px-2 pb-6 space-y-1">
+        <!-- Document links populated by JS -->
+      </nav>
+
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 text-center">
+        Smart Canteen FEB &copy; 2026
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-10 max-w-4xl">
+      <div id="doc-header" class="mb-6 pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <span id="current-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900">
+            <i class="fa-regular fa-file-lines"></i>
+            <span id="current-filename">00-project-overview.md</span>
+          </span>
+          <h2 id="current-title" class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">Loading...</h2>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="copy-markdown-btn" class="px-3 py-1.5 text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center gap-1.5 font-medium">
+            <i class="fa-regular fa-copy"></i>
+            <span>Salin Raw</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Rendered Markdown Container -->
+      <article id="markdown-container" class="prose max-w-none">
+        <!-- Rendered Content -->
+      </article>
+
+      <!-- Bottom Page Navigator -->
+      <footer class="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+        <button id="prev-btn" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all disabled:opacity-30 disabled:pointer-events-none">
+          <i class="fa-solid fa-chevron-left"></i>
+          <span id="prev-label">Sebelumnya</span>
+        </button>
+        <button id="next-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-30 disabled:pointer-events-none">
+          <span id="next-label">Selanjutnya</span>
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const docsData = {"00-project-overview.md": "# Smart Canteen FEB\n\n## Project Constraint\n\nBudget: Rp1.000.000\nType: Dummy / Demo\nEstimated Development: 5–7 working days\n\n## Primary Objective\n\nMembangun website demo Smart Canteen FEB yang memperlihatkan alur:\n\nMahasiswa\n→ Pilih Tenant\n→ Pilih Menu\n→ Keranjang\n→ Checkout\n→ Pembayaran\n→ Tenant Memproses\n→ Pesanan Siap\n→ Self-Pickup\n\n## AI Development Principle\n\n> Implement only what is required by the documented scope.\n\nThe AI MUST NOT expand the project scope autonomously.\n\nBefore implementing a feature, the AI should verify that the feature exists\nin the project documentation.\n\nIf the feature is not documented, classify it as:\n\nOUT OF SCOPE\n\nand do not implement it without explicit approval.\n\n## Priority\n\n1. Scope\n2. Functional requirements\n3. User flow\n4. Acceptance criteria\n5. UI/UX\n6. Technical implementation\n\nTechnical complexity must never override the project scope.", "01-scope.md": "# Project Scope — Smart Canteen FEB\n\n## 1. Informasi Proyek\n\n**Nama Proyek:** Smart Canteen FEB\n**Jenis:** Website Dummy / Demo\n**Budget:** Rp1.000.000\n**Estimasi Pengerjaan:** 5–7 hari kerja\n\nDokumen ini menjadi **batas utama pengembangan proyek**.\n\nSeluruh implementasi harus mengikuti scope yang tercantum di dokumen ini.\n\n---\n\n## 2. Tujuan Proyek\n\nSmart Canteen FEB adalah website demo yang digunakan untuk memperlihatkan konsep pemesanan makanan/minuman di lingkungan FEB dengan dukungan opsi pembayaran **Cashless (Midtrans Sandbox)** dan **Cash (Tunai dengan Scan QR/Kode oleh Tenant)**, penataan menu ber-kategori, serta keamanan data historis melalui **Soft Deletes**.\n\nTujuan utama website:\n\n* Menampilkan tenant/kantin.\n* Menampilkan menu ber-kategori yang tersedia.\n* Memungkinkan mahasiswa membuat pesanan.\n* Menampilkan proses checkout (Pilihan **Cashless** vs **Cash**).\n* Menampilkan simulasi/alur pembayaran Cashless (Midtrans Sandbox) dan Cash (Scan Kode oleh Tenant).\n* Memungkinkan tenant memproses pesanan.\n* Menampilkan status pesanan sampai siap diambil.\n* Menunjukkan konsep **Self-pickup**.\n* Menerapkan **Soft Deletes** pada entity krusial (Users, Tenants, Menus, Orders) untuk integritas riwayat transaksi.\n\nWebsite ini **BUKAN sistem kantin production**.\n\nFokus utama adalah **UI, UX, dan demonstrasi alur bisnis utama**.\n\n---\n\n## 3. Aktor Sistem\n\nSistem hanya memiliki tiga jenis pengguna:\n\n### 3.1 Mahasiswa\n\nMahasiswa dapat:\n\n* Login / mengakses akun.\n* Melihat daftar tenant.\n* Melihat menu tenant berdasarkan kategori.\n* Melihat detail menu.\n* Menambahkan menu ke keranjang.\n* Mengubah isi keranjang.\n* Melakukan checkout (Pilih **Cashless** atau **Cash**).\n* Mendapatkan Kode QR / Kode Pengambilan pesanan.\n* Melakukan simulasi pembayaran Cashless atau menampilkan Kode ke Tenant untuk bayar Cash.\n* Melihat status pesanan dan tracker timeline.\n* Melihat riwayat pesanan.\n* Melihat informasi pengambilan pesanan (**Self-Pickup**).\n\n### 3.2 Tenant / Penjual\n\nTenant dapat:\n\n* Login ke dashboard.\n* Melihat pesanan masuk.\n* Menampilkan scanner / input kode pesanan untuk **Konfirmasi Pembayaran Cash**.\n* Melihat detail pesanan.\n* Mengubah status pesanan (`Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).\n* Mengelola kategori menu.\n* Menambahkan, mengubah, menghapus menu (dengan **Soft Deletes**).\n* Mengatur ketersediaan menu (Toggle Stock).\n\n### 3.3 Admin\n\nAdmin dapat:\n\n* Login ke dashboard admin.\n* Melihat statistik demo.\n* Mengelola data tenant (Tambah, Edit, Hapus via **Soft Deletes**).\n* Mengelola pengguna & role (Mahasiswa, Tenant, Admin dengan **Soft Deletes**).\n* Melihat & memantau seluruh transaksi kantin.\n\n---\n\n## 4. Scope Pembayaran & Verifikasi\n\n### 4.1 Cashless (Midtrans Sandbox)\n```mermaid\nflowchart TD\n    Checkout[Mahasiswa Checkout Cashless] --> Snap[Tampil Pop-up Midtrans Sandbox]\n    Snap --> Simulator[Bayar via Midtrans Simulator]\n    Simulator --> Webhook[Callback Webhook Midtrans]\n    Webhook --> Paid[Status: Dibayar]\n    Paid --> TenantDashboard[Tampil di Tenant Dashboard]\n```\n\n### 4.2 Cash (Tunai di Stand Tenant)\n```mermaid\nflowchart TD\n    Checkout[Mahasiswa Checkout Cash] --> GenCode[Generate QR / Kode Pengambilan]\n    GenCode --> Pending[Status: Menunggu Pembayaran Tunai]\n    Pending --> Stand[Mahasiswa Datang ke Stand Tenant]\n    Stand --> Scan[Tenant Scan QR / Input Kode di App Tenant]\n    Scan --> Confirm[Tenant Terima Uang & Klik Konfirmasi]\n    Confirm --> Paid[Status: Dibayar]\n    Paid --> Process[Tenant Memproses Pesanan]\n```\n\n---\n\n## 5. Scope Data & Soft Deletes\n\nData krusial menggunakan fitur **Soft Deletes (`deleted_at`)**:\n1. `users`: Jika akun dinonaktifkan/dihapus, riwayat transaksi pesanan historis tetap utuh.\n2. `tenants`: Jika tenant tutup/dihapus, riwayat belanja mahasiswa tidak hilang.\n3. `menus`: Jika menu dihapus dari katalog tenant, pesanan lama tetap menampilkan nama dan harga menu tersebut (Snapshot Data).\n4. `orders`: Pesanan yang dibatalkan/dihapus tetap tersimpan secara soft delete untuk transparansi demo.\n\n---\n\n## 6. Alur Bisnis Utama\n\nAlur utama yang **WAJIB dapat didemokan**:\n\n```mermaid\nsequenceDiagram\n    autonumber\n    actor M as Mahasiswa\n    participant SYS as Sistem Smart Canteen\n    participant MID as Midtrans Sandbox\n    actor T as Tenant\n\n    M->>SYS: 1. Login & Pilih Tenant / Menu\n    M->>SYS: 2. Checkout (Pilih Cashless / Cash)\n    alt Metode Cashless\n        SYS->>MID: Request Snap Token\n        MID-->>M: Tampilkan Midtrans Pop-up Sandbox\n        M->>MID: Selesaikan Bayar di Sandbox\n        MID-->>SYS: Callback Auto Webhook\n        SYS->>SYS: Update Status: \"Dibayar\"\n    else Metode Cash (Tunai)\n        SYS-->>M: Generate Kode QR / Pengambilan\n        M->>T: Tunjukkan Kode QR & Uang Tunai di Stand\n        T->>SYS: Scan QR / Input Kode Pesanan -> Konfirmasi Bayar\n        SYS->>SYS: Update Status: \"Dibayar\"\n    end\n    SYS-->>T: Pesanan Masuk di Dashboard\n    T->>SYS: Update Status: \"Diproses\"\n    T->>SYS: Update Status: \"Siap Diambil\"\n    M->>T: Datang Ambil Pesanan (Self-Pickup)\n    T->>SYS: Update Status: \"Selesai\"\n```\n\n---\n\n## 7. Definition of Done\n\nProyek dianggap memenuhi scope apabila:\n* Mahasiswa dapat memesan dengan opsi **Cashless** (Midtrans Sandbox) maupun **Cash** (Scan QR oleh Tenant).\n* Tenant dapat melakukan **Scan Kode QR / Input Kode** untuk menerima bayar tunai.\n* Data `users`, `tenants`, `menus`, dan `orders` menerapkan **Soft Deletes**.\n* Menu terkelola dalam **Kategori Menu**.\n* Core flow dapat didemonstrasikan dari awal sampai selesai tanpa error.\n", "02-requirements.md": "# Functional & Non-Functional Requirements — Smart Canteen FEB\n\n## 1. Requirements Overview\n\nDokumen ini mendefinisikan kebutuhan fungsional (Functional Requirements) dan non-fungsional (Non-Functional Requirements) dari sistem Smart Canteen FEB berdasarkan [01-scope.md](file:///home/darbi/Projects/smart_canteen/docs/01-scope.md).\n\n---\n\n## 2. Functional Requirements (FR)\n\n### 2.1 Modul Mahasiswa (Customer)\n* **FR-MHS-01:** Mahasiswa dapat melakukan login dan logout.\n* **FR-MHS-02:** Mahasiswa dapat melihat daftar tenant dan filter menu berdasarkan kategori (Makanan, Minuman, Camilan).\n* **FR-MHS-03:** Mahasiswa dapat melihat detail menu (nama, harga, foto, ketersediaan).\n* **FR-MHS-04:** Mahasiswa dapat mengelola keranjang belanja (cart).\n* **FR-MHS-05:** Mahasiswa dapat memilih metode pembayaran di Checkout: **Cashless** (Midtrans Sandbox) atau **Cash** (Tunai di Stand).\n* **FR-MHS-06:** Mahasiswa mendapatkan **Kode QR / Kode Pengambilan** unik untuk setiap transaksi.\n* **FR-MHS-07:** Mahasiswa dapat memantau live status pesanan (`Menunggu Pembayaran` → `Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).\n* **FR-MHS-08:** Mahasiswa dapat melihat riwayat pesanan (historis tetap aman meskipun menu/tenant di-soft delete).\n\n### 2.2 Modul Tenant (Penjual)\n* **FR-TNT-01:** Tenant dapat login ke dashboard tenant.\n* **FR-TNT-02:** Tenant dapat melakukan **Scan Kode QR / Input Kode Pesanan** mahasiswa untuk mengonfirmasi pembayaran Tunai (Cash).\n* **FR-TNT-03:** Tenant dapat melihat ringkasan & detail pesanan masuk.\n* **FR-TNT-04:** Tenant dapat memperbarui status pesanan (`Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).\n* **FR-TNT-05:** Tenant dapat mengelola Kategori Menu & Item Menu (Tambah, Edit, Soft Delete, Toggle Stok Available/Out of Stock).\n\n### 2.3 Modul Admin (Pengelola)\n* **FR-ADM-01:** Admin dapat login ke dashboard admin.\n* **FR-ADM-02:** Admin dapat melihat statistik demo (Total Tenant, Total User, Total Transaksi, Transaksi Cash vs Cashless).\n* **FR-ADM-03:** Admin dapat mengelola data tenant (CRUD + Soft Delete).\n* **FR-ADM-04:** Admin dapat mengelola pengguna & role (CRUD + Soft Delete).\n* **FR-ADM-05:** Admin dapat memantau seluruh transaksi kantin secara global.\n\n---\n\n## 3. Non-Functional Requirements (NFR)\n\n### 3.1 Data Integrity & Soft Deletes\n* **NFR-01:** Menerapkan `softDeletes` (`deleted_at`) pada `users`, `tenants`, `menus`, dan `orders` untuk menjaga integritas data historis.\n* **NFR-02:** Menggunakan snapshot nama & harga menu pada `order_items` saat transaksi terjadi.\n\n### 3.2 Performance & Usability\n* **NFR-03:** Layout responsive (Mobile-first untuk Mahasiswa, Desktop/Mobile friendly untuk Tenant & Admin).\n* **NFR-04:** Respon verifikasi scan QR / kode tunai di stand tenant berjalan instan (< 1 detik).\n", "03-user-flow.md": "# User Flow — Smart Canteen FEB\n\n## 1. Core End-to-End Business Flow\n\nAlur utama pemesanan dengan opsi **Cashless (Midtrans Sandbox)** dan **Cash (Scan QR / Kode di Tenant)** disajikan dalam diagram Mermaid berikut:\n\n```mermaid\nsequenceDiagram\n    autonumber\n    actor M as Mahasiswa\n    participant SYS as Sistem Smart Canteen\n    participant MID as Midtrans Sandbox\n    actor T as Tenant\n\n    M->>SYS: 1. Login & Lihat Menu per Kategori\n    M->>SYS: 2. Tambah ke Keranjang -> Checkout\n    M->>SYS: 3. Pilih Metode Pembayaran (Cashless / Cash)\n    \n    alt Pembayaran Cashless\n        SYS->>MID: Request Midtrans Snap Token\n        MID-->>M: Tampilkan Midtrans Sandbox Pop-up\n        M->>MID: Selesaikan Bayar di Sandbox\n        MID-->>SYS: Webhook Auto Callback Success\n        SYS->>SYS: Status Pesanan -> \"Dibayar\"\n    else Pembayaran Cash (Tunai)\n        SYS-->>M: Tampilkan Kode QR / Kode Pengambilan (cth: FEB-8821)\n        M->>T: Tunjukkan Kode QR & Serahkan Uang Tunai di Stand\n        T->>SYS: Scan QR / Input Kode di App Tenant\n        T->>SYS: Klik \"Konfirmasi Terima Tunai\"\n        SYS->>SYS: Status Pesanan -> \"Dibayar\"\n    end\n\n    SYS-->>T: Pesanan Masuk di Dashboard Tenant\n    T->>SYS: Ubah Status -> \"Diproses\"\n    T->>SYS: Ubah Status -> \"Siap Diambil\"\n    SYS-->>M: Live Tracker Update -> \"Siap Diambil\"\n    M->>T: Ambil Makanan di Stand (Self-Pickup)\n    T->>SYS: Konfirmasi Selesai -> Status \"Selesai\"\n```\n\n---\n\n## 2. Detail Alur Pembayaran Cash (Scan QR oleh Tenant)\n\n```mermaid\nflowchart TD\n    A[Mahasiswa Checkout Pilih Cash] --> B[Sistem Generate pickup_code & QR]\n    B --> C[Status Order: Menunggu Pembayaran Tunai]\n    C --> D[Mahasiswa Datang ke Stand Tenant]\n    D --> E[Tenant Buka Scanner / Input Form di App Tenant]\n    E --> F[Tenant Scan QR / Ketik Kode Pesanan]\n    F --> G[Tampil Detail Tagihan & Item Pesanan]\n    G --> H[Tenant Terima Uang & Klik 'Konfirmasi Pembayaran']\n    H --> I[Status Order Berubah: Dibayar]\n    I --> J[Tenant Langsung Memproses Pesanan]\n```\n", "04-user-roles.md": "# User Roles & Permissions — Smart Canteen FEB\n\n## 1. Definisi Role\n\nSistem Smart Canteen FEB menggunakan 3 role utama via **Spatie Laravel Permission**:\n\n1. `mahasiswa` (Customer)\n2. `tenant` (Penjual / Stand FEB)\n3. `admin` (Pengelola System)\n\n---\n\n## 2. Hak Akses & Matriks Permisi\n\n| Fitur / Halaman | Mahasiswa | Tenant | Admin |\n| :--- | :---: | :---: | :---: |\n| **Login / Logout** | ✅ | ✅ | ✅ |\n| **Melihat Tenant & Menu per Kategori** | ✅ | ✅ | ✅ |\n| **Tambah ke Cart & Checkout (Cashless / Cash)** | ✅ | ❌ | ❌ |\n| **Mendapatkan Kode QR / Kode Pengambilan** | ✅ | ❌ | ❌ |\n| **Scan QR / Input Kode Pembayaran Cash** | ❌ | ✅ | ❌ |\n| **Kelola Status Pesanan (`Dibayar` → `Selesai`)** | ❌ | ✅ | ❌ |\n| **Kelola Kategori & Menu (CRUD + Soft Delete)** | ❌ | ✅ | ❌ |\n| **Dashboard Admin & Supervision** | ❌ | ❌ | ✅ |\n| **Kelola Tenant (CRUD + Soft Delete)** | ❌ | ❌ | ✅ |\n| **Kelola User (CRUD + Soft Delete)** | ❌ | ❌ | ✅ |\n\n---\n\n## 3. Aturan Soft Delete Permisi\n* Tenant atau Admin yang melakukan penghapusan data (User, Tenant, Menu) hanya melakukan Soft Delete (`deleted_at`), sehingga tidak menghapus data secara permanen dan menjaga integritas tabel transaksi `orders` & `order_items`.\n", "05-feature-specification.md": "# Feature Specification — Smart Canteen FEB\n\n## 1. Modul Mahasiswa\n\n### 1.1 Auth & Account\n* **F-MHS-01 Login Mahasiswa:** Form login credentials mahasiswa.\n* **F-MHS-02 Quick Switch Role Demo:** Utility switcher role untuk kemudahan saat presentasi demo.\n\n### 1.2 Katalog & Pemesanan\n* **F-MHS-03 Katalog Tenant & Kategori:** Menampilkan tenant & filter menu berdasarkan kategori (Makanan Utama, Minuman, Camilan).\n* **F-MHS-04 Cart & Checkout Options:** Mengelola item belanja dan memilih metode pembayaran:\n  - **Cashless:** Midtrans Sandbox.\n  - **Cash:** Tunai di Stand Tenant.\n* **F-MHS-05 Digital QR / Pickup Code:** Menampilkan Kode QR unik & string kode (cth: `FEB-8912`) untuk pembayaran tunai / klaim **Self-Pickup**.\n* **F-MHS-06 Live Tracker & History:** Memantau progress status pesanan beserta timeline timestamp (`paid_at`, `processing_at`, `ready_at`, `completed_at`).\n\n---\n\n## 2. Modul Tenant\n\n### 2.1 Order & QR Scanner\n* **F-TNT-01 Tenant Order Dashboard:** Overview pesanan baru, diproses, dan siap diambil.\n* **F-TNT-02 Cash QR Scanner / Code Verifier:** Fitur scan kamera / input kode manual untuk memverifikasi pembayaran tunai di stand dan mengubah status menjadi `Dibayar`.\n* **F-TNT-03 Order Status Handler:** Tombol aksi cepat update status (`Proses Pesanan`, `Siap Diambil`, `Selesai`).\n\n### 2.2 Category & Menu Management\n* **F-TNT-04 Category CRUD:** Mengelompokkan menu dalam kategori.\n* **F-TNT-05 Menu CRUD with Soft Delete:** Menambah, mengubah, mengunggah foto, dan menghapus menu dengan fitur **Soft Delete** (`deleted_at`).\n* **F-TNT-06 Stock Toggle:** Switch cepat untuk mengubah ketersediaan (Tersedia / Stok Habis).\n\n---\n\n## 3. Modul Admin\n\n### 3.1 Dashboard & Supervision\n* **F-ADM-01 Admin Metric Dashboard:** Statistik total transaksi, perbandingan transaksi Cash vs Cashless, total tenant, dan total user.\n* **F-ADM-02 Global Order Supervision:** Monitoring seluruh transaksi kantin FEB.\n\n### 3.2 Master Data Management (Soft Delete)\n* **F-ADM-03 Tenant Management:** CRUD Tenant dilengkapi dengan Soft Delete & Restore.\n* **F-ADM-04 User Management:** CRUD User & Role dilengkapi dengan Soft Delete & Restore.\n", "06-page-specification.md": "# Page Specification — Smart Canteen FEB\n\nDokumen ini mendeskripsikan seluruh halaman dalam sistem beserta komponen, layout, dan interaksi.\n\n---\n\n## 1. Halaman Mahasiswa\n\n### 1.1 Tenant Detail & Category Menu Page (`/tenants/{id}`)\n* **Elemen:** Header Tenant, Tab Kategori Menu (Makanan, Minuman, Snack), Card Menu (Foto, Nama, Harga, Stock Badge, Button \"Tambah\").\n* **Aksi:** Filter per kategori, klik menu untuk modal detail, Floating Cart Bar.\n\n### 1.2 Checkout Page (`/checkout`)\n* **Elemen:** Ringkasan Pesanan, Radio Button Metode Pembayaran (**Cashless via Midtrans** vs **Cash / Tunai di Stand**), Informasi **Self-Pickup**, Button \"Proses Pesanan\".\n\n### 1.3 Digital QR & Pickup Pass Page (`/orders/{id}/pickup-pass`)\n* **Elemen:** Kode QR besar, Kode Pengambilan (cth: `FEB-9912`), Badge Status Pembayaran (Unpaid / Paid), Panduan Tunjukkan Kode ke Tenant.\n\n### 1.4 Order Status Tracker Page (`/orders/{id}`)\n* **Elemen:** Visual Timeline Stepper (`Menunggu Pembayaran` → `Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`), Detail Item, Timestamps (`paid_at`, `ready_at`, dll).\n\n---\n\n## 2. Halaman Tenant\n\n### 2.1 Cash Scanner & Code Verifier Modal/Page (`/tenant/verify-payment`)\n* **Elemen:** Camera QR Code Scanner, Input Text Kode Pesanan, Card Result Pesanan Mahasiswa, Button \"Konfirmasi Terima Uang Tunai\".\n* **Aksi:** Scan / ketik kode → Tampil detail tagihan → Klik konfirmasi → Status order otomatis berubah menjadi `Dibayar`.\n\n### 2.2 Tenant Order Board (`/tenant/orders`)\n* **Elemen:** Tab Status (`Pesanan Masuk`, `Diproses`, `Siap Diambil`), Card Pesanan dengan Badge Metode Pembayaran (Cashless / Cash).\n\n### 2.3 Category & Menu Management (`/tenant/menus`, `/tenant/categories`)\n* **Elemen:** Tabel Kategori & Menu, Action Edit, Switcher Stock Available, Button Soft Delete (Pindah ke Trash), Button Restore.\n\n---\n\n## 3. Halaman Admin\n\n### 3.1 Admin Dashboard (`/admin/dashboard`)\n* **Elemen:** Metric Card (Total Transaksi, Cash vs Cashless Ratio, Active Tenants), Tabel Master Data dengan indikator Soft Delete.\n", "07-ui-ux-guidelines.md": "# UI/UX Guidelines — Smart Canteen FEB\n\n## 1. Core Design Principles\n\nSmart Canteen FEB mengutamakan tampilan yang modern, segar, konsisten, dan memukau (WOW factor) serta dioptimalkan untuk performa demonstrasi demo.\n\n* **Clean & Modern Aesthetic:** Menggunakan palette warna harmonis, rounded corners, subtle shadows, dan tipografi yang jelas.\n* **Mobile-First & Responsive:** Antarmuka harus tampil sempurna di layar Smartphone (Mahasiswa yang memesan di kantin) maupun Desktop (Dashboard Admin & Tenant).\n* **Clear Feedback & States:** Setiap aksi pengguna (klik tombol, ubah kuantitas, update status) memberikan respon visual yang seketika.\n\n---\n\n## 2. Palette Warna & Visual System\n\n* **Primary Color:** Emerald / Teal / Modern Green (Merepresentasikan kebersihan, kesegaran kantin, dan kemudahan).\n* **Secondary / Accent:** Warm Amber / Orange (Merepresentasikan makanan & kehangatan).\n* **Neutral Tones:** Dark Slate / Charcoal untuk teks, Light Gray / Ice White untuk background card.\n* **Status Badges:**\n  - `Menunggu Pembayaran`: Yellow / Amber Badge\n  - `Dibayar` / `Diproses`: Blue / Indigo Badge\n  - `Siap Diambil`: Emerald / Green Pulse Badge\n  - `Selesai`: Neutral Gray Badge\n  - `Pembayaran Gagal`: Red Badge\n\n---\n\n## 3. Component & Interactive States\n\nSetiap komponen UI harus mengimplementasikan 4 state utama:\n\n1. **Default State:** Tampilan bersih dengan hirarki visual yang jelas.\n2. **Loading State:** Skeleton loader / pulsing animation saat memuat data atau memproses transaksi.\n3. **Empty State:** Ilustrasi / pesan ramah jika keranjang kosong, riwayat kosong, atau tidak ada pesanan masuk.\n4. **Error / Validation State:** Message error yang informatif jika terjadi kesalahan input atau kegagalan simulasi pembayaran.\n\n---\n\n## 4. Feedback & Notifications\n\n* **Toast Notification:** Pop-up kecil di sudut layar saat pengguna menambahkan item ke keranjang atau berhasil mengubah status pesanan.\n* **Confirmation Modals:** Modal konfirmasi sebelum menghapus item dari keranjang atau melakukan aksi pembatalan.\n* **Progress Trackers:** Stepper visual yang hidup pada halaman detail pesanan mahasiswa untuk memperlihatkan tahap **Self-Pickup**.\n", "08-data-model.md": "# Data Model & Schema — Smart Canteen FEB\n\nDokumen ini mendefinisikan struktur basis data lengkap dengan **Soft Deletes**, **Metode Pembayaran Cash vs Cashless**, **Kode QR**, **Kategori Menu**, dan **Snapshot Data**.\n\n---\n\n## 1. Entity Relationship Diagram (ERD)\n\n```mermaid\nerDiagram\n    USERS ||--o{ ORDERS : \"places\"\n    TENANTS ||--o{ MENUS : \"owns\"\n    TENANTS ||--o{ CATEGORIES : \"owns\"\n    TENANTS ||--o{ ORDERS : \"receives\"\n    CATEGORIES ||--o{ MENUS : \"classifies\"\n    ORDERS ||--|{ ORDER_ITEMS : \"contains\"\n    MENUS ||--o{ ORDER_ITEMS : \"referenced_by\"\n\n    USERS {\n        bigint id PK\n        string name\n        string email\n        string password\n        bigint tenant_id FK \"nullable\"\n        timestamp deleted_at \"softDeletes\"\n        timestamp created_at\n    }\n\n    TENANTS {\n        bigint id PK\n        string name\n        string slug UK\n        text description\n        string image\n        boolean is_active\n        timestamp deleted_at \"softDeletes\"\n        timestamp created_at\n    }\n\n    CATEGORIES {\n        bigint id PK\n        bigint tenant_id FK\n        string name\n        string slug\n        timestamp created_at\n    }\n\n    MENUS {\n        bigint id PK\n        bigint tenant_id FK\n        bigint category_id FK \"nullable\"\n        string name\n        text description\n        decimal price\n        string image\n        boolean is_available\n        timestamp deleted_at \"softDeletes\"\n        timestamp created_at\n    }\n\n    ORDERS {\n        bigint id PK\n        string order_number UK\n        string pickup_code UK \"Kode QR / Unik\"\n        bigint user_id FK\n        bigint tenant_id FK\n        decimal total_amount\n        string payment_method \"cashless, cash\"\n        string payment_status \"unpaid, paid, failed\"\n        string status \"pending, paid, processing, ready, completed, failed\"\n        string snap_token \"nullable\"\n        timestamp paid_at\n        timestamp processing_at\n        timestamp ready_at\n        timestamp completed_at\n        timestamp deleted_at \"softDeletes\"\n        timestamp created_at\n    }\n\n    ORDER_ITEMS {\n        bigint id PK\n        bigint order_id FK\n        bigint menu_id FK \"nullable\"\n        string menu_name \"snapshot\"\n        decimal price \"snapshot\"\n        integer quantity\n        decimal subtotal\n        timestamp created_at\n    }\n```\n\n---\n\n## 2. Table Specifications\n\n### 2.1 `users`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Pengguna |\n| `name` | String | Not Null | Nama Lengkap |\n| `email` | String | Unique, Not Null | Email Pengguna |\n| `password` | String | Not Null | Hashed Password |\n| `tenant_id` | ForeignId | Nullable, Constrained `tenants` | Relasi ke Tenant |\n| `deleted_at` | Timestamp | Nullable | **Soft Delete** |\n| `created_at` | Timestamp | Nullable | Waktu dibuat |\n\n---\n\n### 2.2 `tenants`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Tenant |\n| `name` | String | Not Null | Nama Tenant / Stand |\n| `slug` | String | Unique | Slug URL |\n| `description` | Text | Nullable | Deskripsi singkat kantin |\n| `image` | String | Nullable | Path foto stand/logo |\n| `is_active` | Boolean | Default True | Status aktif tenant |\n| `deleted_at` | Timestamp | Nullable | **Soft Delete** |\n| `created_at` | Timestamp | Nullable | Waktu dibuat |\n\n---\n\n### 2.3 `categories`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Kategori |\n| `tenant_id` | ForeignId | Constrained `tenants` | Tenant Pemilik |\n| `name` | String | Not Null | Nama Kategori (cth: Makanan Utama) |\n| `slug` | String | Not Null | Slug Kategori |\n\n---\n\n### 2.4 `menus`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Menu |\n| `tenant_id` | ForeignId | Constrained `tenants` | Tenant Pemilik |\n| `category_id` | ForeignId | Nullable, Constrained `categories` | Kategori Menu |\n| `name` | String | Not Null | Nama Makanan / Minuman |\n| `description` | Text | Nullable | Deskripsi Menu |\n| `price` | Decimal(12,2) | Not Null | Harga per porsi |\n| `image` | String | Nullable | Path foto menu |\n| `is_available` | Boolean | Default True | Status ketersediaan stok |\n| `deleted_at` | Timestamp | Nullable | **Soft Delete** |\n| `created_at` | Timestamp | Nullable | Waktu dibuat |\n\n---\n\n### 2.5 `orders`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Pesanan |\n| `order_number` | String | Unique, Not Null | Kode transaksi unik (cth: `SC-20260918-001`) |\n| `pickup_code` | String | Unique, Not Null | Kode QR / String Pengambilan (cth: `FEB-8921`) |\n| `user_id` | ForeignId | Constrained `users` | Mahasiswa Pemesan |\n| `tenant_id` | ForeignId | Constrained `tenants` | Tenant Tujuan |\n| `total_amount` | Decimal(12,2) | Not Null | Total Tagihan Pembayaran |\n| `payment_method` | Enum | Default `cashless` | `cashless`, `cash` |\n| `payment_status` | Enum | Default `unpaid` | `unpaid`, `paid`, `failed` |\n| `status` | Enum | Default `pending` | `pending`, `paid`, `processing`, `ready`, `completed`, `failed` |\n| `snap_token` | String | Nullable | Midtrans Snap Token (jika Cashless) |\n| `paid_at` | Timestamp | Nullable | Timestamp saat lunas |\n| `processing_at` | Timestamp | Nullable | Timestamp mulai diproses |\n| `ready_at` | Timestamp | Nullable | Timestamp siap diambil |\n| `completed_at` | Timestamp | Nullable | Timestamp selesai diambil |\n| `deleted_at` | Timestamp | Nullable | **Soft Delete** |\n| `created_at` | Timestamp | Nullable | Waktu dibuat |\n\n---\n\n### 2.6 `order_items`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Item Pesanan |\n| `order_id` | ForeignId | Constrained `orders`, Cascade | Relasi ke Order |\n| `menu_id` | ForeignId | Nullable, Set Null | Relasi ke Menu |\n| `menu_name` | String | Not Null | **Snapshot Nama Menu** |\n| `price` | Decimal(12,2) | Not Null | **Snapshot Harga Satuan** |\n| `quantity` | Integer | Not Null | Jumlah item |\n| `subtotal` | Decimal(12,2) | Not Null | Quantity x Price |\n", "09-payment-flow.md": "# Payment Flow & Verification — Smart Canteen FEB\n\n## 1. Dual Payment System Overview\n\nSmart Canteen FEB mendukung 2 metode pembayaran:\n1. **Cashless (Midtrans Sandbox):** Pembayaran digital otomatis dengan verifikasi HTTP callback.\n2. **Cash (Tunai):** Pembayaran tunai langsung di stand tenant menggunakan **Scan Kode QR / Input Kode Pesanan**.\n\n```mermaid\nflowchart TD\n    A[Checkout Mahasiswa] --> B{Pilih Metode Pembayaran}\n\n    B -- Cashless --> C[Midtrans Sandbox Snap Pop-up]\n    C --> D[Proses Pembayaran Digital]\n    D --> E[Midtrans Webhook Callback]\n    E --> F[Order Status: Dibayar]\n\n    B -- Cash Tunai --> G[Generate QR & pickup_code]\n    G --> H[Order Status: Menunggu Pembayaran Tunai]\n    H --> I[Mahasiswa Tunjukkan QR di Stand Tenant]\n    I --> J[Tenant Scan QR / Input Kode]\n    J --> K[Tenant Terima Uang & Konfirmasi]\n    K --> F\n```\n\n---\n\n## 2. Alur Pembayaran Cashless (Midtrans Sandbox)\n\n1. Mahasiswa mengklik \"Bayar Sekarang\" dengan opsi Cashless.\n2. Backend me-request Midtrans Snap Token via Midtrans Sandbox API.\n3. Midtrans Snap Modal muncul di layar Mahasiswa.\n4. Setelah transaksi dilakukan di Midtrans Simulator, Midtrans mengirimkan HTTP POST Callback Webhook ke `/api/midtrans/notification`.\n5. System mengecek signature key dan mengubah status `orders`:\n   - `status = 'paid'`, `payment_status = 'paid'`, `paid_at = now()`.\n\n---\n\n## 3. Alur Pembayaran Cash (Scan Kode QR oleh Tenant)\n\n1. Mahasiswa memilih opsi **Cash / Tunai**.\n2. System membuat pesanan dengan `payment_method = 'cash'`, `payment_status = 'unpaid'`, dan menghasilkan `pickup_code` unik (cth: `FEB-9912`) & QR Code string.\n3. Mahasiswa mendatangi stand tenant di kantin FEB dan menunjukkan Kode QR pada HP-nya.\n4. Tenant membuka modal **Scan / Verifikasi Pembayaran Cash** di aplikasi Tenant.\n5. Tenant melakukan scan QR via kamera atau mengetik `FEB-9912`.\n6. Aplikasi menampilkan rincian tagihan (cth: 2 Nasi Goreng + 1 Es Teh = Rp25.000).\n7. Tenant menerima uang fisik dari mahasiswa, lalu mengklik tombol **\"Konfirmasi Terima Pembayaran Tunai\"**.\n8. Backend memperbarui status pesanan: `status = 'paid'`, `payment_status = 'paid'`, `paid_at = now()`.\n", "10-status-order.md": "# Order Status Machine — Smart Canteen FEB\n\n## 1. State Machine Order Status\n\nStatus pesanan pada Smart Canteen FEB mengontrol alur dari awal pembuatan pesanan hingga siap diambil melalui mekanisme **Self-Pickup**.\n\n```mermaid\nstateDiagram-v2\n    [*] --> MenungguPembayaran : Order Created\n\n    state MenungguPembayaran {\n        [*] --> Unpaid_Cashless : Cashless (Waiting Midtrans)\n        [*] --> Unpaid_Cash : Cash (Waiting Tenant QR Scan)\n    }\n\n    Unpaid_Cashless --> Dibayar : Midtrans Callback Success\n    Unpaid_Cash --> Dibayar : Tenant Scan QR & Konfirmasi Terima Cash\n\n    state Dibayar {\n        [*] --> Paid : Pesanan Masuk di Tenant\n    }\n\n    Dibayar --> Diproses : Tenant Klik \"Proses Pesanan\"\n\n    state Diproses {\n        [*] --> Processing : Makanan sedang dimasak\n    }\n\n    Diproses --> SiapDiambil : Tenant Klik \"Siap Diambil\"\n\n    state SiapDiambil {\n        [*] --> ReadyForPickup : Mahasiswa Datang ke Stand (Self-Pickup)\n    }\n\n    SiapDiambil --> Selesai : Mahasiswa Ambil & Tenant Konfirmasi\n\n    state Selesai {\n        [*] --> Completed : Transaksi Selesai\n    }\n```\n\n---\n\n## 2. Status & Timestamps Audit Matrix\n\n| Status | Label UI | Trigger Cashless | Trigger Cash | Updated Timestamp |\n| :--- | :--- | :--- | :--- | :--- |\n| `pending` | **Menunggu Pembayaran** | Order Created | Order Created | `created_at` |\n| `paid` | **Dibayar** | Midtrans Webhook Callback | Tenant Scan QR & Confirm | `paid_at` |\n| `processing` | **Diproses** | Tenant Action | Tenant Action | `processing_at` |\n| `ready` | **Siap Diambil** | Tenant Action | Tenant Action | `ready_at` |\n| `completed` | **Selesai** | Tenant / Mahasiswa Action | Tenant / Mahasiswa Action | `completed_at` |\n| `failed` | **Gagal** | Midtrans Expired/Denied | Tenant Cancel | - |\n", "11-demo-scenarios.md": "# Demo Scenarios — Smart Canteen FEB\n\nDokumen ini berisi langkah-langkah pengujian (Walkthrough Test Script) untuk mendemonstrasikan sistem Smart Canteen FEB kepada penguji / stakeholder.\n\n---\n\n## 1. Demo Scenarios Flow\n\n```mermaid\nflowchart LR\n    S1[Skenario 1: Cashless Midtrans] --> S2[Skenario 2: Cash QR Scan]\n    S2 --> S3[Skenario 3: Soft Delete & Menu Kategori]\n    S3 --> S4[Skenario 4: Admin Supervision]\n```\n\n---\n\n## 2. Langkah-Langkah Skenario Demo\n\n### Skenario 1: Pemesanan Cashless (Midtrans Sandbox)\n1. Mahasiswa login (`mahasiswa@feb.ac.id`), pilih Tenant & Menu.\n2. Tambahkan ke keranjang $\\rightarrow$ Checkout $\\rightarrow$ Pilih **Cashless**.\n3. Selesaikan pembayaran di Pop-up Midtrans Sandbox.\n4. Status otomatis ter-update menjadi **\"Dibayar\"** dan pesanan muncul di Dashboard Tenant.\n\n### Skenario 2: Pemesanan Cash (Scan QR oleh Tenant)\n1. Mahasiswa buat pesanan baru $\\rightarrow$ Checkout $\\rightarrow$ Pilih **Cash / Tunai**.\n2. Aplikasi menampilkan **Kode QR & Pickup Code** (cth: `FEB-8821`).\n3. Pada tab Tenant (`tenant@feb.ac.id`), buka **Scan QR / Input Kode Pembayaran**.\n4. Scan / ketik `FEB-8821` $\\rightarrow$ Klik **Konfirmasi Terima Pembayaran Tunai**.\n5. Status otomatis berubah menjadi **\"Dibayar\"** $\\rightarrow$ Tenant memproses pesanan hingga **\"Siap Diambil\"** $\\rightarrow$ **\"Selesai\"**.\n\n### Skenario 3: Demonstrasi Soft Delete & Kategori Menu\n1. Tenant menambah/menghapus menu ber-kategori.\n2. Saat menu di-soft delete, riwayat pesanan lama mahasiswa **tetap aman dan konsisten** karena menggunakan snapshot & SoftDeletes.\n\n### Skenario 4: Admin Supervision\n1. Admin login (`admin@feb.ac.id`), memantau rasio pembayaran Cash vs Cashless dan kelola data master (Tenant & User dengan Soft Delete).\n", "12-technical-guidelines.md": "# Technical Guidelines — Smart Canteen FEB\n\nDokumen ini mendefinisikan arsitektur teknis, stack teknologi, konvensi kode, dan panduan pengembangan aplikasi Smart Canteen FEB.\n\n---\n\n## 1. Stack Teknologi\n\n```mermaid\nflowchart TD\n    subgraph Frontend[\"Frontend Layer (SPA)\"]\n        React[\"React 18 / JSX\"]\n        Inertia[\"Inertia.js v3\"]\n        Tailwind[\"Tailwind CSS\"]\n        Wayfinder[\"Laravel Wayfinder (Typed Routes)\"]\n    end\n\n    subgraph Backend[\"Backend Layer (Laravel Framework)\"]\n        PHP[\"PHP 8.4\"]\n        Laravel[\"Laravel 12 Framework\"]\n        Fortify[\"Laravel Fortify (Auth Engine)\"]\n        Spatie[\"Spatie Laravel Permission\"]\n        Midtrans[\"Midtrans PHP SDK\"]\n    end\n\n    subgraph Database[\"Data Layer\"]\n        MySQL[\"SQLite / MySQL Database\"]\n    end\n\n    Frontend <-->|\"Inertia Protocol & JSON\"| Backend\n    Backend <--> Database\n    Backend <-->|\"HTTP API / Webhooks\"| Midtrans\n```\n\n---\n\n## 2. Dependensi Utama (Composer & NPM)\n\n### PHP Packages (Composer)\n* `laravel/framework`: ^12.0\n* `inertiajs/inertia-laravel`: ^2.0 / v3\n* `laravel/fortify`: Authentication backend\n* `spatie/laravel-permission`: ^8.3 (Manajemen Role & Permisi)\n* `midtrans/midtrans-php`: Integrasi SDK Pembayaran Midtrans Sandbox\n* `laravel/wayfinder`: Auto-generate TypeScript/JS routes\n\n### JS Packages (NPM)\n* `@inertiajs/react`: Interaksi Client-side React dengan Inertia\n* `react` & `react-dom`: Library UI Rendering\n* `tailwindcss` & `@tailwindcss/vite`: Utility-first CSS styling\n\n---\n\n## 3. Struktur Direktori & Konvensi Kode\n\n* **Controller:** Disimpan di `app/Http/Controllers/`. Controller harus tipis (slim controllers), mengembalikan `Inertia::render('PageName', $props)`.\n* **Model:** Disimpan di `app/Models/`. Menggunakan Laravel Eloquent dengan typehints PHP 8.4.\n* **React Pages:** Disimpan di `resources/js/pages/`.\n  - `resources/js/pages/Mahasiswa/`: Halaman khusus flow mahasiswa.\n  - `resources/js/pages/Tenant/`: Halaman dashboard & pesanan tenant.\n  - `resources/js/pages/Admin/`: Halaman dashboard & master data admin.\n* **Components:** Component reusable disimpan di `resources/js/components/`.\n\n---\n\n## 4. Perintah Utama Development\n\n```bash\n# Menjalankan server backend Laravel\nphp artisan serve\n\n# Menjalankan Vite dev server frontend\nnpm run dev\n\n# Format kode PHP otomatis\nvendor/bin/pint --format agent\n\n# Regenerate Wayfinder typed routes\nphp artisan wayfinder:generate\n```\n", "13-development-rules.md": "# Development Rules\n\n## 1. Scope First\n\nSemua implementasi HARUS mengikuti dokumen di folder `docs/`.\n\nJangan menambahkan fitur baru hanya karena fitur tersebut dianggap umum,\nbagus, modern, atau dibutuhkan oleh aplikasi production.\n\nJika sebuah fitur tidak tercantum dalam scope, jangan implementasikan.\n\n## 2. Project Type\n\nProject ini adalah:\n\n- Website dummy/demo\n- Bukan production system\n- Fokus pada UI dan demo flow\n- Fokus pada alur utama Smart Canteen FEB\n\nJangan mengembangkan sistem menjadi platform production yang kompleks.\n\n## 3. Feature Addition\n\nJika requirement baru ditemukan:\n\n1. Cek apakah requirement tersebut ada di `docs/`.\n2. Jika tidak ada, jangan langsung implementasikan.\n3. Tandai sebagai OUT OF SCOPE.\n4. Minta konfirmasi sebelum mengubah scope.\n\n## 4. Avoid Overengineering\n\nJangan menambahkan:\n\n- microservices\n- queue system yang kompleks\n- event-driven architecture yang tidak diperlukan\n- caching layer yang kompleks\n- analytics\n- audit log kompleks\n- notification infrastructure\n- mobile application\n- financial accounting system\n\nkecuali secara eksplisit diminta.\n\n## 5. UI\n\nPrioritaskan:\n\n- tampilan rapi\n- responsive\n- konsisten\n- mudah digunakan\n- sesuai desain yang telah disepakati\n\nJangan membuat halaman tambahan yang tidak diperlukan hanya untuk\n\"melengkapi\" aplikasi.\n\n## 6. Payment\n\nPayment hanya digunakan untuk kebutuhan demo/alur pembayaran.\n\nJangan mengembangkan sistem payment production-grade di luar scope.", "14-out-of-scope.md": "# Out of Scope\n\nFitur berikut TIDAK termasuk dalam proyek:\n\n- Mobile application\n- Native Android/iOS application\n- Sistem keuangan\n- Laporan keuangan kompleks\n- Accounting\n- Settlement system\n- Sistem inventory kompleks\n- Integrasi POS\n- Integrasi sistem kampus\n- WhatsApp notification\n- SMS notification\n- Email notification infrastructure\n- Push notification\n- Real-time infrastructure kompleks\n- Multi-campus management\n- Loyalty program\n- Voucher system kompleks\n- Membership system\n- Advanced analytics\n- Advanced reporting\n- Production-grade payment infrastructure\n- Infrastructure scaling\n- DevOps pipeline kompleks\n- Kubernetes\n- Microservices\n- AI recommendation\n- Machine learning\n- Fitur lain yang tidak tercantum dalam scope\n\nJika fitur tersebut dibutuhkan, fitur dianggap sebagai\nCHANGE REQUEST / OUT OF SCOPE dan harus mendapat persetujuan terlebih dahulu.", "15-acceptance-criteria.md": "# Acceptance Criteria — Smart Canteen FEB\n\n## 1. Quality Gate Overview\n\n```mermaid\nflowchart TD\n    AC1[1. Dual Payment: Cashless & Cash QR Scan] --> GATE{Definition of Done}\n    AC2[2. Soft Deletes pada User, Tenant, Menu, Order] --> GATE\n    AC3[3. Kategori Menu & Snapshot Order Items] --> GATE\n    AC4[4. Self-Pickup Tracker & Timestamps] --> GATE\n    AC5[5. Admin & Tenant Dashboard Supervision] --> GATE\n    GATE -- Pass All --> PASSED[PROYEK DEMO ACC / SELESAI]\n```\n\n---\n\n## 2. Checklist Acceptance Criteria\n\n* [ ] Mahasiswa dapat memilih pembayaran **Cashless** (Midtrans Sandbox) atau **Cash** (Tunai di Stand).\n* [ ] Mahasiswa menerima Kode QR & string `pickup_code` unik untuk setiap transaksi.\n* [ ] Tenant memiliki fitur **Scan Kode QR / Input Kode** untuk mengonfirmasi pembayaran tunai.\n* [ ] Model `User`, `Tenant`, `Menu`, dan `Order` mengimplementasikan Trait `SoftDeletes` (`deleted_at`).\n* [ ] Model `OrderItem` menyimpan `menu_name` dan `price` sebagai snapshot saat transaksi dibuat.\n* [ ] Tenant dapat mengelompokkan menu berdasarkan `Category`.\n* [ ] Status pesanan mengupdate timestamp audit (`paid_at`, `processing_at`, `ready_at`, `completed_at`).\n* [ ] Seluruh alur demo berjalan lancar tanpa merusak data historis.\n", "16-rab.md": "# Rencana Anggaran Biaya (RAB) — Smart Canteen FEB\n\nDokumen ini merincikan alokasi anggaran biaya (Rp1.000.000) dan estimasi pengerjaan (5–7 Hari Kerja) untuk pengembangan Website Demo Smart Canteen FEB.\n\n---\n\n## 1. Timeline & Budget Breakdown\n\n```mermaid\ngantt\n    title Timeline Pengerjaan Smart Canteen FEB (5-7 Hari)\n    dateFormat  YYYY-MM-DD\n    section Phase 1: Planning & Setup\n    Doc & DB Schema with SoftDeletes  :active, p1, 2026-09-18, 1d\n    section Phase 2: Core & Dual Payment\n    Auth & Category Menu Setup        :p2, after p1, 1d\n    Cart & Checkout (Cash vs Cashless):p3, after p2, 1d\n    Midtrans Sandbox & Cash QR Scan   :p4, after p3, 2d\n    section Phase 3: Tenant & Admin\n    Tenant QR Scanner & Order Board   :p5, after p4, 1d\n    Admin Dashboard & Final Polish    :p6, after p5, 1d\n```\n\n---\n\n## 2. Rincian Alokasi Biaya (Rp1.000.000)\n\n| No | Modul / Komponen Pekerjaan | Bobot (%) | Biaya (IDR) | Output / Deliverables |\n| :--- | :--- | :---: | :---: | :--- |\n| 1 | **Setup Architecture, DB Schema & SoftDeletes** | 15% | Rp150.000 | Core setup Laravel 12 + Inertia React, Spatie Roles, Migration with SoftDeletes & Categories. |\n| 2 | **Modul Mahasiswa (Katalog Kategori & Checkout)** | 25% | Rp250.000 | Katalog Menu per Kategori, Cart, Checkout pilihan Cashless / Cash, Digital QR Code display. |\n| 3 | **Dual Payment Engine (Midtrans & Cash QR Scan)**| 25% | Rp250.000 | Midtrans Sandbox integration + Tenant QR Code Scanner / Input Code Verifier for Cash payment. |\n| 4 | **Modul Tenant (Order Board & Menu CRUD)** | 20% | Rp200.000 | Tenant Order Status Board (`Dibayar` $\\rightarrow$ `Diproses` $\\rightarrow$ `Siap Diambil`), Category & Menu CRUD (Soft Delete). |\n| 5 | **Modul Admin & Final Polish** | 15% | Rp150.000 | Admin Supervision Dashboard, Master Data Management, Responsive Mobile & Desktop polish. |\n| **TOTAL** | | **100%** | **Rp1.000.000** | **Website Demo Ready Smart Canteen FEB** |\n"};
+    const filenames = Object.keys(docsData).sort();
+
+    const docIcons = {
+      "00-project-overview.md": "fa-compass",
+      "01-scope.md": "fa-bullseye",
+      "02-requirements.md": "fa-list-check",
+      "03-user-flow.md": "fa-diagram-project",
+      "04-user-roles.md": "fa-user-shield",
+      "05-feature-specification.md": "fa-cubes",
+      "06-page-specification.md": "fa-laptop-code",
+      "07-ui-ux-guidelines.md": "fa-palette",
+      "08-data-model.md": "fa-database",
+      "09-payment-flow.md": "fa-credit-card",
+      "10-status-order.md": "fa-timeline",
+      "11-demo-scenarios.md": "fa-flask",
+      "12-technical-guidelines.md": "fa-code",
+      "13-development-rules.md": "fa-gavel",
+      "14-out-of-scope.md": "fa-ban",
+      "15-acceptance-criteria.md": "fa-circle-check",
+      "16-rab.md": "fa-calculator"
+    };
+
+    let currentFile = filenames[0];
+
+    const themeToggleBtn = document.getElementById("theme-toggle");
+    const themeIcon = document.getElementById("theme-icon");
+    
+    function initTheme() {
+      if (localStorage.theme === 'light') {
+        document.documentElement.classList.remove('dark');
+        themeIcon.className = 'fa-solid fa-sun';
+      } else {
+        document.documentElement.classList.add('dark');
+        themeIcon.className = 'fa-solid fa-moon';
+      }
+    }
+
+    themeToggleBtn.addEventListener("click", () => {
+      if (document.documentElement.classList.contains("dark")) {
+        document.documentElement.classList.remove("dark");
+        localStorage.theme = "light";
+        themeIcon.className = "fa-solid fa-sun";
+      } else {
+        document.documentElement.classList.add("dark");
+        localStorage.theme = "dark";
+        themeIcon.className = "fa-solid fa-moon";
+      }
+      renderMermaid();
+    });
+
+    initTheme();
+
+    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+    const sidebar = document.getElementById("sidebar");
+    const backdrop = document.getElementById("sidebar-backdrop");
+
+    function toggleMobileMenu() {
+      sidebar.classList.toggle("-translate-x-full");
+      backdrop.classList.toggle("hidden");
+    }
+
+    mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+    backdrop.addEventListener("click", toggleMobileMenu);
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: document.documentElement.classList.contains("dark") ? "dark" : "default",
+      securityLevel: "loose"
+    });
+
+    function formatTitle(filename) {
+      const nameWithoutExt = filename.replace(".md", "");
+      const parts = nameWithoutExt.split("-");
+      const num = parts[0];
+      const title = parts.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+      return { num, title };
+    }
+
+    const navContainer = document.getElementById("doc-nav");
+    
+    function renderNav(filter = "") {
+      navContainer.innerHTML = "";
+      filenames.forEach(fn => {
+        const { num, title } = formatTitle(fn);
+        if (filter && !title.toLowerCase().includes(filter.toLowerCase()) && !fn.includes(filter.toLowerCase())) {
+          return;
+        }
+
+        const btn = document.createElement("button");
+        const isActive = fn === currentFile;
+        const iconClass = docIcons[fn] || "fa-file";
+
+        btn.className = `w-full text-left px-3 py-2.5 rounded-xl text-xs font-medium flex items-center gap-3 transition-all ${
+          isActive 
+            ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20 font-semibold" 
+            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/70"
+        }`;
+
+        btn.innerHTML = `
+          <i class="fa-solid ${iconClass} text-sm ${isActive ? "text-white" : "text-slate-400 dark:text-slate-500"}"></i>
+          <span class="truncate flex-1">${num}. ${title}</span>
+        `;
+
+        btn.addEventListener("click", () => {
+          window.location.hash = fn;
+          if (!sidebar.classList.contains("-translate-x-full")) {
+            toggleMobileMenu();
+          }
+        });
+
+        navContainer.appendChild(btn);
+      });
+    }
+
+    function renderDoc(filename) {
+      if (!docsData[filename]) filename = filenames[0];
+      currentFile = filename;
+
+      const { num, title } = formatTitle(filename);
+      document.getElementById("current-filename").innerText = filename;
+      document.getElementById("current-title").innerText = `${num}. ${title}`;
+
+      const rawMd = docsData[filename];
+
+      const renderer = new marked.Renderer();
+      const originalCodeRenderer = renderer.code.bind(renderer);
+
+      renderer.code = function(code, language, isEscaped) {
+        if (language === "mermaid") {
+          return `<div class="mermaid-container my-6 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto shadow-sm flex justify-center"><div class="mermaid">${code}</div></div>`;
+        }
+        return originalCodeRenderer(code, language, isEscaped);
+      };
+
+      marked.setOptions({ renderer });
+      const htmlContent = marked.parse(rawMd);
+
+      const container = document.getElementById("markdown-container");
+      container.innerHTML = htmlContent;
+
+      renderMermaid();
+      renderNav();
+      updatePagination();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderMermaid() {
+      setTimeout(() => {
+        const isDark = document.documentElement.classList.contains("dark");
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: isDark ? "dark" : "default"
+        });
+        
+        document.querySelectorAll(".mermaid").forEach((el, index) => {
+          const code = el.innerText || el.textContent;
+          el.removeAttribute("data-processed");
+          mermaid.render("mermaid-" + index + "-" + Date.now(), code).then(res => {
+            el.innerHTML = res.svg;
+          }).catch(err => {
+            console.error("Mermaid Render Error:", err);
+          });
+        });
+      }, 100);
+    }
+
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const prevLabel = document.getElementById("prev-label");
+    const nextLabel = document.getElementById("next-label");
+
+    function updatePagination() {
+      const idx = filenames.indexOf(currentFile);
+      
+      if (idx > 0) {
+        prevBtn.disabled = false;
+        const prevFn = filenames[idx - 1];
+        const { title } = formatTitle(prevFn);
+        prevLabel.innerText = title;
+        prevBtn.onclick = () => window.location.hash = prevFn;
+      } else {
+        prevBtn.disabled = true;
+        prevLabel.innerText = "Sebelumnya";
+      }
+
+      if (idx < filenames.length - 1) {
+        nextBtn.disabled = false;
+        const nextFn = filenames[idx + 1];
+        const { title } = formatTitle(nextFn);
+        nextLabel.innerText = title;
+        nextBtn.onclick = () => window.location.hash = nextFn;
+      } else {
+        nextBtn.disabled = true;
+        nextLabel.innerText = "Selanjutnya";
+      }
+    }
+
+    document.getElementById("search-input").addEventListener("input", (e) => {
+      renderNav(e.target.value);
+    });
+    document.getElementById("mobile-search-input").addEventListener("input", (e) => {
+      renderNav(e.target.value);
+    });
+
+    document.getElementById("copy-markdown-btn").addEventListener("click", () => {
+      navigator.clipboard.writeText(docsData[currentFile]);
+      const btn = document.getElementById("copy-markdown-btn");
+      btn.innerHTML = `<i class="fa-solid fa-check text-emerald-500"></i><span>Tersalin!</span>`;
+      setTimeout(() => {
+        btn.innerHTML = `<i class="fa-regular fa-copy"></i><span>Salin Raw</span>`;
+      }, 2000);
+    });
+
+    window.addEventListener("hashchange", () => {
+      const hash = window.location.hash.replace("#", "");
+      if (filenames.includes(hash)) {
+        renderDoc(hash);
+      }
+    });
+
+    const initialHash = window.location.hash.replace("#", "");
+    if (filenames.includes(initialHash)) {
+      renderDoc(initialHash);
+    } else {
+      renderDoc(filenames[0]);
+    }
+  </script>
+</body>
+</html>
