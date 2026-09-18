@@ -11,15 +11,14 @@ gantt
     title Timeline Pengerjaan Smart Canteen FEB (5-7 Hari)
     dateFormat  YYYY-MM-DD
     section Phase 1: Planning & Setup
-    Doc & DB Schema Setup        :active, p1, 2026-09-18, 1d
-    section Phase 2: Core Flow
-    Auth & Spatie Role Setup     :p2, after p1, 1d
-    Tenant & Menu Katalog (FE/BE):p3, after p2, 1d
-    Cart & Checkout (Self-Pickup):p4, after p3, 1d
-    Midtrans Sandbox Integration :p5, after p4, 1d
+    Doc & DB Schema with SoftDeletes  :active, p1, 2026-09-18, 1d
+    section Phase 2: Core & Dual Payment
+    Auth & Category Menu Setup        :p2, after p1, 1d
+    Cart & Checkout (Cash vs Cashless):p3, after p2, 1d
+    Midtrans Sandbox & Cash QR Scan   :p4, after p3, 2d
     section Phase 3: Tenant & Admin
-    Tenant Order Management      :p6, after p5, 1d
-    Admin Dashboard & Polish     :p7, after p6, 1d
+    Tenant QR Scanner & Order Board   :p5, after p4, 1d
+    Admin Dashboard & Final Polish    :p6, after p5, 1d
 ```
 
 ---
@@ -28,17 +27,9 @@ gantt
 
 | No | Modul / Komponen Pekerjaan | Bobot (%) | Biaya (IDR) | Output / Deliverables |
 | :--- | :--- | :---: | :---: | :--- |
-| 1 | **Setup Project, Spatie Auth & DB Schema** | 15% | Rp150.000 | Core Laravel 12 + Inertia React setup, Roles (`mahasiswa`, `tenant`, `admin`), Database Migration & Seeders. |
-| 2 | **Modul Mahasiswa (Katalog, Cart & Checkout)** | 30% | Rp300.000 | Halaman Tenant, Detail Menu, Cart Management, Checkout **Self-Pickup**. |
-| 3 | **Integrasi Pembayaran Midtrans Sandbox** | 20% | Rp200.000 | Midtrans Snap Integration, Webhook Notification Handler, Pembayaran Demo Flow. |
-| 4 | **Modul Tenant & Order Management** | 20% | Rp200.000 | Tenant Dashboard, Kanban Order Tracker Status (`Dibayar` $\rightarrow$ `Diproses` $\rightarrow$ `Siap Diambil`), CRUD Menu Tenant. |
-| 5 | **Modul Admin & UI Polish** | 15% | Rp150.000 | Admin Dashboard, Master Tenant & User CRUD, Responsive Design Polish & Manual Testing. |
+| 1 | **Setup Architecture, DB Schema & SoftDeletes** | 15% | Rp150.000 | Core setup Laravel 12 + Inertia React, Spatie Roles, Migration with SoftDeletes & Categories. |
+| 2 | **Modul Mahasiswa (Katalog Kategori & Checkout)** | 25% | Rp250.000 | Katalog Menu per Kategori, Cart, Checkout pilihan Cashless / Cash, Digital QR Code display. |
+| 3 | **Dual Payment Engine (Midtrans & Cash QR Scan)**| 25% | Rp250.000 | Midtrans Sandbox integration + Tenant QR Code Scanner / Input Code Verifier for Cash payment. |
+| 4 | **Modul Tenant (Order Board & Menu CRUD)** | 20% | Rp200.000 | Tenant Order Status Board (`Dibayar` $\rightarrow$ `Diproses` $\rightarrow$ `Siap Diambil`), Category & Menu CRUD (Soft Delete). |
+| 5 | **Modul Admin & Final Polish** | 15% | Rp150.000 | Admin Supervision Dashboard, Master Data Management, Responsive Mobile & Desktop polish. |
 | **TOTAL** | | **100%** | **Rp1.000.000** | **Website Demo Ready Smart Canteen FEB** |
-
----
-
-## 3. Syarat & Ketentuan Pembayaran
-
-1. **Total Biaya:** Rp1.000.000 (Nett).
-2. **Lingkup Pekerjaan:** Sesuai dengan [01-scope.md](file:///home/darbi/Projects/smart_canteen/docs/01-scope.md).
-3. **Change Request:** Setiap permintaan fitur tambahan di luar dokumen `docs/` akan dikenakan penyesuaian biaya dan waktu pengerjaan tersendiri.

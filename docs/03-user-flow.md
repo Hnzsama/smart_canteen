@@ -2,83 +2,55 @@
 
 ## 1. Core End-to-End Business Flow
 
-Alur utama yang **WAJIB dapat didemokan** dari awal hingga selesai disajikan dalam diagram Mermaid berikut:
+Alur utama pemesanan dengan opsi **Cashless (Midtrans Sandbox)** dan **Cash (Scan QR / Kode di Tenant)** disajikan dalam diagram Mermaid berikut:
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor M as Mahasiswa
-    participant SYS as Sistem FEB
+    participant SYS as Sistem Smart Canteen
     participant MID as Midtrans Sandbox
     actor T as Tenant
 
-    M->>SYS: 1. Login & Pilih Tenant / Menu
-    M->>SYS: 2. Tambah Menu ke Keranjang
-    M->>SYS: 3. Checkout (Self-Pickup)
-    SYS->>MID: 4. Request Payment Snap Token
-    MID-->>M: 5. Tampilkan Modal Simulasi Pembayaran
-    M->>MID: 6. Bayar (Simulasi Sukses)
-    MID-->>SYS: 7. Callback Payment Success
-    SYS->>SYS: 8. Update Status Pesanan: "Dibayar"
-    SYS-->>T: 9. Notifikasi Pesanan Masuk
-    T->>SYS: 10. Ubah Status Pesanan: "Diproses"
-    T->>SYS: 11. Makanan Selesai -> Status: "Siap Diambil"
-    SYS-->>M: 12. Notifikasi Status: "Siap Diambil"
-    M->>T: 13. Datang ke Stand (Self-Pickup)
-    T->>SYS: 14. Konfirmasi Ambil -> Status: "Selesai"
+    M->>SYS: 1. Login & Lihat Menu per Kategori
+    M->>SYS: 2. Tambah ke Keranjang -> Checkout
+    M->>SYS: 3. Pilih Metode Pembayaran (Cashless / Cash)
+    
+    alt Pembayaran Cashless
+        SYS->>MID: Request Midtrans Snap Token
+        MID-->>M: Tampilkan Midtrans Sandbox Pop-up
+        M->>MID: Selesaikan Bayar di Sandbox
+        MID-->>SYS: Webhook Auto Callback Success
+        SYS->>SYS: Status Pesanan -> "Dibayar"
+    else Pembayaran Cash (Tunai)
+        SYS-->>M: Tampilkan Kode QR / Kode Pengambilan (cth: FEB-8821)
+        M->>T: Tunjukkan Kode QR & Serahkan Uang Tunai di Stand
+        T->>SYS: Scan QR / Input Kode di App Tenant
+        T->>SYS: Klik "Konfirmasi Terima Tunai"
+        SYS->>SYS: Status Pesanan -> "Dibayar"
+    end
+
+    SYS-->>T: Pesanan Masuk di Dashboard Tenant
+    T->>SYS: Ubah Status -> "Diproses"
+    T->>SYS: Ubah Status -> "Siap Diambil"
+    SYS-->>M: Live Tracker Update -> "Siap Diambil"
+    M->>T: Ambil Makanan di Stand (Self-Pickup)
+    T->>SYS: Konfirmasi Selesai -> Status "Selesai"
 ```
 
 ---
 
-## 2. Alur Detail Berdasarkan Aktor
-
-### 2.1 Alur Mahasiswa
+## 2. Detail Alur Pembayaran Cash (Scan QR oleh Tenant)
 
 ```mermaid
 flowchart TD
-    A[Mulai Login Mahasiswa] --> B[Pilih Tenant di FEB]
-    B --> C[Lihat Menu & Detail]
-    C --> D[Tambah ke Keranjang]
-    D --> E{Ubah Isi Cart?}
-    E -- Ya --> F[Edit Kuantitas / Hapus Item]
-    F --> D
-    E -- Tidak --> G[Proses Checkout]
-    G --> H[Pilih Self-Pickup]
-    H --> I[Bayar - Simulasi Midtrans]
-    I --> J{Status Pembayaran?}
-    J -- Gagal --> K[Status: Pembayaran Gagal]
-    J -- Sukses --> L[Status: Dibayar]
-    L --> M[Pantau Tracker Status]
-    M --> N[Status: Diproses]
-    N --> O[Status: Siap Diambil]
-    O --> P[Ambil Pesanan di Stand]
-    P --> Q[Status: Selesai]
-```
-
----
-
-### 2.2 Alur Tenant
-
-```mermaid
-flowchart TD
-    A[Login Dashboard Tenant] --> B[Lihat Pesanan Masuk Status: Dibayar]
-    B --> C[Buka Detail Pesanan Mahasiswa]
-    C --> D[Ubah Status: Diproses]
-    D --> E[Siapkan Makanan / Minuman]
-    E --> F[Ubah Status: Siap Diambil]
-    F --> G[Mahasiswa Mengambil Makanan]
-    G --> H[Ubah Status: Selesai]
-```
-
----
-
-### 2.3 Alur Admin
-
-```mermaid
-flowchart TD
-    A[Login Dashboard Admin] --> B[Lihat Overview Metric Demo]
-    B --> C{Pilih Menu Kelola}
-    C -- Master Tenant --> D[CRUD Data Tenant]
-    C -- Master User --> E[CRUD User & Role]
-    C -- Monitoring --> F[Lihat Seluruh Pesanan FEB]
+    A[Mahasiswa Checkout Pilih Cash] --> B[Sistem Generate pickup_code & QR]
+    B --> C[Status Order: Menunggu Pembayaran Tunai]
+    C --> D[Mahasiswa Datang ke Stand Tenant]
+    D --> E[Tenant Buka Scanner / Input Form di App Tenant]
+    E --> F[Tenant Scan QR / Ketik Kode Pesanan]
+    F --> G[Tampil Detail Tagihan & Item Pesanan]
+    G --> H[Tenant Terima Uang & Klik 'Konfirmasi Pembayaran']
+    H --> I[Status Order Berubah: Dibayar]
+    I --> J[Tenant Langsung Memproses Pesanan]
 ```

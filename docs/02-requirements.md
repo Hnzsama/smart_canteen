@@ -9,43 +9,37 @@ Dokumen ini mendefinisikan kebutuhan fungsional (Functional Requirements) dan no
 ## 2. Functional Requirements (FR)
 
 ### 2.1 Modul Mahasiswa (Customer)
-* **FR-MHS-01:** Mahasiswa dapat melakukan login dan logout ke dalam sistem demo.
-* **FR-MHS-02:** Mahasiswa dapat melihat daftar seluruh tenant/kantin yang aktif di FEB.
-* **FR-MHS-03:** Mahasiswa dapat melihat daftar menu dan detail menu (nama, harga, gambar, ketersediaan) dari tenant yang dipilih.
-* **FR-MHS-04:** Mahasiswa dapat menambahkan menu ke keranjang belanja (cart), mengubah kuantitas, dan menghapus item dari keranjang.
-* **FR-MHS-05:** Mahasiswa dapat melakukan checkout pesanan dengan metode pengambilan **Self-Pickup**.
-* **FR-MHS-06:** Mahasiswa dapat melakukan simulasi/alur pembayaran (Midtrans demo / simulasi).
-* **FR-MHS-07:** Mahasiswa dapat memantau perubahan status pesanan secara real-time / refresh.
-* **FR-MHS-08:** Mahasiswa dapat melihat riwayat pesanan yang pernah dibuat beserta detailnya.
+* **FR-MHS-01:** Mahasiswa dapat melakukan login dan logout.
+* **FR-MHS-02:** Mahasiswa dapat melihat daftar tenant dan filter menu berdasarkan kategori (Makanan, Minuman, Camilan).
+* **FR-MHS-03:** Mahasiswa dapat melihat detail menu (nama, harga, foto, ketersediaan).
+* **FR-MHS-04:** Mahasiswa dapat mengelola keranjang belanja (cart).
+* **FR-MHS-05:** Mahasiswa dapat memilih metode pembayaran di Checkout: **Cashless** (Midtrans Sandbox) atau **Cash** (Tunai di Stand).
+* **FR-MHS-06:** Mahasiswa mendapatkan **Kode QR / Kode Pengambilan** unik untuk setiap transaksi.
+* **FR-MHS-07:** Mahasiswa dapat memantau live status pesanan (`Menunggu Pembayaran` → `Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).
+* **FR-MHS-08:** Mahasiswa dapat melihat riwayat pesanan (historis tetap aman meskipun menu/tenant di-soft delete).
 
 ### 2.2 Modul Tenant (Penjual)
-* **FR-TNT-01:** Tenant dapat login ke dashboard khusus tenant.
-* **FR-TNT-02:** Tenant dapat melihat ringkasan pesanan masuk (Pesanan Baru, Diproses, Siap Diambil).
-* **FR-TNT-03:** Tenant dapat melihat detail setiap pesanan (daftar item, kuantitas, nama mahasiswa, total harga).
+* **FR-TNT-01:** Tenant dapat login ke dashboard tenant.
+* **FR-TNT-02:** Tenant dapat melakukan **Scan Kode QR / Input Kode Pesanan** mahasiswa untuk mengonfirmasi pembayaran Tunai (Cash).
+* **FR-TNT-03:** Tenant dapat melihat ringkasan & detail pesanan masuk.
 * **FR-TNT-04:** Tenant dapat memperbarui status pesanan (`Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).
-* **FR-TNT-05:** Tenant dapat mengelola daftar menu (Tambah, Edit, Hapus, dan ubah status Ketersediaan menu).
+* **FR-TNT-05:** Tenant dapat mengelola Kategori Menu & Item Menu (Tambah, Edit, Soft Delete, Toggle Stok Available/Out of Stock).
 
 ### 2.3 Modul Admin (Pengelola)
 * **FR-ADM-01:** Admin dapat login ke dashboard admin.
-* **FR-ADM-02:** Admin dapat melihat ringkasan statistik demo (jumlah mahasiswa, jumlah tenant, total pesanan).
-* **FR-ADM-03:** Admin dapat mengelola data tenant (Tambah, Edit, Hapus/Nonaktifkan tenant).
-* **FR-ADM-04:** Admin dapat mengelola data pengguna (Melihat daftar user dan role).
-* **FR-ADM-05:** Admin dapat memantau seluruh transaksi/pesanan yang terjadi di sistem.
+* **FR-ADM-02:** Admin dapat melihat statistik demo (Total Tenant, Total User, Total Transaksi, Transaksi Cash vs Cashless).
+* **FR-ADM-03:** Admin dapat mengelola data tenant (CRUD + Soft Delete).
+* **FR-ADM-04:** Admin dapat mengelola pengguna & role (CRUD + Soft Delete).
+* **FR-ADM-05:** Admin dapat memantau seluruh transaksi kantin secara global.
 
 ---
 
 ## 3. Non-Functional Requirements (NFR)
 
-### 3.1 Performance & Usability
-* **NFR-01:** Interface harus responsive dan berjalan baik pada perangkat mobile maupun desktop.
-* **NFR-02:** Waktu muat halaman utama dan navigasi antar halaman < 2 detik dalam lingkungan demo lokal.
-* **NFR-03:** Memberikan feedback visual yang jelas saat user melakukan aksi (loading state, toast notification, empty state, error state).
+### 3.1 Data Integrity & Soft Deletes
+* **NFR-01:** Menerapkan `softDeletes` (`deleted_at`) pada `users`, `tenants`, `menus`, dan `orders` untuk menjaga integritas data historis.
+* **NFR-02:** Menggunakan snapshot nama & harga menu pada `order_items` saat transaksi terjadi.
 
-### 3.2 Security & Simplicity
-* **NFR-04:** Menggunakan authentication bawaan Laravel (Fortify / Session Auth) dengan pembagian role via Spatie Permission.
-* **NFR-05:** Keamanan dasar seperti validasi form input, proteksi CSRF, dan enkripsi password standard.
-* **NFR-06:** Tidak menggunakan infrastruktur keamanan kompleks (seperti 2FA enterprise, OAuth2 provider eksternal, dsb.) karena fokus pada demo UI/UX.
-
-### 3.3 Scope Boundary
-* **NFR-07:** Sistem dibuat sebagai **Website Dummy/Demo**, bukan production-grade.
-* **NFR-08:** Bebas dari fitur out-of-scope seperti sistem keuangan kompleks, pengiriman (delivery), notifikasi SMS/WA, dan accounting.
+### 3.2 Performance & Usability
+* **NFR-03:** Layout responsive (Mobile-first untuk Mahasiswa, Desktop/Mobile friendly untuk Tenant & Admin).
+* **NFR-04:** Respon verifikasi scan QR / kode tunai di stand tenant berjalan instan (< 1 detik).

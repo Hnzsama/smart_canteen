@@ -2,69 +2,52 @@
 
 ## 1. State Machine Order Status
 
-Status pesanan pada Smart Canteen FEB mengontrol alur dari awal pembuatan pesanan oleh Mahasiswa hingga siap diambil melalui mekanisme **Self-Pickup** di stand kantin FEB.
-
-Seluruh status pesanan dan alur transisinya divisualisasikan menggunakan diagram Mermaid berikut:
+Status pesanan pada Smart Canteen FEB mengontrol alur dari awal pembuatan pesanan hingga siap diambil melalui mekanisme **Self-Pickup**.
 
 ```mermaid
 stateDiagram-v2
     [*] --> MenungguPembayaran : Order Created
 
     state MenungguPembayaran {
-        [*] --> Unpaid : Waiting for Midtrans Sandbox Payment
+        [*] --> Unpaid_Cashless : Cashless (Waiting Midtrans)
+        [*] --> Unpaid_Cash : Cash (Waiting Tenant QR Scan)
     }
 
-    MenungguPembayaran --> Dibayar : Midtrans Notification (Settlement / Success)
-    MenungguPembayaran --> PembayaranGagal : Payment Expired / Denied / Cancelled
+    Unpaid_Cashless --> Dibayar : Midtrans Callback Success
+    Unpaid_Cash --> Dibayar : Tenant Scan QR & Konfirmasi Terima Cash
 
     state Dibayar {
-        [*] --> Paid : Pesanan Masuk ke Dashboard Tenant
+        [*] --> Paid : Pesanan Masuk di Tenant
     }
 
     Dibayar --> Diproses : Tenant Klik "Proses Pesanan"
 
     state Diproses {
-        [*] --> Processing : Tenant Menyiapkan Makanan/Minuman
+        [*] --> Processing : Makanan sedang dimasak
     }
 
     Diproses --> SiapDiambil : Tenant Klik "Siap Diambil"
 
     state SiapDiambil {
-        [*] --> ReadyForPickup : Mahasiswa Mendapatkan Notif & Datang ke Stand
+        [*] --> ReadyForPickup : Mahasiswa Datang ke Stand (Self-Pickup)
     }
 
-    SiapDiambil --> Selesai : Mahasiswa Mengambil Pesanan & Tenant Konfirmasi
+    SiapDiambil --> Selesai : Mahasiswa Ambil & Tenant Konfirmasi
 
     state Selesai {
         [*] --> Completed : Transaksi Selesai
     }
-
-    PembayaranGagal --> [*]
-    Selesai --> [*]
 ```
 
 ---
 
-## 2. Deskripsi Setiap Status
+## 2. Status & Timestamps Audit Matrix
 
-| Status Code | Label UI | Aktor Pengubah Status | Keterangan Business Flow |
-| :--- | :--- | :--- | :--- |
-| `pending` | **Menunggu Pembayaran** | System | Order dibuat oleh Mahasiswa, menunggu penyelesaian pembayaran di Midtrans Sandbox. |
-| `paid` | **Dibayar** | Midtrans Callback | Pembayaran berhasil dikonfirmasi Midtrans, pesanan tampil di tab Pesanan Masuk Tenant. |
-| `processing` | **Diproses** | Tenant | Tenant mulai memasak / menyiapkan makanan & minuman. |
-| `ready` | **Siap Diambil** | Tenant | Makanan telah siap di stand, Mahasiswa datang untuk **Self-Pickup**. |
-| `completed` | **Selesai** | Tenant / Mahasiswa | Mahasiswa mengambil makanan di stand kantin FEB, transaksi ditutup. |
-| `failed` | **Pembayaran Gagal** | Midtrans Callback | Pembayaran dibatalkan, ditolak, atau kadaluarsa di Midtrans Sandbox. |
-
----
-
-## 3. Matriks Perubahan Status (Allowed Transitions)
-
-```mermaid
-flowchart LR
-    A[pending] -->|Payment Success| B[paid]
-    A -->|Payment Fail| F[failed]
-    B -->|Tenant Accept| C[processing]
-    C -->|Tenant Finish| D[ready]
-    D -->|Self-Pickup Done| E[completed]
-```
+| Status | Label UI | Trigger Cashless | Trigger Cash | Updated Timestamp |
+| :--- | :--- | :--- | :--- | :--- |
+| `pending` | **Menunggu Pembayaran** | Order Created | Order Created | `created_at` |
+| `paid` | **Dibayar** | Midtrans Webhook Callback | Tenant Scan QR & Confirm | `paid_at` |
+| `processing` | **Diproses** | Tenant Action | Tenant Action | `processing_at` |
+| `ready` | **Siap Diambil** | Tenant Action | Tenant Action | `ready_at` |
+| `completed` | **Selesai** | Tenant / Mahasiswa Action | Tenant / Mahasiswa Action | `completed_at` |
+| `failed` | **Gagal** | Midtrans Expired/Denied | Tenant Cancel | - |
