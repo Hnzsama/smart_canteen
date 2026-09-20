@@ -413,7 +413,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                                 Nomor Virtual Account:
                             </span>
                             <div className="flex items-center justify-between gap-2 bg-card p-3 rounded-xl border border-border font-mono overflow-hidden">
-                                <span className="text-sm sm:text-base font-black tracking-wider text-foreground select-all break-all min-w-0 leading-snug">
+                                <span className="text-xs sm:text-sm md:text-base font-black tracking-tight text-foreground select-all whitespace-nowrap min-w-0 overflow-x-auto scrollbar-none py-0.5">
                                     {vaNumber}
                                 </span>
                                 <Button
@@ -424,7 +424,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                                     className="h-8 px-2.5 sm:px-3 text-xs font-bold gap-1 rounded-xl border-border shadow-2xs shrink-0"
                                 >
                                     {copiedText === 'va' ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
-                                    <span>{copiedText === 'va' ? 'Tersalin' : 'Salin VA'}</span>
+                                    <span>{copiedText === 'va' ? 'Tersalin' : 'Salin'}</span>
                                 </Button>
                             </div>
                         </div>
