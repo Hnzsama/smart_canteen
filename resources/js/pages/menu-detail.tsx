@@ -180,9 +180,27 @@ export default function MenuDetail({ menu, related_menus = [] }: MenuDetailProps
             ? Math.round(((menu.original_price - menu.price) / menu.original_price) * 100)
             : 0;
 
+    const rawMenuImg = menu.image || '/images/food-placeholder.jpg';
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const imageUrl = rawMenuImg.startsWith('http')
+        ? rawMenuImg
+        : `${origin}${rawMenuImg.startsWith('/') ? '' : '/'}${rawMenuImg}`;
+    const menuDescription =
+        menu.description || `Pesan ${menu.name} dari ${menu.tenant_name} di Smart Canteen FEB.`;
+
     return (
         <>
-            <Head title={`${menu.name} - ${menu.tenant_name}`} />
+            <Head title={`${menu.name} - ${menu.tenant_name} | Smart Canteen FEB`}>
+                <meta name="description" content={menuDescription} />
+                <meta property="og:title" content={`${menu.name} - ${menu.tenant_name} | Smart Canteen FEB`} />
+                <meta property="og:description" content={menuDescription} />
+                <meta property="og:image" content={imageUrl} />
+                <meta property="og:image:secure_url" content={imageUrl} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={`${menu.name} - ${menu.tenant_name} | Smart Canteen FEB`} />
+                <meta name="twitter:description" content={menuDescription} />
+                <meta name="twitter:image" content={imageUrl} />
+            </Head>
 
             <div className="flex flex-col gap-5 w-full pb-36">
                 {/* Gen-Z Top Header Nav */}

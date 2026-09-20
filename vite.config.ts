@@ -10,7 +10,7 @@ import { defineConfig, lazyPlugins, loadEnv } from 'vite-plus';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
-    const isProduction = env.APP_ENV === 'production' || mode === 'production';
+    const isProduction = env.APP_ENV === 'production' || env.BUILD_TARGET === 'production';
 
     return {
         plugins: lazyPlugins(() => [

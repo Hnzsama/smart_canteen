@@ -455,7 +455,24 @@ export default function StudentCatalog({
                         ? `${activeTenant.name} - Smart Canteen FEB`
                         : 'Katalog Kantin FEB - Smart Canteen'
                 }
-            />
+            >
+                <meta
+                    name="description"
+                    content="Jelajahi stand kantin dan menu makanan lezat di Fakultas Ekonomi dan Bisnis."
+                />
+                <meta
+                    property="og:title"
+                    content={
+                        activeTenant
+                            ? `${activeTenant.name} - Smart Canteen FEB`
+                            : 'Katalog Kantin FEB - Smart Canteen'
+                    }
+                />
+                <meta
+                    property="og:description"
+                    content="Jelajahi stand kantin dan menu makanan lezat di Fakultas Ekonomi dan Bisnis."
+                />
+            </Head>
 
             <div className="flex flex-col gap-6 w-full pb-4">
                 {/* Dynamic Hero Banner (Time-Based Interactive Vibe) */}

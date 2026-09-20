@@ -125,7 +125,7 @@ export default function TenantDetail({ tenant, categories = [], menus = [] }: Te
         }> = [];
 
         categories.forEach((cat) => {
-            const catMenus = filteredMenus.filter((m) => m.category_id === cat.id);
+            const catMenus = filteredMenus.filter((m) => String(m.category_id) === String(cat.id));
             if (catMenus.length > 0) {
                 sections.push({
                     id: cat.id,
@@ -137,7 +137,7 @@ export default function TenantDetail({ tenant, categories = [], menus = [] }: Te
 
         // Uncategorized items fallback
         const uncategorized = filteredMenus.filter(
-            (m) => !m.category_id || !categories.some((c) => c.id === m.category_id)
+            (m) => !m.category_id || !categories.some((c) => String(c.id) === String(m.category_id))
         );
         if (uncategorized.length > 0) {
             sections.push({
@@ -150,9 +150,28 @@ export default function TenantDetail({ tenant, categories = [], menus = [] }: Te
         return sections;
     }, [categories, filteredMenus, selectedCategoryId]);
 
+    const rawBanner = tenant.banner_image || tenant.image || tenant.logo_image || '/images/tenant-placeholder.jpg';
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const bannerUrl = rawBanner.startsWith('http')
+        ? rawBanner
+        : `${origin}${rawBanner.startsWith('/') ? '' : '/'}${rawBanner}`;
+
+    const tenantDescription =
+        tenant.description || `Pesan makanan lezat & minuman segar dari ${tenant.name} di Smart Canteen FEB.`;
+
     return (
         <>
-            <Head title={`${tenant.name} - Smart Canteen FEB`} />
+            <Head title={`${tenant.name} - Smart Canteen FEB`}>
+                <meta name="description" content={tenantDescription} />
+                <meta property="og:title" content={`${tenant.name} - Smart Canteen FEB`} />
+                <meta property="og:description" content={tenantDescription} />
+                <meta property="og:image" content={bannerUrl} />
+                <meta property="og:image:secure_url" content={bannerUrl} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={`${tenant.name} - Smart Canteen FEB`} />
+                <meta name="twitter:description" content={tenantDescription} />
+                <meta name="twitter:image" content={bannerUrl} />
+            </Head>
 
             <div className="flex flex-col gap-3.5 w-full pb-20">
                 {/* Back Button & Top Navigation */}

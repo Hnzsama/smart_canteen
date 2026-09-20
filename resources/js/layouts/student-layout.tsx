@@ -95,9 +95,7 @@ export default function StudentLayout({ children, showBottomNav = true }: Studen
                     <div className="pointer-events-auto bg-card/90 dark:bg-neutral-900/95 backdrop-blur-2xl border border-border/80 dark:border-white/15 h-14 rounded-2xl px-3.5 flex items-center justify-between shadow-xs">
                         {/* Brand / Logo */}
                         <Link href="/" className="flex items-center gap-2.5 group active:scale-95 transition-transform">
-                            <div className="bg-primary text-primary-foreground flex aspect-square size-8.5 items-center justify-center rounded-xl shadow-xs group-hover:scale-105 transition-transform duration-200">
-                                <AppLogoIcon className="size-4.5 fill-current" />
-                            </div>
+                            <AppLogoIcon className="size-8.5 rounded-xl object-contain shadow-xs group-hover:scale-105 transition-transform duration-200" />
                             <div className="flex flex-col">
                                 <div className="flex items-center gap-1.5">
                                     <span className="font-black text-xs sm:text-sm tracking-tight leading-none text-foreground">
