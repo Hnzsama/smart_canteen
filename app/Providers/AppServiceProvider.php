@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
@@ -26,7 +27,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
-        if (app()->environment('local') || request()->header('X-Forwarded-Proto') === 'https') {
+        if ($this->app->environment('production')) {
+            if ($this->app instanceof Application) {
+                $this->app->usePublicPath(base_path('../'));
+            }
+
             URL::forceScheme('https');
         }
     }

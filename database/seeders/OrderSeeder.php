@@ -33,7 +33,7 @@ class OrderSeeder extends Seeder
             return;
         }
 
-        // 1. Skenario Cashless Midtrans (Paid, Siap Diambil / Processing)
+        // 1. Skenario Cashless Midtrans (Selesai / Completed)
         $order1 = Order::query()->create([
             'order_number' => 'SC-'.now()->format('Ymd').'-0001',
             'pickup_code' => 'FEB-1001',
@@ -42,12 +42,12 @@ class OrderSeeder extends Seeder
             'total_amount' => 27000.00,
             'payment_method' => PaymentMethod::Cashless,
             'payment_status' => PaymentStatus::Paid,
-            'status' => OrderStatus::Processing,
+            'status' => OrderStatus::Completed,
             'snap_token' => 'snap-demo-token-12345',
-            'paid_at' => now()->subMinutes(15),
-            'processing_at' => now()->subMinutes(10),
-            'ready_at' => null,
-            'completed_at' => null,
+            'paid_at' => now()->subHours(3),
+            'processing_at' => now()->subHours(3)->addMinutes(5),
+            'ready_at' => now()->subHours(3)->addMinutes(20),
+            'completed_at' => now()->subHours(2)->addMinutes(45),
         ]);
 
         $item1 = $menus->first();
@@ -72,7 +72,7 @@ class OrderSeeder extends Seeder
             ]);
         }
 
-        // 2. Skenario Cash (QR Code Scan oleh Tenant: Pending, Belum Bayar)
+        // 2. Skenario Cash (Selesai / Completed)
         $order2 = Order::query()->create([
             'order_number' => 'SC-'.now()->format('Ymd').'-0002',
             'pickup_code' => 'FEB-8821',
@@ -80,13 +80,13 @@ class OrderSeeder extends Seeder
             'tenant_id' => $tenant1->id,
             'total_amount' => 15000.00,
             'payment_method' => PaymentMethod::Cash,
-            'payment_status' => PaymentStatus::Unpaid,
-            'status' => OrderStatus::Pending,
+            'payment_status' => PaymentStatus::Paid,
+            'status' => OrderStatus::Completed,
             'snap_token' => null,
-            'paid_at' => null,
-            'processing_at' => null,
-            'ready_at' => null,
-            'completed_at' => null,
+            'paid_at' => now()->subHours(2)->addMinutes(5),
+            'processing_at' => now()->subHours(2)->addMinutes(5),
+            'ready_at' => now()->subHours(2)->addMinutes(20),
+            'completed_at' => now()->subHours(1)->addMinutes(30),
         ]);
 
         OrderItem::query()->create([
@@ -124,7 +124,7 @@ class OrderSeeder extends Seeder
             'subtotal' => 12000.00,
         ]);
 
-        // 4. Seed 55+ realistic orders distributed across all tenants, students, statuses, and dates
+        // 4. Seed 55+ realistic completed orders distributed across all tenants, students, and dates
         $allTenants = Tenant::with('menus')->has('menus')->get();
         $allStudents = User::role(UserRole::Mahasiswa->value)->get();
 
@@ -135,12 +135,6 @@ class OrderSeeder extends Seeder
         $orderConfigs = [
             ['status' => OrderStatus::Completed, 'method' => PaymentMethod::Cashless, 'payment' => PaymentStatus::Paid],
             ['status' => OrderStatus::Completed, 'method' => PaymentMethod::Cash, 'payment' => PaymentStatus::Paid],
-            ['status' => OrderStatus::Processing, 'method' => PaymentMethod::Cashless, 'payment' => PaymentStatus::Paid],
-            ['status' => OrderStatus::Ready, 'method' => PaymentMethod::Cashless, 'payment' => PaymentStatus::Paid],
-            ['status' => OrderStatus::Ready, 'method' => PaymentMethod::Cash, 'payment' => PaymentStatus::Paid],
-            ['status' => OrderStatus::Pending, 'method' => PaymentMethod::Cash, 'payment' => PaymentStatus::Unpaid],
-            ['status' => OrderStatus::Pending, 'method' => PaymentMethod::Cashless, 'payment' => PaymentStatus::Paid],
-            ['status' => OrderStatus::Failed, 'method' => PaymentMethod::Cashless, 'payment' => PaymentStatus::Failed],
         ];
 
         for ($i = 4; $i <= 60; $i++) {
