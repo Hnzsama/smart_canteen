@@ -9,9 +9,9 @@ Dokumen ini mendefinisikan arsitektur teknis, stack teknologi, konvensi kode, da
 ```mermaid
 flowchart TD
     subgraph Frontend["Frontend Layer (SPA)"]
-        React["React 18 / JSX"]
+        React["React 18 / TSX"]
         Inertia["Inertia.js v3"]
-        Tailwind["Tailwind CSS"]
+        Tailwind["Tailwind CSS v3"]
         Wayfinder["Laravel Wayfinder (Typed Routes)"]
     end
 
@@ -20,7 +20,7 @@ flowchart TD
         Laravel["Laravel 12 Framework"]
         Fortify["Laravel Fortify (Auth Engine)"]
         Spatie["Spatie Laravel Permission"]
-        Midtrans["Midtrans PHP SDK"]
+        Midtrans["Midtrans PHP SDK (Sandbox)"]
     end
 
     subgraph Database["Data Layer"]
@@ -39,27 +39,51 @@ flowchart TD
 ### PHP Packages (Composer)
 * `laravel/framework`: ^12.0
 * `inertiajs/inertia-laravel`: ^2.0 / v3
-* `laravel/fortify`: Authentication backend
-* `spatie/laravel-permission`: ^8.3 (Manajemen Role & Permisi)
-* `midtrans/midtrans-php`: Integrasi SDK Pembayaran Midtrans Sandbox
-* `laravel/wayfinder`: Auto-generate TypeScript/JS routes
+* `laravel/fortify`: Authentication backend (Login, Register, 2FA, Password Reset)
+* `spatie/laravel-permission`: ^8.3 (Manajemen Role: *Mahasiswa*, *Tenant*, *Admin*)
+* `midtrans/midtrans-php`: Integrasi SDK Pembayaran Midtrans Gateway
+* `laravel/wayfinder`: Auto-generate TypeScript/JS route actions
 
 ### JS Packages (NPM)
 * `@inertiajs/react`: Interaksi Client-side React dengan Inertia
 * `react` & `react-dom`: Library UI Rendering
-* `tailwindcss` & `@tailwindcss/vite`: Utility-first CSS styling
+* `tailwindcss`: Utility-first CSS styling
+* `lucide-react`: Icon Set Modern
+* `recharts`: Library Grafik Chart Metrik Dashboard
 
 ---
 
-## 3. Struktur Direktori & Konvensi Kode
+## 3. Struktur Direktori Utama
 
-* **Controller:** Disimpan di `app/Http/Controllers/`. Controller harus tipis (slim controllers), mengembalikan `Inertia::render('PageName', $props)`.
-* **Model:** Disimpan di `app/Models/`. Menggunakan Laravel Eloquent dengan typehints PHP 8.4.
-* **React Pages:** Disimpan di `resources/js/pages/`.
-  - `resources/js/pages/Mahasiswa/`: Halaman khusus flow mahasiswa.
-  - `resources/js/pages/Tenant/`: Halaman dashboard & pesanan tenant.
-  - `resources/js/pages/Admin/`: Halaman dashboard & master data admin.
-* **Components:** Component reusable disimpan di `resources/js/components/`.
+```
+smart_canteen/
+├── app/
+│   ├── Actions/Fortify/        # Custom Fortify Auth Actions
+│   ├── Enums/                  # PHP 8.4 Enums (UserRole, OrderStatus, etc.)
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/          # Controller Modul Admin
+│   │   │   ├── Customer/       # Controller Modul Mahasiswa
+│   │   │   ├── Tenant/         # Controller Modul Tenant
+│   │   │   └── Api/            # Webhook & API Handlers
+│   ├── Models/                 # Eloquent Models dengan SoftDeletes
+│   └── Services/               # Service Classes (MidtransService, etc.)
+├── database/
+│   ├── migrations/             # Migrasi Database
+│   └── seeders/                # Database Seeders
+├── docs/                       # Dokumentasi Teknis & Panduan Pengguna
+└── resources/
+    └── js/
+        ├── components/         # Reusable UI Components
+        ├── layouts/            # Layout Components (StudentLayout, SettingsLayout, etc.)
+        └── pages/              # Inertia React Pages
+            ├── admin/          # Dashboard & Master Data Admin
+            ├── auth/           # Login, Register, 2FA Pages
+            ├── catalog/        # Katalog Utama & Cart
+            ├── orders/         # Tracker, Payment & History
+            ├── settings/       # Profile & Security Settings
+            └── tenant/         # Dashboard & Order Board Tenant
+```
 
 ---
 
@@ -72,9 +96,12 @@ php artisan serve
 # Menjalankan Vite dev server frontend
 npm run dev
 
-# Format kode PHP otomatis
+# Format kode PHP otomatis sesuai standar Pint
 vendor/bin/pint --format agent
 
 # Regenerate Wayfinder typed routes
 php artisan wayfinder:generate
+
+# Menjalankan seluruh pengujian Pest / PHPUnit
+php artisan test --compact
 ```

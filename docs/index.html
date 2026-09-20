@@ -229,7 +229,1254 @@
   </div>
 
   <script>
-    const docsData = {"00-project-overview.md": "# Smart Canteen FEB\n\n## Project Constraint\n\nBudget: Rp1.000.000\nType: Dummy / Demo\nEstimated Development: 5–7 working days\n\n## Primary Objective\n\nMembangun website demo Smart Canteen FEB yang memperlihatkan alur:\n\nMahasiswa\n→ Pilih Tenant\n→ Pilih Menu\n→ Keranjang\n→ Checkout\n→ Pembayaran\n→ Tenant Memproses\n→ Pesanan Siap\n→ Self-Pickup\n\n## AI Development Principle\n\n> Implement only what is required by the documented scope.\n\nThe AI MUST NOT expand the project scope autonomously.\n\nBefore implementing a feature, the AI should verify that the feature exists\nin the project documentation.\n\nIf the feature is not documented, classify it as:\n\nOUT OF SCOPE\n\nand do not implement it without explicit approval.\n\n## Priority\n\n1. Scope\n2. Functional requirements\n3. User flow\n4. Acceptance criteria\n5. UI/UX\n6. Technical implementation\n\nTechnical complexity must never override the project scope.", "01-scope.md": "# Project Scope — Smart Canteen FEB\n\n## 1. Informasi Proyek\n\n**Nama Proyek:** Smart Canteen FEB\n**Jenis:** Website Dummy / Demo\n**Budget:** Rp1.000.000\n**Estimasi Pengerjaan:** 5–7 hari kerja\n\nDokumen ini menjadi **batas utama pengembangan proyek**.\n\nSeluruh implementasi harus mengikuti scope yang tercantum di dokumen ini.\n\n---\n\n## 2. Tujuan Proyek\n\nSmart Canteen FEB adalah website demo yang digunakan untuk memperlihatkan konsep pemesanan makanan/minuman di lingkungan FEB dengan dukungan opsi pembayaran **Cashless (Midtrans Sandbox)** dan **Cash (Tunai dengan Scan QR/Kode oleh Tenant)**, penataan menu ber-kategori, serta keamanan data historis melalui **Soft Deletes**.\n\nTujuan utama website:\n\n* Menampilkan tenant/kantin.\n* Menampilkan menu ber-kategori yang tersedia.\n* Memungkinkan mahasiswa membuat pesanan.\n* Menampilkan proses checkout (Pilihan **Cashless** vs **Cash**).\n* Menampilkan simulasi/alur pembayaran Cashless (Midtrans Sandbox) dan Cash (Scan Kode oleh Tenant).\n* Memungkinkan tenant memproses pesanan.\n* Menampilkan status pesanan sampai siap diambil.\n* Menunjukkan konsep **Self-pickup**.\n* Menerapkan **Soft Deletes** pada entity krusial (Users, Tenants, Menus, Orders) untuk integritas riwayat transaksi.\n\nWebsite ini **BUKAN sistem kantin production**.\n\nFokus utama adalah **UI, UX, dan demonstrasi alur bisnis utama**.\n\n---\n\n## 3. Aktor Sistem\n\nSistem hanya memiliki tiga jenis pengguna:\n\n### 3.1 Mahasiswa\n\nMahasiswa dapat:\n\n* Login / mengakses akun.\n* Melihat daftar tenant.\n* Melihat menu tenant berdasarkan kategori.\n* Melihat detail menu.\n* Menambahkan menu ke keranjang.\n* Mengubah isi keranjang.\n* Melakukan checkout (Pilih **Cashless** atau **Cash**).\n* Mendapatkan Kode QR / Kode Pengambilan pesanan.\n* Melakukan simulasi pembayaran Cashless atau menampilkan Kode ke Tenant untuk bayar Cash.\n* Melihat status pesanan dan tracker timeline.\n* Melihat riwayat pesanan.\n* Melihat informasi pengambilan pesanan (**Self-Pickup**).\n\n### 3.2 Tenant / Penjual\n\nTenant dapat:\n\n* Login ke dashboard.\n* Melihat pesanan masuk.\n* Menampilkan scanner / input kode pesanan untuk **Konfirmasi Pembayaran Cash**.\n* Melihat detail pesanan.\n* Mengubah status pesanan (`Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).\n* Mengelola kategori menu.\n* Menambahkan, mengubah, menghapus menu (dengan **Soft Deletes**).\n* Mengatur ketersediaan menu (Toggle Stock).\n\n### 3.3 Admin\n\nAdmin dapat:\n\n* Login ke dashboard admin.\n* Melihat statistik demo.\n* Mengelola data tenant (Tambah, Edit, Hapus via **Soft Deletes**).\n* Mengelola pengguna & role (Mahasiswa, Tenant, Admin dengan **Soft Deletes**).\n* Melihat & memantau seluruh transaksi kantin.\n\n---\n\n## 4. Scope Pembayaran & Verifikasi\n\n### 4.1 Cashless (Midtrans Sandbox)\n```mermaid\nflowchart TD\n    Checkout[\"Mahasiswa Checkout Cashless\"] --> Snap[\"Tampil Pop-up Midtrans Sandbox\"]\n    Snap --> Simulator[\"Bayar via Midtrans Simulator\"]\n    Simulator --> Webhook[\"Callback Webhook Midtrans\"]\n    Webhook --> Paid[\"Status: Dibayar\"]\n    Paid --> TenantDashboard[\"Tampil di Tenant Dashboard\"]\n```\n\n### 4.2 Cash (Tunai di Stand Tenant)\n```mermaid\nflowchart TD\n    Checkout[\"Mahasiswa Checkout Cash\"] --> GenCode[\"Generate QR / Kode Pengambilan\"]\n    GenCode --> Pending[\"Status: Menunggu Pembayaran Tunai\"]\n    Pending --> Stand[\"Mahasiswa Datang ke Stand Tenant\"]\n    Stand --> Scan[\"Tenant Scan QR / Input Kode di App Tenant\"]\n    Scan --> Confirm[\"Tenant Terima Uang & Klik Konfirmasi\"]\n    Confirm --> Paid[\"Status: Dibayar\"]\n    Paid --> Process[\"Tenant Memproses Pesanan\"]\n```\n\n---\n\n## 5. Scope Data & Soft Deletes\n\nData krusial menggunakan fitur **Soft Deletes (`deleted_at`)**:\n1. `users`: Jika akun dinonaktifkan/dihapus, riwayat transaksi pesanan historis tetap utuh.\n2. `tenants`: Jika tenant tutup/dihapus, riwayat belanja mahasiswa tidak hilang.\n3. `menus`: Jika menu dihapus dari katalog tenant, pesanan lama tetap menampilkan nama dan harga menu tersebut (Snapshot Data).\n4. `orders`: Pesanan yang dibatalkan/dihapus tetap tersimpan secara soft delete untuk transparansi demo.\n\n---\n\n## 6. Alur Bisnis Utama\n\nAlur utama yang **WAJIB dapat didemokan**:\n\n```mermaid\nsequenceDiagram\n    autonumber\n    actor M as Mahasiswa\n    participant SYS as \"Sistem Smart Canteen\"\n    participant MID as \"Midtrans Sandbox\"\n    actor T as Tenant\n\n    M->>SYS: Login dan Pilih Tenant / Menu\n    M->>SYS: Checkout (Pilih Cashless / Cash)\n    alt Metode Cashless\n        SYS->>MID: Request Snap Token\n        MID-->>M: Tampilkan Midtrans Pop-up Sandbox\n        M->>MID: Selesaikan Bayar di Sandbox\n        MID-->>SYS: Callback Auto Webhook\n        SYS->>SYS: Update Status: Dibayar\n    else Metode Cash (Tunai)\n        SYS-->>M: Generate Kode QR / Pengambilan\n        M->>T: Tunjukkan Kode QR dan Uang Tunai di Stand\n        T->>SYS: Scan QR / Input Kode Pesanan -> Konfirmasi Bayar\n        SYS->>SYS: Update Status: Dibayar\n    end\n    SYS-->>T: Pesanan Masuk di Dashboard\n    T->>SYS: Update Status: Diproses\n    T->>SYS: Update Status: Siap Diambil\n    M->>T: Datang Ambil Pesanan (Self-Pickup)\n    T->>SYS: Update Status: Selesai\n```\n\n---\n\n## 7. Definition of Done\n\nProyek dianggap memenuhi scope apabila:\n* Mahasiswa dapat memesan dengan opsi **Cashless** (Midtrans Sandbox) maupun **Cash** (Scan QR oleh Tenant).\n* Tenant dapat melakukan **Scan Kode QR / Input Kode** untuk menerima bayar tunai.\n* Data `users`, `tenants`, `menus`, dan `orders` menerapkan **Soft Deletes**.\n* Menu terkelola dalam **Kategori Menu**.\n* Core flow dapat didemonstrasikan dari awal sampai selesai tanpa error.\n", "02-requirements.md": "# Functional & Non-Functional Requirements — Smart Canteen FEB\n\n## 1. Requirements Overview\n\nDokumen ini mendefinisikan kebutuhan fungsional (Functional Requirements) dan non-fungsional (Non-Functional Requirements) dari sistem Smart Canteen FEB berdasarkan [01-scope.md](file:///home/darbi/Projects/smart_canteen/docs/01-scope.md).\n\n---\n\n## 2. Functional Requirements (FR)\n\n### 2.1 Modul Mahasiswa (Customer)\n* **FR-MHS-01:** Mahasiswa dapat melakukan login dan logout.\n* **FR-MHS-02:** Mahasiswa dapat melihat daftar tenant dan filter menu berdasarkan kategori (Makanan, Minuman, Camilan).\n* **FR-MHS-03:** Mahasiswa dapat melihat detail menu (nama, harga, foto, ketersediaan).\n* **FR-MHS-04:** Mahasiswa dapat mengelola keranjang belanja (cart).\n* **FR-MHS-05:** Mahasiswa dapat memilih metode pembayaran di Checkout: **Cashless** (Midtrans Sandbox) atau **Cash** (Tunai di Stand).\n* **FR-MHS-06:** Mahasiswa mendapatkan **Kode QR / Kode Pengambilan** unik untuk setiap transaksi.\n* **FR-MHS-07:** Mahasiswa dapat memantau live status pesanan (`Menunggu Pembayaran` → `Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).\n* **FR-MHS-08:** Mahasiswa dapat melihat riwayat pesanan (historis tetap aman meskipun menu/tenant di-soft delete).\n\n### 2.2 Modul Tenant (Penjual)\n* **FR-TNT-01:** Tenant dapat login ke dashboard tenant.\n* **FR-TNT-02:** Tenant dapat melakukan **Scan Kode QR / Input Kode Pesanan** mahasiswa untuk mengonfirmasi pembayaran Tunai (Cash).\n* **FR-TNT-03:** Tenant dapat melihat ringkasan & detail pesanan masuk.\n* **FR-TNT-04:** Tenant dapat memperbarui status pesanan (`Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).\n* **FR-TNT-05:** Tenant dapat mengelola Kategori Menu & Item Menu (Tambah, Edit, Soft Delete, Toggle Stok Available/Out of Stock).\n\n### 2.3 Modul Admin (Pengelola)\n* **FR-ADM-01:** Admin dapat login ke dashboard admin.\n* **FR-ADM-02:** Admin dapat melihat statistik demo (Total Tenant, Total User, Total Transaksi, Transaksi Cash vs Cashless).\n* **FR-ADM-03:** Admin dapat mengelola data tenant (CRUD + Soft Delete).\n* **FR-ADM-04:** Admin dapat mengelola pengguna & role (CRUD + Soft Delete).\n* **FR-ADM-05:** Admin dapat memantau seluruh transaksi kantin secara global.\n\n---\n\n## 3. Non-Functional Requirements (NFR)\n\n### 3.1 Data Integrity & Soft Deletes\n* **NFR-01:** Menerapkan `softDeletes` (`deleted_at`) pada `users`, `tenants`, `menus`, dan `orders` untuk menjaga integritas data historis.\n* **NFR-02:** Menggunakan snapshot nama & harga menu pada `order_items` saat transaksi terjadi.\n\n### 3.2 Performance & Usability\n* **NFR-03:** Layout responsive (Mobile-first untuk Mahasiswa, Desktop/Mobile friendly untuk Tenant & Admin).\n* **NFR-04:** Respon verifikasi scan QR / kode tunai di stand tenant berjalan instan (< 1 detik).\n", "03-user-flow.md": "# User Flow — Smart Canteen FEB\n\n## 1. Core End-to-End Business Flow\n\nAlur utama pemesanan dengan opsi **Cashless (Midtrans Sandbox)** dan **Cash (Scan QR / Kode di Tenant)** disajikan dalam diagram Mermaid berikut:\n\n```mermaid\nsequenceDiagram\n    autonumber\n    actor M as Mahasiswa\n    participant SYS as \"Sistem Smart Canteen\"\n    participant MID as \"Midtrans Sandbox\"\n    actor T as Tenant\n\n    M->>SYS: Login dan Lihat Menu per Kategori\n    M->>SYS: Tambah ke Keranjang lalu Checkout\n    M->>SYS: Pilih Metode Pembayaran (Cashless / Cash)\n    \n    alt Pembayaran Cashless\n        SYS->>MID: Request Midtrans Snap Token\n        MID-->>M: Tampilkan Midtrans Sandbox Pop-up\n        M->>MID: Selesaikan Bayar di Sandbox\n        MID-->>SYS: Webhook Auto Callback Success\n        SYS->>SYS: Status Pesanan: Dibayar\n    else Pembayaran Cash (Tunai)\n        SYS-->>M: Tampilkan Kode QR / Kode Pengambilan\n        M->>T: Tunjukkan Kode QR dan Serahkan Uang Tunai di Stand\n        T->>SYS: Scan QR / Input Kode di App Tenant\n        T->>SYS: Klik Konfirmasi Terima Tunai\n        SYS->>SYS: Status Pesanan: Dibayar\n    end\n\n    SYS-->>T: Pesanan Masuk di Dashboard Tenant\n    T->>SYS: Ubah Status: Diproses\n    T->>SYS: Ubah Status: Siap Diambil\n    SYS-->>M: Live Tracker Update: Siap Diambil\n    M->>T: Ambil Makanan di Stand (Self-Pickup)\n    T->>SYS: Konfirmasi Selesai: Status Selesai\n```\n\n---\n\n## 2. Detail Alur Pembayaran Cash (Scan QR oleh Tenant)\n\n```mermaid\nflowchart TD\n    A[\"Mahasiswa Checkout Pilih Cash\"] --> B[\"Sistem Generate pickup_code & QR\"]\n    B --> C[\"Status Order: Menunggu Pembayaran Tunai\"]\n    C --> D[\"Mahasiswa Datang ke Stand Tenant\"]\n    D --> E[\"Tenant Buka Scanner / Input Form di App Tenant\"]\n    E --> F[\"Tenant Scan QR / Ketik Kode Pesanan\"]\n    F --> G[\"Tampil Detail Tagihan & Item Pesanan\"]\n    G --> H[\"Tenant Terima Uang & Klik Konfirmasi Pembayaran\"]\n    H --> I[\"Status Order Berubah: Dibayar\"]\n    I --> J[\"Tenant Langsung Memproses Pesanan\"]\n```\n", "04-user-roles.md": "# User Roles & Permissions — Smart Canteen FEB\n\n## 1. Definisi Role\n\nSistem Smart Canteen FEB menggunakan 3 role utama via **Spatie Laravel Permission**:\n\n1. `mahasiswa` (Customer)\n2. `tenant` (Penjual / Stand FEB)\n3. `admin` (Pengelola System)\n\n---\n\n## 2. Hak Akses & Matriks Permisi\n\n| Fitur / Halaman | Mahasiswa | Tenant | Admin |\n| :--- | :---: | :---: | :---: |\n| **Login / Logout** | ✅ | ✅ | ✅ |\n| **Melihat Tenant & Menu per Kategori** | ✅ | ✅ | ✅ |\n| **Tambah ke Cart & Checkout (Cashless / Cash)** | ✅ | ❌ | ❌ |\n| **Mendapatkan Kode QR / Kode Pengambilan** | ✅ | ❌ | ❌ |\n| **Scan QR / Input Kode Pembayaran Cash** | ❌ | ✅ | ❌ |\n| **Kelola Status Pesanan (`Dibayar` → `Selesai`)** | ❌ | ✅ | ❌ |\n| **Kelola Kategori & Menu (CRUD + Soft Delete)** | ❌ | ✅ | ❌ |\n| **Dashboard Admin & Supervision** | ❌ | ❌ | ✅ |\n| **Kelola Tenant (CRUD + Soft Delete)** | ❌ | ❌ | ✅ |\n| **Kelola User (CRUD + Soft Delete)** | ❌ | ❌ | ✅ |\n\n---\n\n## 3. Aturan Soft Delete Permisi\n* Tenant atau Admin yang melakukan penghapusan data (User, Tenant, Menu) hanya melakukan Soft Delete (`deleted_at`), sehingga tidak menghapus data secara permanen dan menjaga integritas tabel transaksi `orders` & `order_items`.\n", "05-feature-specification.md": "# Feature Specification — Smart Canteen FEB\n\n## 1. Modul Mahasiswa\n\n### 1.1 Auth & Account\n* **F-MHS-01 Login Mahasiswa:** Form login credentials mahasiswa.\n* **F-MHS-02 Quick Switch Role Demo:** Utility switcher role untuk kemudahan saat presentasi demo.\n\n### 1.2 Katalog & Pemesanan\n* **F-MHS-03 Katalog Tenant & Kategori:** Menampilkan tenant & filter menu berdasarkan kategori (Makanan Utama, Minuman, Camilan).\n* **F-MHS-04 Cart & Checkout Options:** Mengelola item belanja dan memilih metode pembayaran:\n  - **Cashless:** Midtrans Sandbox.\n  - **Cash:** Tunai di Stand Tenant.\n* **F-MHS-05 Digital QR / Pickup Code:** Menampilkan Kode QR unik & string kode (cth: `FEB-8912`) untuk pembayaran tunai / klaim **Self-Pickup**.\n* **F-MHS-06 Live Tracker & History:** Memantau progress status pesanan beserta timeline timestamp (`paid_at`, `processing_at`, `ready_at`, `completed_at`).\n\n---\n\n## 2. Modul Tenant\n\n### 2.1 Order & QR Scanner\n* **F-TNT-01 Tenant Order Dashboard:** Overview pesanan baru, diproses, dan siap diambil.\n* **F-TNT-02 Cash QR Scanner / Code Verifier:** Fitur scan kamera / input kode manual untuk memverifikasi pembayaran tunai di stand dan mengubah status menjadi `Dibayar`.\n* **F-TNT-03 Order Status Handler:** Tombol aksi cepat update status (`Proses Pesanan`, `Siap Diambil`, `Selesai`).\n\n### 2.2 Category & Menu Management\n* **F-TNT-04 Category CRUD:** Mengelompokkan menu dalam kategori.\n* **F-TNT-05 Menu CRUD with Soft Delete:** Menambah, mengubah, mengunggah foto, dan menghapus menu dengan fitur **Soft Delete** (`deleted_at`).\n* **F-TNT-06 Stock Toggle:** Switch cepat untuk mengubah ketersediaan (Tersedia / Stok Habis).\n\n---\n\n## 3. Modul Admin\n\n### 3.1 Dashboard & Supervision\n* **F-ADM-01 Admin Metric Dashboard:** Statistik total transaksi, perbandingan transaksi Cash vs Cashless, total tenant, dan total user.\n* **F-ADM-02 Global Order Supervision:** Monitoring seluruh transaksi kantin FEB.\n\n### 3.2 Master Data Management (Soft Delete)\n* **F-ADM-03 Tenant Management:** CRUD Tenant dilengkapi dengan Soft Delete & Restore.\n* **F-ADM-04 User Management:** CRUD User & Role dilengkapi dengan Soft Delete & Restore.\n", "06-page-specification.md": "# Page Specification — Smart Canteen FEB\n\nDokumen ini mendeskripsikan seluruh halaman dalam sistem beserta komponen, layout, dan interaksi.\n\n---\n\n## 1. Halaman Mahasiswa\n\n### 1.1 Tenant Detail & Category Menu Page (`/tenants/{id}`)\n* **Elemen:** Header Tenant, Tab Kategori Menu (Makanan, Minuman, Snack), Card Menu (Foto, Nama, Harga, Stock Badge, Button \"Tambah\").\n* **Aksi:** Filter per kategori, klik menu untuk modal detail, Floating Cart Bar.\n\n### 1.2 Checkout Page (`/checkout`)\n* **Elemen:** Ringkasan Pesanan, Radio Button Metode Pembayaran (**Cashless via Midtrans** vs **Cash / Tunai di Stand**), Informasi **Self-Pickup**, Button \"Proses Pesanan\".\n\n### 1.3 Digital QR & Pickup Pass Page (`/orders/{id}/pickup-pass`)\n* **Elemen:** Kode QR besar, Kode Pengambilan (cth: `FEB-9912`), Badge Status Pembayaran (Unpaid / Paid), Panduan Tunjukkan Kode ke Tenant.\n\n### 1.4 Order Status Tracker Page (`/orders/{id}`)\n* **Elemen:** Visual Timeline Stepper (`Menunggu Pembayaran` → `Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`), Detail Item, Timestamps (`paid_at`, `ready_at`, dll).\n\n---\n\n## 2. Halaman Tenant\n\n### 2.1 Cash Scanner & Code Verifier Modal/Page (`/tenant/verify-payment`)\n* **Elemen:** Camera QR Code Scanner, Input Text Kode Pesanan, Card Result Pesanan Mahasiswa, Button \"Konfirmasi Terima Uang Tunai\".\n* **Aksi:** Scan / ketik kode → Tampil detail tagihan → Klik konfirmasi → Status order otomatis berubah menjadi `Dibayar`.\n\n### 2.2 Tenant Order Board (`/tenant/orders`)\n* **Elemen:** Tab Status (`Pesanan Masuk`, `Diproses`, `Siap Diambil`), Card Pesanan dengan Badge Metode Pembayaran (Cashless / Cash).\n\n### 2.3 Category & Menu Management (`/tenant/menus`, `/tenant/categories`)\n* **Elemen:** Tabel Kategori & Menu, Action Edit, Switcher Stock Available, Button Soft Delete (Pindah ke Trash), Button Restore.\n\n---\n\n## 3. Halaman Admin\n\n### 3.1 Admin Dashboard (`/admin/dashboard`)\n* **Elemen:** Metric Card (Total Transaksi, Cash vs Cashless Ratio, Active Tenants), Tabel Master Data dengan indikator Soft Delete.\n", "07-ui-ux-guidelines.md": "# UI/UX Guidelines — Smart Canteen FEB\n\n## 1. Core Design Principles\n\nSmart Canteen FEB mengutamakan tampilan yang modern, segar, konsisten, dan memukau (WOW factor) serta dioptimalkan untuk performa demonstrasi demo.\n\n* **Clean & Modern Aesthetic:** Menggunakan palette warna harmonis, rounded corners, subtle shadows, dan tipografi yang jelas.\n* **Mobile-First & Responsive:** Antarmuka harus tampil sempurna di layar Smartphone (Mahasiswa yang memesan di kantin) maupun Desktop (Dashboard Admin & Tenant).\n* **Clear Feedback & States:** Setiap aksi pengguna (klik tombol, ubah kuantitas, update status) memberikan respon visual yang seketika.\n\n---\n\n## 2. Palette Warna & Visual System\n\n* **Primary Color:** Emerald / Teal / Modern Green (Merepresentasikan kebersihan, kesegaran kantin, dan kemudahan).\n* **Secondary / Accent:** Warm Amber / Orange (Merepresentasikan makanan & kehangatan).\n* **Neutral Tones:** Dark Slate / Charcoal untuk teks, Light Gray / Ice White untuk background card.\n* **Status Badges:**\n  - `Menunggu Pembayaran`: Yellow / Amber Badge\n  - `Dibayar` / `Diproses`: Blue / Indigo Badge\n  - `Siap Diambil`: Emerald / Green Pulse Badge\n  - `Selesai`: Neutral Gray Badge\n  - `Pembayaran Gagal`: Red Badge\n\n---\n\n## 3. Component & Interactive States\n\nSetiap komponen UI harus mengimplementasikan 4 state utama:\n\n1. **Default State:** Tampilan bersih dengan hirarki visual yang jelas.\n2. **Loading State:** Skeleton loader / pulsing animation saat memuat data atau memproses transaksi.\n3. **Empty State:** Ilustrasi / pesan ramah jika keranjang kosong, riwayat kosong, atau tidak ada pesanan masuk.\n4. **Error / Validation State:** Message error yang informatif jika terjadi kesalahan input atau kegagalan simulasi pembayaran.\n\n---\n\n## 4. Feedback & Notifications\n\n* **Toast Notification:** Pop-up kecil di sudut layar saat pengguna menambahkan item ke keranjang atau berhasil mengubah status pesanan.\n* **Confirmation Modals:** Modal konfirmasi sebelum menghapus item dari keranjang atau melakukan aksi p, "08-data-model.md": "# Data Model & Schema — Smart Canteen FEB\n\nDokumen ini mendefinisikan struktur basis data lengkap yang disesuaikan dengan seluruh **skema migrasi database aktif**, termasuk **Soft Deletes**, **Metode Pembayaran Cash vs Cashless**, **Kode QR**, **Kategori Tenant & Global**, **Rating & Ulasan**, **Pengaturan Aplikasi**, dan **Snapshot Data Pesanan**.\n\n---\n\n## 1. Entity Relationship Diagram (ERD)\n\n```mermaid\nerDiagram\n    USERS ||--o{ ORDERS : \"places\"\n    TENANTS ||--o{ MENUS : \"owns\"\n    TENANTS ||--o{ CATEGORIES : \"owns\"\n    TENANTS ||--o{ ORDERS : \"receives\"\n    TENANTS ||--o{ TENANT_RATINGS : \"receives_reviews\"\n    CATEGORIES ||--o{ MENUS : \"classifies\"\n    USERS ||--o{ TENANT_RATINGS : \"writes_reviews\"\n    ORDERS ||--|{ ORDER_ITEMS : \"contains\"\n    ORDERS ||--o{ TENANT_RATINGS : \"rated_in\"\n    MENUS ||--o{ ORDER_ITEMS : \"referenced_by\"\n\n    USERS {\n        bigint id PK\n        string name\n        string email UK\n        string password\n        bigint tenant_id FK\n        text two_factor_secret\n        timestamp deleted_at\n        timestamp created_at\n    }\n\n    TENANTS {\n        bigint id PK\n        string name\n        string slug UK\n        text description\n        string image\n        string banner_image\n        string logo_image\n        string phone\n        string opening_hours\n        boolean is_active\n        boolean is_open\n        decimal rating\n        integer reviews_count\n        timestamp deleted_at\n        timestamp created_at\n    }\n\n    CATEGORIES {\n        bigint id PK\n        bigint tenant_id FK\n        string name\n        string slug\n        timestamp created_at\n    }\n\n    MENUS {\n        bigint id PK\n        bigint tenant_id FK\n        bigint category_id FK\n        string global_category\n        string name\n        text description\n        decimal price\n        decimal original_price\n        string image\n        boolean is_available\n        boolean is_recommended\n        integer estimated_time\n        json options\n        timestamp deleted_at\n        timestamp created_at\n    }\n\n    ORDERS {\n        bigint id PK\n        string order_number UK\n        string pickup_code UK\n        bigint user_id FK\n        bigint tenant_id FK\n        decimal subtotal_amount\n        decimal app_fee\n        decimal channel_fee\n        decimal total_amount\n        string payment_method\n        string payment_channel_code\n        json payment_details\n        string dining_option\n        string payment_status\n        string status\n        string snap_token\n        text notes\n        timestamp paid_at\n        timestamp processing_at\n        timestamp ready_at\n        timestamp completed_at\n        timestamp deleted_at\n        timestamp created_at\n    }\n\n    ORDER_ITEMS {\n        bigint id PK\n        bigint order_id FK\n        bigint menu_id FK\n        string menu_name\n        decimal price\n        integer quantity\n        json options\n        text note\n        decimal subtotal\n        timestamp created_at\n    }\n\n    TENANT_RATINGS {\n        bigint id PK\n        bigint tenant_id FK\n        bigint user_id FK\n        bigint order_id FK\n        integer rating\n        text comment\n        timestamp created_at\n    }\n\n    PAYMENT_METHODS {\n        bigint id PK\n        string code UK\n        string name\n        string category\n        string logo\n        string fee_type\n        decimal fee_amount\n        boolean is_active\n        timestamp created_at\n    }\n\n    APP_SETTINGS {\n        bigint id PK\n        string key UK\n        text value\n        string label\n        timestamp created_at\n    }\n```\n\n---\n\n## 2. Table Specifications\n\n### 2.1 `users`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Pengguna |\n| `name` | String | Not Null | Nama Lengkap Pengguna |\n| `email` | String | Unique, Not Null | Email Pengguna |\n| `email_verified_at` | Timestamp | Nullable | Timestamp Verifikasi Email |\n| `password` | String | Not Null | Hashed Password |\n| `tenant_id` | ForeignId | Nullable, Constrained `tenants` | Relasi ke Stand (jika role Tenant) |\n| `two_factor_secret` | Text | Nullable | Rahasia OTP 2FA |\n| `two_factor_recovery_codes` | Text | Nullable | Kode Pemulihan 2FA |\n| `two_factor_confirmed_at` | Timestamp | Nullable | Timestamp Konfirmasi 2FA |\n| `remember_token` | String | Nullable | Token Sesi Login |\n| `deleted_at` | Timestamp | Nullable | **Soft Delete** |\n| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |\n\n---\n\n### 2.2 `tenants`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Stand Kantin |\n| `name` | String | Not Null | Nama Stand / Kantin |\n| `slug` | String | Unique, Not Null | Slug URL (cth: `kantin-pak-kumis`) |\n| `description` | Text | Nullable | Deskripsi Singkat Stand |\n| `image` | String | Nullable | Foto Utama Stand |\n| `banner_image` | String | Nullable | Gambar Banner Header Stand |\n| `logo_image` | String | Nullable | Gambar Logo Stand |\n| `phone` | String | Nullable | Nomor Telepon / WA Stand |\n| `opening_hours` | String | Default `08:00 - 17:00` | Jam Operasional Stand |\n| `is_active` | Boolean | Default `true` | Status Aktif Sistem |\n| `is_open` | Boolean | Default `true` | Status Buka / Tutup Stand |\n| `rating` | Decimal(3,2) | Default `5.00` | Rata-rata Bintang Rating (1.00 - 5.00) |\n| `reviews_count` | UnsignedInt | Default `0` | Total Jumlah Ulasan Pembeli |\n| `deleted_at` | Timestamp | Nullable | **Soft Delete** |\n| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |\n\n---\n\n### 2.3 `categories`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Kategori Internal Tenant |\n| `tenant_id` | ForeignId | Constrained `tenants`, Cascade | Stand Pemilik Kategori |\n| `name` | String | Not Null | Nama Kategori (cth: *Makanan Utama*) |\n| `slug` | String | Not Null | Slug Kategori |\n| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |\n\n*Unique Constraint*: `['tenant_id', 'slug']` \n\n---\n\n### 2.4 `menus`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Menu Makanan/Minuman |\n| `tenant_id` | ForeignId | Constrained `tenants`, Cascade | Stand Pemilik Menu |\n| `category_id` | ForeignId | Nullable, Constrained `categories` | Kategori Internal Tenant |\n| `global_category` | String | Default `makanan` | Kategori Global (`makanan`, `minuman`, `camilan`) |\n| `name` | String | Not Null | Nama Hidangan |\n| `description` | Text | Nullable | Deskripsi & Komposisi Menu |\n| `price` | Decimal(12,2) | Not Null | Harga Jual Satuan (Rp) |\n| `original_price` | Decimal(12,2) | Nullable | Harga Asli Sebelum Diskon (Rp) |\n| `image` | String | Nullable | Path Foto Menu |\n| `is_available` | Boolean | Default `true` | Status Ketersediaan Stok (*Available/Out of Stock*) |\n| `is_recommended` | Boolean | Default `false` | Tag Menu Rekomendasi / *Best Seller* |\n| `estimated_time` | Integer | Default `15` | Estimasi Waktu Penyajian (Menit) |\n| `options` | JSON | Nullable | Opsi Varian Hidangan (Toping, Level Pedas) |\n| `deleted_at` | Timestamp | Nullable | **Soft Delete** |\n| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |\n\n---\n\n### 2.5 `orders`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Transaksi Pesanan |\n| `order_number` | String | Unique, Not Null | Kode Transaksi Unik (cth: `SC-20260920-001`) |\n| `pickup_code` | String | Unique, Not Null | Kode QR / String Pengambilan (cth: `FEB-8921`) |\n| `user_id` | ForeignId | Constrained `users`, Cascade | Mahasiswa Pemesan |\n| `tenant_id` | ForeignId | Constrained `tenants`, Cascade | Stand Tujuan Pesanan |\n| `subtotal_amount` | Decimal(12,2) | Default `0.00` | Subtotal Harga Seluruh Item (Rp) |\n| `app_fee` | Decimal(12,2) | Default `0.00` | Biaya Layanan Aplikasi (Rp) |\n| `channel_fee` | Decimal(12,2) | Default `0.00` | Biaya Gateway Pembayaran (Rp) |\n| `total_amount` | Decimal(12,2) | Not Null | Total Tagihan Akhir Lunas (Rp) |\n| `payment_method` | String | Default `cashless` | Metode Utama (`cashless`, `cash`) |\n| `payment_channel_code` | String | Nullable | Kode Saluran Bayar (cth: `bca_va`, `qris`, `cash`) |\n| `payment_details` | JSON | Nullable | Simulasi Detail Pembayaran Midtrans / QR |\n| `dining_option` | String | Default `dine_in` | Opsi Santap (`dine_in`, `takeaway`) |\n| `payment_status` | String | Default `unpaid` | Status Bayar (`unpaid`, `paid`, `failed`) |\n| `status` | String | Default `pending` | Status Alur (`pending`, `paid`, `processing`, `ready`, `completed`, `failed`) |\n| `snap_token` | String | Nullable | Token Snap Midtrans |\n| `notes` | Text | Nullable | Catatan Keseluruhan Pesanan |\n| `paid_at` | Timestamp | Nullable | Timestamp Pembayaran Lunas |\n| `processing_at` | Timestamp | Nullable | Timestamp Mulai Diproses Penjual |\n| `ready_at` | Timestamp | Nullable | Timestamp Siap Di-pickup |\n| `completed_at` | Timestamp | Nullable | Timestamp Selesai Di-pickup |\n| `deleted_at` | Timestamp | Nullable | **Soft Delete** |\n| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |\n\n---\n\n## 2.6 `order_items`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Item Pesanan |\n| `order_id` | ForeignId | Constrained `orders`, Cascade | Relasi ke Order |\n| `menu_id` | ForeignId | Nullable, Set Null | Relasi ke Menu |\n| `menu_name` | String | Not Null | **Snapshot Nama Menu** |\n| `price` | Decimal(12,2) | Not Null | **Snapshot Harga Satuan** |\n| `quantity` | UnsignedInt | Not Null | Jumlah Porsi yang Dipesan |\n| `options` | JSON | Nullable | **Snapshot Opsi Varian yang Dipilih** |\n| `note` | Text | Nullable | Catatan Khusus Item Makanan |\n| `subtotal` | Decimal(12,2) | Not Null | Subtotal (`quantity` x `price`) |\n| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |\n\n---\n\n## 2.7 `tenant_ratings`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Ulasan & Rating |\n| `tenant_id` | ForeignId | Constrained `tenants`, Cascade | Stand Penerima Ulasan |\n| `user_id` | ForeignId | Constrained `users`, Cascade | Pembuat Ulasan (Mahasiswa) |\n| `order_id` | ForeignId | Nullable, Set Null | Pesanan yang Diulas |\n| `rating` | UnsignedTinyInt | Default `5` | Nilai Bintang Rating (1 - 5 ⭐) |\n| `comment` | Text | Nullable | Teks Ulasan / Kesan Pembeli |\n| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |\n\n---\n\n## 2.8 `payment_methods`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Metode Pembayaran |\n| `code` | String | Unique, Not Null | Kode Unik (cth: `bca_va`, `qris`, `cash`) |\n| `name` | String | Not Null | Nama Tampilan (cth: *BCA Virtual Account*) |\n| `category` | Enum | Default `bank_transfer` | Kategori (`bank_transfer`, `ewallet`) |\n| `logo` | String | Nullable | Path Icon / Logo Saluran |\n| `fee_type` | Enum | Default `fixed` | Tipe Biaya Penanganan (`fixed`, `percentage`) |\n| `fee_amount` | Decimal(10,2) | Default `0.00` | Besaran Biaya Admin (Rp / %) |\n| `is_active` | Boolean | Default `false` | Status Aktif Saluran Pembayaran |\n| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |\n\n---\n\n## 2.9 `app_settings`\n| Column Name | Type | Constraints | Description |\n| :--- | :--- | :--- | :--- |\n| `id` | BigIncrements | Primary Key | ID Pengaturan Aplikasi |\n| `key` | String | Unique, Not Null | Kunci Pengaturan (cth: `app_fee`, `midtrans_sandbox`) |\n| `value` | Text | Nullable | Nilai Konfigurasi |\n| `label` | String | Nullable | Label Keterangan Pengaturan |\n| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |\n\"};Null | **Snapshot Harga Satuan** |\n| `quantity` | Integer | Not Null | Jumlah item |\n| `subtotal` | Decimal(12,2) | Not Null | Quantity x Price |\n", "09-payment-flow.md": "# Payment Flow & Verification — Smart Canteen FEB\n\n## 1. Dual Payment System Overview\n\nSmart Canteen FEB mendukung 2 metode pembayaran:\n1. **Cashless (Midtrans Sandbox):** Pembayaran digital otomatis dengan verifikasi HTTP callback.\n2. **Cash (Tunai):** Pembayaran tunai langsung di stand tenant menggunakan **Scan Kode QR / Input Kode Pesanan**.\n\n```mermaid\nflowchart TD\n    A[\"Checkout Mahasiswa\"] --> B{\"Pilih Metode Pembayaran\"}\n\n    B -->|\"Cashless\"| C[\"Midtrans Sandbox Snap Pop-up\"]\n    C --> D[\"Proses Pembayaran Digital\"]\n    D --> E[\"Midtrans Webhook Callback\"]\n    E --> F[\"Order Status: Dibayar\"]\n\n    B -->|\"Cash Tunai\"| G[\"Generate QR & pickup_code\"]\n    G --> H[\"Order Status: Menunggu Pembayaran Tunai\"]\n    H --> I[\"Mahasiswa Tunjukkan QR di Stand Tenant\"]\n    I --> J[\"Tenant Scan QR / Input Kode\"]\n    J --> K[\"Tenant Terima Uang & Konfirmasi\"]\n    K --> F\n```\n\n---\n\n## 2. Alur Pembayaran Cashless (Midtrans Sandbox)\n\n1. Mahasiswa mengklik \"Bayar Sekarang\" dengan opsi Cashless.\n2. Backend me-request Midtrans Snap Token via Midtrans Sandbox API.\n3. Midtrans Snap Modal muncul di layar Mahasiswa.\n4. Setelah transaksi dilakukan di Midtrans Simulator, Midtrans mengirimkan HTTP POST Callback Webhook ke `/api/midtrans/notification`.\n5. System mengecek signature key dan mengubah status `orders`:\n   - `status = 'paid'`, `payment_status = 'paid'`, `paid_at = now()`.\n\n---\n\n## 3. Alur Pembayaran Cash (Scan Kode QR oleh Tenant)\n\n1. Mahasiswa memilih opsi **Cash / Tunai**.\n2. System membuat pesanan dengan `payment_method = 'cash'`, `payment_status = 'unpaid'`, dan menghasilkan `pickup_code` unik (cth: `FEB-9912`) & QR Code string.\n3. Mahasiswa mendatangi stand tenant di kantin FEB dan menunjukkan Kode QR pada HP-nya.\n4. Tenant membuka modal **Scan / Verifikasi Pembayaran Cash** di aplikasi Tenant.\n5. Tenant melakukan scan QR via kamera atau mengetik `FEB-9912`.\n6. Aplikasi menampilkan rincian tagihan (cth: 2 Nasi Goreng + 1 Es Teh = Rp25.000).\n7. Tenant menerima uang fisik dari mahasiswa, lalu mengklik tombol **\"Konfirmasi Terima Pembayaran Tunai\"**.\n8. Backend memperbarui status pesanan: `status = 'paid'`, `payment_status = 'paid'`, `paid_at = now()`.\n", "10-status-order.md": "# Order Status Machine — Smart Canteen FEB\n\n## 1. State Machine Order Status\n\nStatus pesanan pada Smart Canteen FEB mengontrol alur dari awal pembuatan pesanan hingga siap diambil melalui mekanisme **Self-Pickup**.\n\n```mermaid\nstateDiagram-v2\n    [*] --> MenungguPembayaran\n\n    state MenungguPembayaran {\n        [*] --> UnpaidCashless\n        [*] --> UnpaidCash\n    }\n\n    UnpaidCashless --> Dibayar : Midtrans Callback Success\n    UnpaidCash --> Dibayar : Tenant Scan QR & Konfirmasi\n\n    state Dibayar {\n        [*] --> Paid\n    }\n\n    Dibayar --> Diproses : Tenant Klik Proses Pesanan\n\n    state Diproses {\n        [*] --> Processing\n    }\n\n    Diproses --> SiapDiambil : Tenant Klik Siap Diambil\n\n    state SiapDiambil {\n        [*] --> ReadyForPickup\n    }\n\n    SiapDiambil --> Selesai : Mahasiswa Ambil & Tenant Konfirmasi\n\n    state Selesai {\n        [*] --> Completed\n    }\n```\n\n---\n\n## 2. Status & Timestamps Audit Matrix\n\n| Status | Label UI | Trigger Cashless | Trigger Cash | Updated Timestamp |\n| :--- | :--- | :--- | :--- | :--- |\n| `pending` | **Menunggu Pembayaran** | Order Created | Order Created | `created_at` |\n| `paid` | **Dibayar** | Midtrans Webhook Callback | Tenant Scan QR & Confirm | `paid_at` |\n| `processing` | **Diproses** | Tenant Action | Tenant Action | `processing_at` |\n| `ready` | **Siap Diambil** | Tenant Action | Tenant Action | `ready_at` |\n| `completed` | **Selesai** | Tenant / Mahasiswa Action | Tenant / Mahasiswa Action | `completed_at` |\n| `failed` | **Gagal** | Midtrans Expired/Denied | Tenant Cancel | - |\n", "11-demo-scenarios.md": "# Demo Scenarios — Smart Canteen FEB\n\nDokumen ini berisi langkah-langkah pengujian (Walkthrough Test Script) untuk mendemonstrasikan sistem Smart Canteen FEB kepada penguji / stakeholder.\n\n---\n\n## 1. Demo Scenarios Flow\n\n```mermaid\nflowchart LR\n    S1[Skenario 1: Cashless Midtrans] --> S2[Skenario 2: Cash QR Scan]\n    S2 --> S3[Skenario 3: Soft Delete & Menu Kategori]\n    S3 --> S4[Skenario 4: Admin Supervision]\n```\n\n---\n\n## 2. Langkah-Langkah Skenario Demo\n\n### Skenario 1: Pemesanan Cashless (Midtrans Sandbox)\n1. Mahasiswa login (`mahasiswa@feb.ac.id`), pilih Tenant & Menu.\n2. Tambahkan ke keranjang $\\rightarrow$ Checkout $\\rightarrow$ Pilih **Cashless**.\n3. Selesaikan pembayaran di Pop-up Midtrans Sandbox.\n4. Status otomatis ter-update menjadi **\"Dibayar\"** dan pesanan muncul di Dashboard Tenant.\n\n### Skenario 2: Pemesanan Cash (Scan QR oleh Tenant)\n1. Mahasiswa buat pesanan baru $\\rightarrow$ Checkout $\\rightarrow$ Pilih **Cash / Tunai**.\n2. Aplikasi menampilkan **Kode QR & Pickup Code** (cth: `FEB-8821`).\n3. Pada tab Tenant (`tenant@feb.ac.id`), buka **Scan QR / Input Kode Pembayaran**.\n4. Scan / ketik `FEB-8821` $\\rightarrow$ Klik **Konfirmasi Terima Pembayaran Tunai**.\n5. Status otomatis berubah menjadi **\"Dibayar\"** $\\rightarrow$ Tenant memproses pesanan hingga **\"Siap Diambil\"** $\\rightarrow$ **\"Selesai\"**.\n\n### Skenario 3: Demonstrasi Soft Delete & Kategori Menu\n1. Tenant menambah/menghapus menu ber-kategori.\n2. Saat menu di-soft delete, riwayat pesanan lama mahasiswa **tetap aman dan konsisten** karena menggunakan snapshot & SoftDeletes.\n\n### Skenario 4: Admin Supervision\n1. Admin login (`admin@feb.ac.id`), memantau rasio pembayaran Cash vs Cashless dan kelola data master (Tenant & User dengan Soft Delete).\n", "12-technical-guidelines.md": "# Technical Guidelines — Smart Canteen FEB\n\nDokumen ini mendefinisikan arsitektur teknis, stack teknologi, konvensi kode, dan panduan pengembangan aplikasi Smart Canteen FEB.\n\n---\n\n## 1. Stack Teknologi\n\n```mermaid\nflowchart TD\n    subgraph Frontend[\"Frontend Layer (SPA)\"]\n        React[\"React 18 / JSX\"]\n        Inertia[\"Inertia.js v3\"]\n        Tailwind[\"Tailwind CSS\"]\n        Wayfinder[\"Laravel Wayfinder (Typed Routes)\"]\n    end\n\n    subgraph Backend[\"Backend Layer (Laravel Framework)\"]\n        PHP[\"PHP 8.4\"]\n        Laravel[\"Laravel 12 Framework\"]\n        Fortify[\"Laravel Fortify (Auth Engine)\"]\n        Spatie[\"Spatie Laravel Permission\"]\n        Midtrans[\"Midtrans PHP SDK\"]\n    end\n\n    subgraph Database[\"Data Layer\"]\n        MySQL[\"SQLite / MySQL Database\"]\n    end\n\n    Frontend <-->|\"Inertia Protocol & JSON\"| Backend\n    Backend <--> Database\n    Backend <-->|\"HTTP API / Webhooks\"| Midtrans\n```\n\n---\n\n## 2. Dependensi Utama (Composer & NPM)\n\n### PHP Packages (Composer)\n* `laravel/framework`: ^12.0\n* `inertiajs/inertia-laravel`: ^2.0 / v3\n* `laravel/fortify`: Authentication backend\n* `spatie/laravel-permission`: ^8.3 (Manajemen Role & Permisi)\n* `midtrans/midtrans-php`: Integrasi SDK Pembayaran Midtrans Sandbox\n* `laravel/wayfinder`: Auto-generate TypeScript/JS routes\n\n### JS Packages (NPM)\n* `@inertiajs/react`: Interaksi Client-side React dengan Inertia\n* `react` & `react-dom`: Library UI Rendering\n* `tailwindcss` & `@tailwindcss/vite`: Utility-first CSS styling\n\n---\n\n## 3. Struktur Direktori & Konvensi Kode\n\n* **Controller:** Disimpan di `app/Http/Controllers/`. Controller harus tipis (slim controllers), mengembalikan `Inertia::render('PageName', $props)`.\n* **Model:** Disimpan di `app/Models/`. Menggunakan Laravel Eloquent dengan typehints PHP 8.4.\n* **React Pages:** Disimpan di `resources/js/pages/`.\n  - `resources/js/pages/Mahasiswa/`: Halaman khusus flow mahasiswa.\n  - `resources/js/pages/Tenant/`: Halaman dashboard & pesanan tenant.\n  - `resources/js/pages/Admin/`: Halaman dashboard & master data admin.\n* **Components:** Component reusable disimpan di `resources/js/components/`.\n\n---\n\n## 4. Perintah Utama Development\n\n```bash\n# Menjalankan server backend Laravel\nphp artisan serve\n\n# Menjalankan Vite dev server frontend\nnpm run dev\n\n# Format kode PHP otomatis\nvendor/bin/pint --format agent\n\n# Regenerate Wayfinder typed routes\nphp artisan wayfinder:generate\n```\n", "13-development-rules.md": "# Development Rules\n\n## 1. Scope First\n\nSemua implementasi HARUS mengikuti dokumen di folder `docs/`.\n\nJangan menambahkan fitur baru hanya karena fitur tersebut dianggap umum,\nbagus, modern, atau dibutuhkan oleh aplikasi production.\n\nJika sebuah fitur tidak tercantum dalam scope, jangan implementasikan.\n\n## 2. Project Type\n\nProject ini adalah:\n\n- Website dummy/demo\n- Bukan production system\n- Fokus pada UI dan demo flow\n- Fokus pada alur utama Smart Canteen FEB\n\nJangan mengembangkan sistem menjadi platform production yang kompleks.\n\n## 3. Feature Addition\n\nJika requirement baru ditemukan:\n\n1. Cek apakah requirement tersebut ada di `docs/`.\n2. Jika tidak ada, jangan langsung implementasikan.\n3. Tandai sebagai OUT OF SCOPE.\n4. Minta konfirmasi sebelum mengubah scope.\n\n## 4. Avoid Overengineering\n\nJangan menambahkan:\n\n- microservices\n- queue system yang kompleks\n- event-driven architecture yang tidak diperlukan\n- caching layer yang kompleks\n- analytics\n- audit log kompleks\n- notification infrastructure\n- mobile application\n- financial accounting system\n\nkecuali secara eksplisit diminta.\n\n## 5. UI\n\nPrioritaskan:\n\n- tampilan rapi\n- responsive\n- konsisten\n- mudah digunakan\n- sesuai desain yang telah disepakati\n\nJangan membuat halaman tambahan yang tidak diperlukan hanya untuk\n\"melengkapi\" aplikasi.\n\n## 6. Payment\n\nPayment hanya digunakan untuk kebutuhan demo/alur pembayaran.\n\nJangan mengembangkan sistem payment production-grade di luar scope.", "14-out-of-scope.md": "# Out of Scope\n\nFitur berikut TIDAK termasuk dalam proyek:\n\n- Mobile application\n- Native Android/iOS application\n- Sistem keuangan\n- Laporan keuangan kompleks\n- Accounting\n- Settlement system\n- Sistem inventory kompleks\n- Integrasi POS\n- Integrasi sistem kampus\n- WhatsApp notification\n- SMS notification\n- Email notification infrastructure\n- Push notification\n- Real-time infrastructure kompleks\n- Multi-campus management\n- Loyalty program\n- Voucher system kompleks\n- Membership system\n- Advanced analytics\n- Advanced reporting\n- Production-grade payment infrastructure\n- Infrastructure scaling\n- DevOps pipeline kompleks\n- Kubernetes\n- Microservices\n- AI recommendation\n- Machine learning\n- Fitur lain yang tidak tercantum dalam scope\n\nJika fitur tersebut dibutuhkan, fitur dianggap sebagai\nCHANGE REQUEST / OUT OF SCOPE dan harus mendapat persetujuan terlebih dahulu.", "15-acceptance-criteria.md": "# Acceptance Criteria — Smart Canteen FEB\n\n## 1. Quality Gate Overview\n\n```mermaid\nflowchart TD\n    AC1[1. Dual Payment: Cashless & Cash QR Scan] --> GATE{Definition of Done}\n    AC2[2. Soft Deletes pada User, Tenant, Menu, Order] --> GATE\n    AC3[3. Kategori Menu & Snapshot Order Items] --> GATE\n    AC4[4. Self-Pickup Tracker & Timestamps] --> GATE\n    AC5[5. Admin & Tenant Dashboard Supervision] --> GATE\n    GATE -- Pass All --> PASSED[PROYEK DEMO ACC / SELESAI]\n```\n\n---\n\n## 2. Checklist Acceptance Criteria\n\n* [ ] Mahasiswa dapat memilih pembayaran **Cashless** (Midtrans Sandbox) atau **Cash** (Tunai di Stand).\n* [ ] Mahasiswa menerima Kode QR & string `pickup_code` unik untuk setiap transaksi.\n* [ ] Tenant memiliki fitur **Scan Kode QR / Input Kode** untuk mengonfirmasi pembayaran tunai.\n* [ ] Model `User`, `Tenant`, `Menu`, dan `Order` mengimplementasikan Trait `SoftDeletes` (`deleted_at`).\n* [ ] Model `OrderItem` menyimpan `menu_name` dan `price` sebagai snapshot saat transaksi dibuat.\n* [ ] Tenant dapat mengelompokkan menu berdasarkan `Category`.\n* [ ] Status pesanan mengupdate timestamp audit (`paid_at`, `processing_at`, `ready_at`, `completed_at`).\n* [ ] Seluruh alur demo berjalan lancar tanpa merusak data historis.\n", "16-rab.md": "# Rencana Anggaran Biaya (RAB) — Smart Canteen FEB\n\nDokumen ini merincikan alokasi anggaran biaya (Rp1.000.000) dan estimasi pengerjaan (5–7 Hari Kerja) untuk pengembangan Website Demo Smart Canteen FEB.\n\n---\n\n## 1. Timeline & Budget Breakdown\n\n```mermaid\n%%{init: { \"gantt\": { \"leftPadding\": 160, \"useWidth\": 900 } } }%%\ngantt\n    title Timeline Pengerjaan Smart Canteen FEB (5-7 Hari)\n    dateFormat  YYYY-MM-DD\n    axisFormat  %d %b\n    tickInterval 1day\n    section Phase 1: Planning & Setup\n    Doc & DB Schema with SoftDeletes  :active, p1, 2026-09-18, 1d\n    section Phase 2: Core & Dual Payment\n    Auth & Category Menu Setup        :p2, after p1, 1d\n    Cart & Checkout (Cash vs Cashless):p3, after p2, 1d\n    Midtrans Sandbox & Cash QR Scan   :p4, after p3, 2d\n    section Phase 3: Tenant & Admin\n    Tenant QR Scanner & Order Board   :p5, after p4, 1d\n    Admin Dashboard & Final Polish    :p6, after p5, 1d\n```\n\n---\n\n## 2. Rincian Alokasi Biaya (Rp1.000.000)\n\n| No | Modul / Komponen Pekerjaan | Bobot (%) | Biaya (IDR) | Output / Deliverables |\n| :--- | :--- | :---: | :---: | :--- |\n| 1 | **Setup Architecture, DB Schema & SoftDeletes** | 15% | Rp150.000 | Core setup Laravel 12 + Inertia React, Spatie Roles, Migration with SoftDeletes & Categories. |\n| 2 | **Modul Mahasiswa (Katalog Kategori & Checkout)** | 25% | Rp250.000 | Katalog Menu per Kategori, Cart, Checkout pilihan Cashless / Cash, Digital QR Code display. |\n| 3 | **Dual Payment Engine (Midtrans & Cash QR Scan)**| 25% | Rp250.000 | Midtrans Sandbox integration + Tenant QR Code Scanner / Input Code Verifier for Cash payment. |\n| 4 | **Modul Tenant (Order Board & Menu CRUD)** | 20% | Rp200.000 | Tenant Order Status Board (`Dibayar` $\\rightarrow$ `Diproses` $\\rightarrow$ `Siap Diambil`), Category & Menu CRUD (Soft Delete). |\n| 5 | **Modul Admin & Final Polish** | 15% | Rp150.000 | Admin Supervision Dashboard, Master Data Management, Responsive Mobile & Desktop polish. |\n| **TOTAL** | | **100%** | **Rp1.000.000** | **Website Demo Ready Smart Canteen FEB** |\n"};
+    const docsData = {"00-project-overview.md": "# Smart Canteen FEB
+
+## Project Constraint
+
+Budget: Rp1.000.000
+Type: Dummy / Demo
+Estimated Development: 5–7 working days
+
+## Primary Objective
+
+Membangun website demo Smart Canteen FEB yang memperlihatkan alur:
+
+Mahasiswa
+→ Pilih Tenant
+→ Pilih Menu
+→ Keranjang
+→ Checkout
+→ Pembayaran
+→ Tenant Memproses
+→ Pesanan Siap
+→ Self-Pickup
+
+## AI Development Principle
+
+> Implement only what is required by the documented scope.
+
+The AI MUST NOT expand the project scope autonomously.
+
+Before implementing a feature, the AI should verify that the feature exists
+in the project documentation.
+
+If the feature is not documented, classify it as:
+
+OUT OF SCOPE
+
+and do not implement it without explicit approval.
+
+## Priority
+
+1. Scope
+2. Functional requirements
+3. User flow
+4. Acceptance criteria
+5. UI/UX
+6. Technical implementation
+
+Technical complexity must never override the project scope.", "01-scope.md": "# Project Scope — Smart Canteen FEB
+
+## 1. Informasi Proyek
+
+**Nama Proyek:** Smart Canteen FEB
+**Jenis:** Website Dummy / Demo
+**Budget:** Rp1.000.000
+**Estimasi Pengerjaan:** 5–7 hari kerja
+
+Dokumen ini menjadi **batas utama pengembangan proyek**.
+
+Seluruh implementasi harus mengikuti scope yang tercantum di dokumen ini.
+
+---
+
+## 2. Tujuan Proyek
+
+Smart Canteen FEB adalah website demo yang digunakan untuk memperlihatkan konsep pemesanan makanan/minuman di lingkungan FEB dengan dukungan opsi pembayaran **Cashless (Midtrans Sandbox)** dan **Cash (Tunai dengan Scan QR/Kode oleh Tenant)**, penataan menu ber-kategori, serta keamanan data historis melalui **Soft Deletes**.
+
+Tujuan utama website:
+
+* Menampilkan tenant/kantin.
+* Menampilkan menu ber-kategori yang tersedia.
+* Memungkinkan mahasiswa membuat pesanan.
+* Menampilkan proses checkout (Pilihan **Cashless** vs **Cash**).
+* Menampilkan simulasi/alur pembayaran Cashless (Midtrans Sandbox) dan Cash (Scan Kode oleh Tenant).
+* Memungkinkan tenant memproses pesanan.
+* Menampilkan status pesanan sampai siap diambil.
+* Menunjukkan konsep **Self-pickup**.
+* Menerapkan **Soft Deletes** pada entity krusial (Users, Tenants, Menus, Orders) untuk integritas riwayat transaksi.
+
+Website ini **BUKAN sistem kantin production**.
+
+Fokus utama adalah **UI, UX, dan demonstrasi alur bisnis utama**.
+
+---
+
+## 3. Aktor Sistem
+
+Sistem hanya memiliki tiga jenis pengguna:
+
+### 3.1 Mahasiswa
+
+Mahasiswa dapat:
+
+* Login / mengakses akun.
+* Melihat daftar tenant.
+* Melihat menu tenant berdasarkan kategori.
+* Melihat detail menu.
+* Menambahkan menu ke keranjang.
+* Mengubah isi keranjang.
+* Melakukan checkout (Pilih **Cashless** atau **Cash**).
+* Mendapatkan Kode QR / Kode Pengambilan pesanan.
+* Melakukan simulasi pembayaran Cashless atau menampilkan Kode ke Tenant untuk bayar Cash.
+* Melihat status pesanan dan tracker timeline.
+* Melihat riwayat pesanan.
+* Melihat informasi pengambilan pesanan (**Self-Pickup**).
+
+### 3.2 Tenant / Penjual
+
+Tenant dapat:
+
+* Login ke dashboard.
+* Melihat pesanan masuk.
+* Menampilkan scanner / input kode pesanan untuk **Konfirmasi Pembayaran Cash**.
+* Melihat detail pesanan.
+* Mengubah status pesanan (`Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).
+* Mengelola kategori menu.
+* Menambahkan, mengubah, menghapus menu (dengan **Soft Deletes**).
+* Mengatur ketersediaan menu (Toggle Stock).
+
+### 3.3 Admin
+
+Admin dapat:
+
+* Login ke dashboard admin.
+* Melihat statistik demo.
+* Mengelola data tenant (Tambah, Edit, Hapus via **Soft Deletes**).
+* Mengelola pengguna & role (Mahasiswa, Tenant, Admin dengan **Soft Deletes**).
+* Melihat & memantau seluruh transaksi kantin.
+
+---
+
+## 4. Scope Pembayaran & Verifikasi
+
+### 4.1 Cashless (Midtrans Sandbox)
+```mermaid
+flowchart TD
+    Checkout[\"Mahasiswa Checkout Cashless\"] --> Snap[\"Tampil Pop-up Midtrans Sandbox\"]
+    Snap --> Simulator[\"Bayar via Midtrans Simulator\"]
+    Simulator --> Webhook[\"Callback Webhook Midtrans\"]
+    Webhook --> Paid[\"Status: Dibayar\"]
+    Paid --> TenantDashboard[\"Tampil di Tenant Dashboard\"]
+```
+
+### 4.2 Cash (Tunai di Stand Tenant)
+```mermaid
+flowchart TD
+    Checkout[\"Mahasiswa Checkout Cash\"] --> GenCode[\"Generate QR / Kode Pengambilan\"]
+    GenCode --> Pending[\"Status: Menunggu Pembayaran Tunai\"]
+    Pending --> Stand[\"Mahasiswa Datang ke Stand Tenant\"]
+    Stand --> Scan[\"Tenant Scan QR / Input Kode di App Tenant\"]
+    Scan --> Confirm[\"Tenant Terima Uang & Klik Konfirmasi\"]
+    Confirm --> Paid[\"Status: Dibayar\"]
+    Paid --> Process[\"Tenant Memproses Pesanan\"]
+```
+
+---
+
+## 5. Scope Data & Soft Deletes
+
+Data krusial menggunakan fitur **Soft Deletes (`deleted_at`)**:
+1. `users`: Jika akun dinonaktifkan/dihapus, riwayat transaksi pesanan historis tetap utuh.
+2. `tenants`: Jika tenant tutup/dihapus, riwayat belanja mahasiswa tidak hilang.
+3. `menus`: Jika menu dihapus dari katalog tenant, pesanan lama tetap menampilkan nama dan harga menu tersebut (Snapshot Data).
+4. `orders`: Pesanan yang dibatalkan/dihapus tetap tersimpan secara soft delete untuk transparansi demo.
+
+---
+
+## 6. Alur Bisnis Utama
+
+Alur utama yang **WAJIB dapat didemokan**:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor M as Mahasiswa
+    participant SYS as \"Sistem Smart Canteen\"
+    participant MID as \"Midtrans Sandbox\"
+    actor T as Tenant
+
+    M->>SYS: Login dan Pilih Tenant / Menu
+    M->>SYS: Checkout (Pilih Cashless / Cash)
+    alt Metode Cashless
+        SYS->>MID: Request Snap Token
+        MID-->>M: Tampilkan Midtrans Pop-up Sandbox
+        M->>MID: Selesaikan Bayar di Sandbox
+        MID-->>SYS: Callback Auto Webhook
+        SYS->>SYS: Update Status: Dibayar
+    else Metode Cash (Tunai)
+        SYS-->>M: Generate Kode QR / Pengambilan
+        M->>T: Tunjukkan Kode QR dan Uang Tunai di Stand
+        T->>SYS: Scan QR / Input Kode Pesanan -> Konfirmasi Bayar
+        SYS->>SYS: Update Status: Dibayar
+    end
+    SYS-->>T: Pesanan Masuk di Dashboard
+    T->>SYS: Update Status: Diproses
+    T->>SYS: Update Status: Siap Diambil
+    M->>T: Datang Ambil Pesanan (Self-Pickup)
+    T->>SYS: Update Status: Selesai
+```
+
+---
+
+## 7. Definition of Done
+
+Proyek dianggap memenuhi scope apabila:
+* Mahasiswa dapat memesan dengan opsi **Cashless** (Midtrans Sandbox) maupun **Cash** (Scan QR oleh Tenant).
+* Tenant dapat melakukan **Scan Kode QR / Input Kode** untuk menerima bayar tunai.
+* Data `users`, `tenants`, `menus`, dan `orders` menerapkan **Soft Deletes**.
+* Menu terkelola dalam **Kategori Menu**.
+* Core flow dapat didemonstrasikan dari awal sampai selesai tanpa error.
+", "02-requirements.md": "# Functional & Non-Functional Requirements — Smart Canteen FEB
+
+## 1. Requirements Overview
+
+Dokumen ini mendefinisikan kebutuhan fungsional (Functional Requirements) dan non-fungsional (Non-Functional Requirements) dari sistem Smart Canteen FEB berdasarkan [01-scope.md](file:///home/darbi/Projects/smart_canteen/docs/01-scope.md).
+
+---
+
+## 2. Functional Requirements (FR)
+
+### 2.1 Modul Mahasiswa (Customer)
+* **FR-MHS-01:** Mahasiswa dapat melakukan login dan logout.
+* **FR-MHS-02:** Mahasiswa dapat melihat daftar tenant dan filter menu berdasarkan kategori (Makanan, Minuman, Camilan).
+* **FR-MHS-03:** Mahasiswa dapat melihat detail menu (nama, harga, foto, ketersediaan).
+* **FR-MHS-04:** Mahasiswa dapat mengelola keranjang belanja (cart).
+* **FR-MHS-05:** Mahasiswa dapat memilih metode pembayaran di Checkout: **Cashless** (Midtrans Sandbox) atau **Cash** (Tunai di Stand).
+* **FR-MHS-06:** Mahasiswa mendapatkan **Kode QR / Kode Pengambilan** unik untuk setiap transaksi.
+* **FR-MHS-07:** Mahasiswa dapat memantau live status pesanan (`Menunggu Pembayaran` → `Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).
+* **FR-MHS-08:** Mahasiswa dapat melihat riwayat pesanan (historis tetap aman meskipun menu/tenant di-soft delete).
+
+### 2.2 Modul Tenant (Penjual)
+* **FR-TNT-01:** Tenant dapat login ke dashboard tenant.
+* **FR-TNT-02:** Tenant dapat melakukan **Scan Kode QR / Input Kode Pesanan** mahasiswa untuk mengonfirmasi pembayaran Tunai (Cash).
+* **FR-TNT-03:** Tenant dapat melihat ringkasan & detail pesanan masuk.
+* **FR-TNT-04:** Tenant dapat memperbarui status pesanan (`Dibayar` → `Diproses` → `Siap Diambil` → `Selesai`).
+* **FR-TNT-05:** Tenant dapat mengelola Kategori Menu & Item Menu (Tambah, Edit, Soft Delete, Toggle Stok Available/Out of Stock).
+
+### 2.3 Modul Admin (Pengelola)
+* **FR-ADM-01:** Admin dapat login ke dashboard admin.
+* **FR-ADM-02:** Admin dapat melihat statistik demo (Total Tenant, Total User, Total Transaksi, Transaksi Cash vs Cashless).
+* **FR-ADM-03:** Admin dapat mengelola data tenant (CRUD + Soft Delete).
+* **FR-ADM-04:** Admin dapat mengelola pengguna & role (CRUD + Soft Delete).
+* **FR-ADM-05:** Admin dapat memantau seluruh transaksi kantin secara global.
+
+---
+
+## 3. Non-Functional Requirements (NFR)
+
+### 3.1 Data Integrity & Soft Deletes
+* **NFR-01:** Menerapkan `softDeletes` (`deleted_at`) pada `users`, `tenants`, `menus`, dan `orders` untuk menjaga integritas data historis.
+* **NFR-02:** Menggunakan snapshot nama & harga menu pada `order_items` saat transaksi terjadi.
+
+### 3.2 Performance & Usability
+* **NFR-03:** Layout responsive (Mobile-first untuk Mahasiswa, Desktop/Mobile friendly untuk Tenant & Admin).
+* **NFR-04:** Respon verifikasi scan QR / kode tunai di stand tenant berjalan instan (< 1 detik).
+", "03-user-flow.md": "# User Flow — Smart Canteen FEB
+
+## 1. Core End-to-End Business Flow
+
+Alur utama pemesanan dengan opsi **Cashless (Midtrans Sandbox)** dan **Cash (Scan QR / Kode di Tenant)** disajikan dalam diagram Mermaid berikut:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor M as Mahasiswa
+    participant SYS as \"Sistem Smart Canteen\"
+    participant MID as \"Midtrans Sandbox\"
+    actor T as Tenant
+
+    M->>SYS: Login dan Lihat Menu per Kategori
+    M->>SYS: Tambah ke Keranjang lalu Checkout
+    M->>SYS: Pilih Metode Pembayaran (Cashless / Cash)
+    
+    alt Pembayaran Cashless
+        SYS->>MID: Request Midtrans Snap Token
+        MID-->>M: Tampilkan Midtrans Sandbox Pop-up
+        M->>MID: Selesaikan Bayar di Sandbox
+        MID-->>SYS: Webhook Auto Callback Success
+        SYS->>SYS: Status Pesanan: Dibayar
+    else Pembayaran Cash (Tunai)
+        SYS-->>M: Tampilkan Kode QR / Kode Pengambilan
+        M->>T: Tunjukkan Kode QR dan Serahkan Uang Tunai di Stand
+        T->>SYS: Scan QR / Input Kode di App Tenant
+        T->>SYS: Klik Konfirmasi Terima Tunai
+        SYS->>SYS: Status Pesanan: Dibayar
+    end
+
+    SYS-->>T: Pesanan Masuk di Dashboard Tenant
+    T->>SYS: Ubah Status: Diproses
+    T->>SYS: Ubah Status: Siap Diambil
+    SYS-->>M: Live Tracker Update: Siap Diambil
+    M->>T: Ambil Makanan di Stand (Self-Pickup)
+    T->>SYS: Konfirmasi Selesai: Status Selesai
+```
+
+---
+
+## 2. Detail Alur Pembayaran Cash (Scan QR oleh Tenant)
+
+```mermaid
+flowchart TD
+    A[\"Mahasiswa Checkout Pilih Cash\"] --> B[\"Sistem Generate pickup_code & QR\"]
+    B --> C[\"Status Order: Menunggu Pembayaran Tunai\"]
+    C --> D[\"Mahasiswa Datang ke Stand Tenant\"]
+    D --> E[\"Tenant Buka Scanner / Input Form di App Tenant\"]
+    E --> F[\"Tenant Scan QR / Ketik Kode Pesanan\"]
+    F --> G[\"Tampil Detail Tagihan & Item Pesanan\"]
+    G --> H[\"Tenant Terima Uang & Klik Konfirmasi Pembayaran\"]
+    H --> I[\"Status Order Berubah: Dibayar\"]
+    I --> J[\"Tenant Langsung Memproses Pesanan\"]
+```
+", "04-user-roles.md": "# User Roles & Permissions — Smart Canteen FEB
+
+## 1. Definisi Role
+
+Sistem Smart Canteen FEB menggunakan 3 role utama via **Spatie Laravel Permission**:
+
+1. `mahasiswa` (Customer)
+2. `tenant` (Penjual / Stand FEB)
+3. `admin` (Pengelola System)
+
+---
+
+## 2. Hak Akses & Matriks Permisi
+
+| Fitur / Halaman | Mahasiswa | Tenant | Admin |
+| :--- | :---: | :---: | :---: |
+| **Login / Logout** | ✅ | ✅ | ✅ |
+| **Melihat Tenant & Menu per Kategori** | ✅ | ✅ | ✅ |
+| **Tambah ke Cart & Checkout (Cashless / Cash)** | ✅ | ❌ | ❌ |
+| **Mendapatkan Kode QR / Kode Pengambilan** | ✅ | ❌ | ❌ |
+| **Scan QR / Input Kode Pembayaran Cash** | ❌ | ✅ | ❌ |
+| **Kelola Status Pesanan (`Dibayar` → `Selesai`)** | ❌ | ✅ | ❌ |
+| **Kelola Kategori & Menu (CRUD + Soft Delete)** | ❌ | ✅ | ❌ |
+| **Dashboard Admin & Supervision** | ❌ | ❌ | ✅ |
+| **Kelola Tenant (CRUD + Soft Delete)** | ❌ | ❌ | ✅ |
+| **Kelola User (CRUD + Soft Delete)** | ❌ | ❌ | ✅ |
+
+---
+
+## 3. Aturan Soft Delete Permisi
+* Tenant atau Admin yang melakukan penghapusan data (User, Tenant, Menu) hanya melakukan Soft Delete (`deleted_at`), sehingga tidak menghapus data secara permanen dan menjaga integritas tabel transaksi `orders` & `order_items`.
+", "05-feature-specification.md": "# Feature Specification — Smart Canteen FEB
+
+Dokumen ini mendefinisikan seluruh spesifikasi fitur fungsional aplikasi Smart Canteen FEB sesuai dengan implementasi terkini.
+
+---
+
+## 1. Modul Mahasiswa (Customer)
+
+### 1.1 Auth & Account Management
+* **F-MHS-01 Registrasi & Login Mahasiswa:** Form autentikasi credentials mahasiswa dengan dukungan pengingat sesi (*Remember Me*) dan batas kata sandi minimal 8 karakter.
+* **F-MHS-02 Quick Role Switcher Demo:** Utility switcher role instant pada header/navigasi untuk kemudahan saat presentasi demo.
+* **F-MHS-03 Profil & Keamanan Akun:** Edit nama, email, foto profil (`/settings/profile`), ubah kata sandi, dan Two-Factor Authentication (2FA) (`/settings/security`).
+
+### 1.2 Katalog & Pemesanan Makanan
+* **F-MHS-04 Katalog Tenant & Filter Kategori:** Halaman utama (`/catalog`) menampilkan promo banner carousel, daftar stand kantin, dan filter kategori global (*Makanan Utama*, *Minuman*, *Camilan*).
+* **F-MHS-05 Detail Stand Kantin:** Halaman profil stand (`/{tenant:slug}`) menampilkan banner header, logo, jam operasional, status buka/tutup, ulasan bintang, dan menu khusus stand.
+* **F-MHS-06 Modal Detail Menu & Catatan Pesanan:** Tampilan modal hidangan berukuran besar, pengatur kuantitas porsi (`+`/`-`), dan input teks catatan khusus pesanan ke penjual.
+* **F-MHS-07 Floating Cart Bar & Multi-Stand Checkout:** Bilah keranjang melayang di bawah layar saat item > 0, dan halaman checkout (`/checkout`) yang mendukung pengelompokan pesanan multi-stand.
+
+### 1.3 Pembayaran & Tracking Status
+* **F-MHS-08 Dual Payment Engine:**
+  - **Cashless Digital (Midtrans Sandbox):** Integrasi Snap Pop-up dengan simulasi BCA Virtual Account ([Simulator BCA VA](https://simulator.sandbox.midtrans.com/bca/va/index)) dan QRIS ([Simulator QRIS](https://simulator.sandbox.midtrans.com/v2/qris/index)).
+  - **Tunai / Cash:** Digital Pickup Pass dengan gambar Kode QR, string unik `FEB-XXXX`, dan hitung mundur timer bayar 15 menit.
+* **F-MHS-09 Live Status Tracker Real-Time:** Stepper visual 5-tahap (`Menunggu Pembayaran` ➔ `Dibayar` ➔ `Diproses` ➔ `Siap Diambil` ➔ `Selesai`) dengan timestamp audit instan.
+* **F-MHS-10 Rating & Ulasan Menu:** Pemberian bintang 1–5 ⭐ dan ulasan rasa/pelayanan setelah pesanan di-pickup (`/orders/{order}/rate`).
+* **F-MHS-11 Riwayat Transaksi & Re-Order:** Halaman riwayat pesanan (`/orders`, `/orders/history`) lengkap dengan invoice digital dan tombol *Pesan Lagi*.
+
+---
+
+## 2. Modul Tenant (Pemilik Stand)
+
+### 2.1 Dashboard & Operasional Stand
+* **F-TNT-01 Tenant Metric Dashboard:** Overview pendapatan hari ini, jumlah pesanan aktif per status, rasio Cash vs Cashless, dan grafik penjualan (`/tenant/dashboard`).
+* **F-TNT-02 Quick Toggle Status Stand:** Saklar instant untuk mengubah status *Buka / Tutup Stand* (`is_open`).
+* **F-TNT-03 Pengaturan Profil Stand:** Mengunggah foto banner header, foto logo, nomor telepon, deskripsi, dan jam operasional (`/tenant/settings`).
+
+### 2.2 Order Board & Verifikasi QR Tunai
+* **F-TNT-04 Kitchen Order Board & Kanban:** Papan kontrol pesanan masuk (`/tenant/orders`) berbasis tab status dengan aksi update cepat (`🍳 Mulai Proses` ➔ `🔔 Siap Diambil` ➔ `✅ Tandai Selesai`).
+* **F-TNT-05 Cash QR Code Scanner & Code Verifier:** Fitur kamera scan QR Code / input manual kode `FEB-XXXX` di kasir stand (`/tenant/verify-payment`) untuk memverifikasi pembayaran tunai.
+
+### 2.3 Manajemen Kategori, Menu & Ulasan
+* **F-TNT-06 Manajemen Kategori Menu:** CRUD pengelompokan menu internal stand (`/tenant/categories`).
+* **F-TNT-07 Manajemen Katalog Menu (CRUD + Soft Delete):** Menambah, mengubah foto, harga, estimasi waktu penyajian, varian opsi, tag *Best Seller*, dan saklar stok instant (*Available / Out of Stock*) (`/tenant/menus`).
+* **F-TNT-08 Fitur Sampah (Restore Data):** Pemulihan data menu yang tidak sengaja terhapus via fitur Soft Delete.
+* **F-TNT-09 Ulasan & Rating Pembeli:** Melihat daftar ulasan bintang dan testimoni pembeli (`/tenant/ratings`).
+
+---
+
+## 3. Modul Admin (Administrator System)
+
+### 3.1 Pengawasan Global & Metric
+* **F-ADM-01 Admin Dashboard Supervision:** Monitoring total omset kantin FEB, jumlah stand aktif, total user, rasio metode pembayaran, dan statistik transaksi (`/admin/dashboard`).
+* **F-ADM-02 Global Order Supervision:** Monitoring seluruh transaksi kantin secara global dengan filter tanggal, stand, dan status (`/admin/orders`).
+
+### 3.2 Master Data & Settings
+* **F-ADM-03 Master Data Tenant Management:** CRUD data stand tenant dilengkapi dengan Soft Delete & Restore (`/admin/tenants`).
+* **F-ADM-04 Master Data User & Role Management:** CRUD pengguna, manajemen role (*Mahasiswa*, *Tenant*, *Admin*), dan Soft Delete & Restore (`/admin/users`).
+* **F-ADM-05 Master Payment Settings & Fee:** Pengaturan saluran pembayaran aktif dan biaya layanan aplikasi / Admin Fee (`/admin/payment-settings`).
+", "06-page-specification.md": "# Page Specification — Smart Canteen FEB
+
+Dokumen ini mendeskripsikan seluruh halaman dalam sistem beserta komponen, rute Inertia React, layout, dan interaksinya.
+
+---
+
+## 1. Halaman Mahasiswa (Customer)
+
+### 1.1 Halaman Katalog Kantin (`/catalog` atau `/`)
+* **Rute / Component:** `resources/js/pages/catalog.tsx` (atau `catalog/index.tsx`)
+* **Elemen:** Promo Banner Carousel, Live Search Bar, Chips Filter Kategori Global (*Makanan Utama*, *Minuman*, *Camilan*), Kartu Stand Kantin (Rating, Status Buka/Tutup), Grid Kartu Menu Hidangan, Floating Cart Bar.
+* **Aksi:** Ketik pencarian, filter kategori, klik stand untuk detail, klik menu untuk modal detail, klik checkout.
+
+### 1.2 Halaman Detail Stand Tenant (`/{tenant:slug}`)
+* **Rute / Component:** `resources/js/pages/tenant-detail.tsx`
+* **Elemen:** Header Banner Cover Stand, Foto Logo, Nama Stand, Jam Operasional, Rating Bintang & Total Ulasan, Chips Kategori Internal Stand, Grid Menu Stand.
+
+### 1.3 Halaman Checkout (`/checkout`)
+* **Rute / Component:** `resources/js/pages/checkout/index.tsx`
+* **Elemen:** Rincian Item per Stand, Edit Jumlah / Hapus Item, Input Catatan Khusus, Ringkasan Pembayaran (Subtotal, Biaya Admin, Total Tagihan), Radio Button Metode Pembayaran (Cashless Midtrans vs Cash Tunai), Opsi Santap (*Dine In* / *Takeaway*), Tombol \"Buat Pesanan\".
+
+### 1.4 Halaman Pembayaran & Digital Pickup Pass (`/orders/{order}/payment`)
+* **Rute / Component:** `resources/js/pages/orders/payment.tsx` & `resources/js/pages/orders/show.tsx`
+* **Elemen:**
+  - **Cashless:** Tombol Buka Pop-up Midtrans Snap + Petunjuk Link Simulator BCA VA / QRIS.
+  - **Tunai:** Pass Pengambilan Digital (Gambar QR Code besar, Kode Pengambilan `FEB-XXXX`, Hitung Mundur 15 Menit).
+
+### 1.5 Halaman Live Order Tracker (`/orders/{order}`)
+* **Rute / Component:** `resources/js/pages/orders/show.tsx`
+* **Elemen:** Visual Timeline Stepper 5-Tahap (`Menunggu Pembayaran` ➔ `Dibayar` ➔ `Diproses` ➔ `Siap Diambil` ➔ `Selesai`), Notifikasi Berkedip (*Pulsing Green*) saat Siap Di-pickup, Detail Item Pesanan, Audit Timestamps (`paid_at`, `processing_at`, `ready_at`, `completed_at`).
+
+### 1.6 Halaman Riwayat Pesanan (`/orders` & `/orders/history`)
+* **Rute / Component:** `resources/js/pages/orders/index.tsx` & `orders/history.tsx`
+* **Elemen:** Tab *Pesanan Aktif* vs *Riwayat Selesai*, Kartu Transaksi, Invoice Digital, Tombol *Beri Ulasan*, Tombol *Pesan Lagi*.
+
+### 1.7 Halaman Pengaturan Akun (`/settings/*`)
+* **Rute / Component:** `resources/js/pages/settings/profile.tsx`, `security.tsx`, `appearance.tsx`
+* **Elemen:** Form Edit Profil & Foto Avatar, Form Ubah Password, Panel Two-Factor Authentication (2FA), Saklar Mode Gelap / Mode Terang.
+
+---
+
+## 2. Halaman Tenant (Pemilik Stand)
+
+### 2.1 Tenant Dashboard (`/tenant/dashboard`)
+* **Rute / Component:** `resources/js/pages/tenant/dashboard.tsx`
+* **Elemen:** Metric Card (Omset Hari Ini, Pesanan Masuk, Rasio Bayar), Quick Saklar *Status Buka/Tutup Stand*, Grafik Penjualan, Tabel Preview Pesanan Terbaru.
+
+### 2.2 Kelola Pesanan & Kitchen Kanban Board (`/tenant/orders`)
+* **Rute / Component:** `resources/js/pages/tenant/orders.tsx`
+* **Elemen:** Tab Status Pesanan (*Masuk*, *Diproses*, *Siap Diambil*), Papan Kanban Dapur, Tombol Aksi Cepat (`🍳 Mulai Proses`, `🔔 Siap Diambil`, `✅ Tandai Selesai`), Detail Item & Catatan Pembeli.
+
+### 2.3 Cash QR Code Scanner & Verifier (`/tenant/verify-payment`)
+* **Rute / Component:** `resources/js/pages/tenant/verify-payment.tsx`
+* **Elemen:** Pemindai Kamera QR Code, Kolom Input Teks Kode `FEB-XXXX`, Kartu Ringkasan Tagihan Pembeli, Tombol \"💵 Konfirmasi Pembayaran Tunai\".
+
+### 2.4 Manajemen Kategori & Menu (`/tenant/menus`, `/tenant/categories`)
+* **Rute / Component:** `resources/js/pages/tenant/menus.tsx`, `menus/create.tsx`, `menus/edit.tsx`, `categories.tsx`
+* **Elemen:** Tabel Data Kategori & Menu, Form Tambah/Edit Menu (Foto, Nama, Harga, Varian, Tag Best Seller, Estimasi Waktu), Saklar Stok Instant (*Available/Out of Stock*), Action Soft Delete & Restore dari Sampah.
+
+### 2.5 Halaman Ulasan & Pengaturan Stand (`/tenant/ratings`, `/tenant/settings`)
+* **Rute / Component:** `resources/js/pages/tenant/ratings.tsx`, `settings.tsx`
+* **Elemen:** Daftar Ulasan Bintang & Komentar Pembeli, Form Edit Profile Stand (Banner Cover, Logo, Telepon, Jam Operasional).
+
+---
+
+## 3. Halaman Admin (Administrator System)
+
+### 3.1 Admin Metric Dashboard (`/admin/dashboard`)
+* **Rute / Component:** `resources/js/pages/admin/dashboard.tsx`
+* **Elemen:** Metric Cards (Total Omset Kantin, Volume Transaksi, Stand Aktif, Total User), Grafik Penjualan Harian, Combobox Filter Tenant.
+
+### 3.2 Master Data Stand Tenant (`/admin/tenants`)
+* **Rute / Component:** `resources/js/pages/admin/tenants.tsx`
+* **Elemen:** Data Table Stand Tenant, Modal Tambah/Edit Stand, Dialog Non-aktifkan Stand, Soft Delete & Restore.
+
+### 3.3 Master Data Pengguna & Role (`/admin/users`)
+* **Rute / Component:** `resources/js/pages/admin/users.tsx`
+* **Elemen:** Data Table User, Modal Tambah User, Dialog Ubah Role (*Mahasiswa*, *Tenant*, *Admin*), Soft Delete & Restore.
+
+### 3.4 Monitoring Pesanan Global (`/admin/orders`)
+* **Rute / Component:** `resources/js/pages/admin/orders.tsx`
+* **Elemen:** Data Table Transaksi Global Kantin, Filter Tanggal & Stand, Dialog Detail Invoice.
+
+### 3.5 Pengaturan Pembayaran & Biaya (`/admin/payment-settings`)
+* **Rute / Component:** `resources/js/pages/admin/payment-settings/index.tsx`
+* **Elemen:** Form Kunci Midtrans Gateway, Daftar Saluran Pembayaran Aktif, Input Biaya Layanan Aplikasi (Admin Fee).
+", "07-ui-ux-guidelines.md": "# UI/UX Guidelines — Smart Canteen FEB
+
+## 1. Core Design Principles
+
+Smart Canteen FEB mengutamakan tampilan yang modern, segar, konsisten, dan memukau (WOW factor) serta dioptimalkan untuk performa demonstrasi demo.
+
+* **Clean & Modern Aesthetic:** Menggunakan palette warna harmonis, rounded corners, subtle shadows, dan tipografi yang jelas.
+* **Mobile-First & Responsive:** Antarmuka harus tampil sempurna di layar Smartphone (Mahasiswa yang memesan di kantin) maupun Desktop (Dashboard Admin & Tenant).
+* **Clear Feedback & States:** Setiap aksi pengguna (klik tombol, ubah kuantitas, update status) memberikan respon visual yang seketika.
+
+---
+
+## 2. Palette Warna & Visual System
+
+* **Primary Color:** Emerald / Teal / Modern Green (Merepresentasikan kebersihan, kesegaran kantin, dan kemudahan).
+* **Secondary / Accent:** Warm Amber / Orange (Merepresentasikan makanan & kehangatan).
+* **Neutral Tones:** Dark Slate / Charcoal untuk teks, Light Gray / Ice White untuk background card.
+* **Status Badges:**
+  - `Menunggu Pembayaran`: Yellow / Amber Badge
+  - `Dibayar` / `Diproses`: Blue / Indigo Badge
+  - `Siap Diambil`: Emerald / Green Pulse Badge
+  - `Selesai`: Neutral Gray Badge
+  - `Pembayaran Gagal`: Red Badge
+
+---
+
+## 3. Component & Interactive States
+
+Setiap komponen UI harus mengimplementasikan 4 state utama:
+
+1. **Default State:** Tampilan bersih dengan hirarki visual yang jelas.
+2. **Loading State:** Skeleton loader / pulsing animation saat memuat data atau memproses transaksi.
+3. **Empty State:** Ilustrasi / pesan ramah jika keranjang kosong, riwayat kosong, atau tidak ada pesanan masuk.
+4. **Error / Validation State:** Message error yang informatif jika terjadi kesalahan input atau kegagalan simulasi pembayaran.
+
+---
+
+## 4. Feedback & Notifications
+
+* **Toast Notification:** Pop-up kecil di sudut layar saat pengguna menambahkan item ke keranjang atau berhasil mengubah status pesanan.
+* **Confirmation Modals:** Modal konfirmasi sebelum menghapus item dari keranjang atau melakukan aksi pembatalan.
+* **Progress Trackers:** Stepper visual yang hidup pada halaman detail pesanan mahasiswa untuk memperlihatkan tahap **Self-Pickup**.
+", "08-data-model.md": "# Data Model & Schema — Smart Canteen FEB
+
+Dokumen ini mendefinisikan struktur basis data lengkap yang disesuaikan dengan seluruh **skema migrasi database aktif**, termasuk **Soft Deletes**, **Metode Pembayaran Cash vs Cashless**, **Kode QR**, **Kategori Tenant & Global**, **Rating & Ulasan**, **Pengaturan Aplikasi**, dan **Snapshot Data Pesanan**.
+
+---
+
+## 1. Entity Relationship Diagram (ERD)
+
+```mermaid
+erDiagram
+    USERS ||--o{ ORDERS : \"places\"
+    TENANTS ||--o{ MENUS : \"owns\"
+    TENANTS ||--o{ CATEGORIES : \"owns\"
+    TENANTS ||--o{ ORDERS : \"receives\"
+    TENANTS ||--o{ TENANT_RATINGS : \"receives_reviews\"
+    CATEGORIES ||--o{ MENUS : \"classifies\"
+    USERS ||--o{ TENANT_RATINGS : \"writes_reviews\"
+    ORDERS ||--|{ ORDER_ITEMS : \"contains\"
+    ORDERS ||--o{ TENANT_RATINGS : \"rated_in\"
+    MENUS ||--o{ ORDER_ITEMS : \"referenced_by\"
+
+    USERS {
+        bigint id PK
+        string name
+        string email UK
+        string password
+        bigint tenant_id FK
+        text two_factor_secret
+        timestamp deleted_at
+        timestamp created_at
+    }
+
+    TENANTS {
+        bigint id PK
+        string name
+        string slug UK
+        text description
+        string image
+        string banner_image
+        string logo_image
+        string phone
+        string opening_hours
+        boolean is_active
+        boolean is_open
+        decimal rating
+        integer reviews_count
+        timestamp deleted_at
+        timestamp created_at
+    }
+
+    CATEGORIES {
+        bigint id PK
+        bigint tenant_id FK
+        string name
+        string slug
+        timestamp created_at
+    }
+
+    MENUS {
+        bigint id PK
+        bigint tenant_id FK
+        bigint category_id FK
+        string global_category
+        string name
+        text description
+        decimal price
+        decimal original_price
+        string image
+        boolean is_available
+        boolean is_recommended
+        integer estimated_time
+        json options
+        timestamp deleted_at
+        timestamp created_at
+    }
+
+    ORDERS {
+        bigint id PK
+        string order_number UK
+        string pickup_code UK
+        bigint user_id FK
+        bigint tenant_id FK
+        decimal subtotal_amount
+        decimal app_fee
+        decimal channel_fee
+        decimal total_amount
+        string payment_method
+        string payment_channel_code
+        json payment_details
+        string dining_option
+        string payment_status
+        string status
+        string snap_token
+        text notes
+        timestamp paid_at
+        timestamp processing_at
+        timestamp ready_at
+        timestamp completed_at
+        timestamp deleted_at
+        timestamp created_at
+    }
+
+    ORDER_ITEMS {
+        bigint id PK
+        bigint order_id FK
+        bigint menu_id FK
+        string menu_name
+        decimal price
+        integer quantity
+        json options
+        text note
+        decimal subtotal
+        timestamp created_at
+    }
+
+    TENANT_RATINGS {
+        bigint id PK
+        bigint tenant_id FK
+        bigint user_id FK
+        bigint order_id FK
+        integer rating
+        text comment
+        timestamp created_at
+    }
+
+    PAYMENT_METHODS {
+        bigint id PK
+        string code UK
+        string name
+        string category
+        string logo
+        string fee_type
+        decimal fee_amount
+        boolean is_active
+        timestamp created_at
+    }
+
+    APP_SETTINGS {
+        bigint id PK
+        string key UK
+        text value
+        string label
+        timestamp created_at
+    }
+```
+
+---
+
+## 2. Table Specifications
+
+### 2.1 `users`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Pengguna |
+| `name` | String | Not Null | Nama Lengkap Pengguna |
+| `email` | String | Unique, Not Null | Email Pengguna |
+| `email_verified_at` | Timestamp | Nullable | Timestamp Verifikasi Email |
+| `password` | String | Not Null | Hashed Password |
+| `tenant_id` | ForeignId | Nullable, Constrained `tenants` | Relasi ke Stand (jika role Tenant) |
+| `two_factor_secret` | Text | Nullable | Rahasia OTP 2FA |
+| `two_factor_recovery_codes` | Text | Nullable | Kode Pemulihan 2FA |
+| `two_factor_confirmed_at` | Timestamp | Nullable | Timestamp Konfirmasi 2FA |
+| `remember_token` | String | Nullable | Token Sesi Login |
+| `deleted_at` | Timestamp | Nullable | **Soft Delete** |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+---
+
+### 2.2 `tenants`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Stand Kantin |
+| `name` | String | Not Null | Nama Stand / Kantin |
+| `slug` | String | Unique, Not Null | Slug URL (cth: `kantin-pak-kumis`) |
+| `description` | Text | Nullable | Deskripsi Singkat Stand |
+| `image` | String | Nullable | Foto Utama Stand |
+| `banner_image` | String | Nullable | Gambar Banner Header Stand |
+| `logo_image` | String | Nullable | Gambar Logo Stand |
+| `phone` | String | Nullable | Nomor Telepon / WA Stand |
+| `opening_hours` | String | Default `08:00 - 17:00` | Jam Operasional Stand |
+| `is_active` | Boolean | Default `true` | Status Aktif Sistem |
+| `is_open` | Boolean | Default `true` | Status Buka / Tutup Stand |
+| `rating` | Decimal(3,2) | Default `5.00` | Rata-rata Bintang Rating (1.00 - 5.00) |
+| `reviews_count` | UnsignedInt | Default `0` | Total Jumlah Ulasan Pembeli |
+| `deleted_at` | Timestamp | Nullable | **Soft Delete** |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+---
+
+### 2.3 `categories`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Kategori Internal Tenant |
+| `tenant_id` | ForeignId | Constrained `tenants`, Cascade | Stand Pemilik Kategori |
+| `name` | String | Not Null | Nama Kategori (cth: *Makanan Utama*) |
+| `slug` | String | Not Null | Slug Kategori |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+*Unique Constraint*: `['tenant_id', 'slug']`
+
+---
+
+### 2.4 `menus`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Menu Makanan/Minuman |
+| `tenant_id` | ForeignId | Constrained `tenants`, Cascade | Stand Pemilik Menu |
+| `category_id` | ForeignId | Nullable, Constrained `categories` | Kategori Internal Tenant |
+| `global_category` | String | Default `makanan` | Kategori Global (`makanan`, `minuman`, `camilan`) |
+| `name` | String | Not Null | Nama Hidangan |
+| `description` | Text | Nullable | Deskripsi & Komposisi Menu |
+| `price` | Decimal(12,2) | Not Null | Harga Jual Satuan (Rp) |
+| `original_price` | Decimal(12,2) | Nullable | Harga Asli Sebelum Diskon (Rp) |
+| `image` | String | Nullable | Path Foto Menu |
+| `is_available` | Boolean | Default `true` | Status Ketersediaan Stok (*Available/Out of Stock*) |
+| `is_recommended` | Boolean | Default `false` | Tag Menu Rekomendasi / *Best Seller* |
+| `estimated_time` | Integer | Default `15` | Estimasi Waktu Penyajian (Menit) |
+| `options` | JSON | Nullable | Opsi Varian Hidangan (Toping, Level Pedas) |
+| `deleted_at` | Timestamp | Nullable | **Soft Delete** |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+---
+
+### 2.5 `orders`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Transaksi Pesanan |
+| `order_number` | String | Unique, Not Null | Kode Transaksi Unik (cth: `SC-20260920-001`) |
+| `pickup_code` | String | Unique, Not Null | Kode QR / String Pengambilan (cth: `FEB-8921`) |
+| `user_id` | ForeignId | Constrained `users`, Cascade | Mahasiswa Pemesan |
+| `tenant_id` | ForeignId | Constrained `tenants`, Cascade | Stand Tujuan Pesanan |
+| `subtotal_amount` | Decimal(12,2) | Default `0.00` | Subtotal Harga Seluruh Item (Rp) |
+| `app_fee` | Decimal(12,2) | Default `0.00` | Biaya Layanan Aplikasi (Rp) |
+| `channel_fee` | Decimal(12,2) | Default `0.00` | Biaya Gateway Pembayaran (Rp) |
+| `total_amount` | Decimal(12,2) | Not Null | Total Tagihan Akhir Lunas (Rp) |
+| `payment_method` | String | Default `cashless` | Metode Utama (`cashless`, `cash`) |
+| `payment_channel_code` | String | Nullable | Kode Saluran Bayar (cth: `bca_va`, `qris`, `cash`) |
+| `payment_details` | JSON | Nullable | Simulasi Detail Pembayaran Midtrans / QR |
+| `dining_option` | String | Default `dine_in` | Opsi Santap (`dine_in`, `takeaway`) |
+| `payment_status` | String | Default `unpaid` | Status Bayar (`unpaid`, `paid`, `failed`) |
+| `status` | String | Default `pending` | Status Alur (`pending`, `paid`, `processing`, `ready`, `completed`, `failed`) |
+| `snap_token` | String | Nullable | Token Snap Midtrans |
+| `notes` | Text | Nullable | Catatan Keseluruhan Pesanan |
+| `paid_at` | Timestamp | Nullable | Timestamp Pembayaran Lunas |
+| `processing_at` | Timestamp | Nullable | Timestamp Mulai Diproses Penjual |
+| `ready_at` | Timestamp | Nullable | Timestamp Siap Di-pickup |
+| `completed_at` | Timestamp | Nullable | Timestamp Selesai Di-pickup |
+| `deleted_at` | Timestamp | Nullable | **Soft Delete** |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+---
+
+### 2.6 `order_items`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Item Pesanan |
+| `order_id` | ForeignId | Constrained `orders`, Cascade | Relasi ke Order |
+| `menu_id` | ForeignId | Nullable, Set Null | Relasi ke Menu |
+| `menu_name` | String | Not Null | **Snapshot Nama Menu** |
+| `price` | Decimal(12,2) | Not Null | **Snapshot Harga Satuan** |
+| `quantity` | UnsignedInt | Not Null | Jumlah Porsi yang Dipesan |
+| `options` | JSON | Nullable | **Snapshot Opsi Varian yang Dipilih** |
+| `note` | Text | Nullable | Catatan Khusus Item Makanan |
+| `subtotal` | Decimal(12,2) | Not Null | Subtotal (`quantity` x `price`) |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+---
+
+### 2.7 `tenant_ratings`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Ulasan & Rating |
+| `tenant_id` | ForeignId | Constrained `tenants`, Cascade | Stand Penerima Ulasan |
+| `user_id` | ForeignId | Constrained `users`, Cascade | Pembuat Ulasan (Mahasiswa) |
+| `order_id` | ForeignId | Nullable, Set Null | Pesanan yang Diulas |
+| `rating` | UnsignedTinyInt | Default `5` | Nilai Bintang Rating (1 - 5 ⭐) |
+| `comment` | Text | Nullable | Teks Ulasan / Kesan Pembeli |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+---
+
+### 2.8 `payment_methods`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Metode Pembayaran |
+| `code` | String | Unique, Not Null | Kode Unik (cth: `bca_va`, `qris`, `cash`) |
+| `name` | String | Not Null | Nama Tampilan (cth: *BCA Virtual Account*) |
+| `category` | Enum | Default `bank_transfer` | Kategori (`bank_transfer`, `ewallet`) |
+| `logo` | String | Nullable | Path Icon / Logo Saluran |
+| `fee_type` | Enum | Default `fixed` | Tipe Biaya Penanganan (`fixed`, `percentage`) |
+| `fee_amount` | Decimal(10,2) | Default `0.00` | Besaran Biaya Admin (Rp / %) |
+| `is_active` | Boolean | Default `false` | Status Aktif Saluran Pembayaran |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+---
+
+### 2.9 `app_settings`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Pengaturan Aplikasi |
+| `key` | String | Unique, Not Null | Kunci Pengaturan (cth: `app_fee`, `midtrans_sandbox`) |
+| `value` | Text | Nullable | Nilai Konfigurasi |
+| `label` | String | Nullable | Label Keterangan Pengaturan |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+", "09-payment-flow.md": "# Payment Flow & Verification — Smart Canteen FEB
+
+## 1. Dual Payment System Overview
+
+Smart Canteen FEB mendukung 2 metode pembayaran:
+1. **Cashless (Midtrans Sandbox):** Pembayaran digital otomatis dengan verifikasi HTTP callback.
+2. **Cash (Tunai):** Pembayaran tunai langsung di stand tenant menggunakan **Scan Kode QR / Input Kode Pesanan**.
+
+```mermaid
+flowchart TD
+    A[\"Checkout Mahasiswa\"] --> B{\"Pilih Metode Pembayaran\"}
+
+    B -->|\"Cashless\"| C[\"Midtrans Sandbox Snap Pop-up\"]
+    C --> D[\"Proses Pembayaran Digital\"]
+    D --> E[\"Midtrans Webhook Callback\"]
+    E --> F[\"Order Status: Dibayar\"]
+
+    B -->|\"Cash Tunai\"| G[\"Generate QR & pickup_code\"]
+    G --> H[\"Order Status: Menunggu Pembayaran Tunai\"]
+    H --> I[\"Mahasiswa Tunjukkan QR di Stand Tenant\"]
+    I --> J[\"Tenant Scan QR / Input Kode\"]
+    J --> K[\"Tenant Terima Uang & Konfirmasi\"]
+    K --> F
+```
+
+---
+
+## 2. Alur Pembayaran Cashless (Midtrans Sandbox)
+
+1. Mahasiswa mengklik \"Bayar Sekarang\" dengan opsi Cashless.
+2. Backend me-request Midtrans Snap Token via Midtrans Sandbox API.
+3. Midtrans Snap Modal muncul di layar Mahasiswa.
+4. Untuk pengujian di lingkungan **Sandbox**:
+   - **Saran Utama (BCA Virtual Account)**: [https://simulator.sandbox.midtrans.com/bca/va/index](https://simulator.sandbox.midtrans.com/bca/va/index) *(Praktis: Cukup salin Nomor VA dari Snap tanpa menyalin URL gambar QR)*.
+   - **Alternatif (QRIS)**: [https://simulator.sandbox.midtrans.com/v2/qris/index](https://simulator.sandbox.midtrans.com/v2/qris/index).
+5. Setelah transaksi dilakukan di Midtrans Simulator, Midtrans mengirimkan HTTP POST Callback Webhook ke `/api/midtrans/notification`.
+6. System mengecek signature key dan mengubah status `orders`:
+   - `status = 'paid'`, `payment_status = 'paid'`, `paid_at = now()`.
+
+---
+
+## 3. Alur Pembayaran Cash (Scan Kode QR oleh Tenant)
+
+1. Mahasiswa memilih opsi **Cash / Tunai**.
+2. System membuat pesanan dengan `payment_method = 'cash'`, `payment_status = 'unpaid'`, dan menghasilkan `pickup_code` unik (cth: `FEB-9912`) & QR Code string.
+3. Mahasiswa mendatangi stand tenant di kantin FEB dan menunjukkan Kode QR pada HP-nya.
+4. Tenant membuka modal **Scan / Verifikasi Pembayaran Cash** di aplikasi Tenant.
+5. Tenant melakukan scan QR via kamera atau mengetik `FEB-9912`.
+6. Aplikasi menampilkan rincian tagihan (cth: 2 Nasi Goreng + 1 Es Teh = Rp25.000).
+7. Tenant menerima uang fisik dari mahasiswa, lalu mengklik tombol **\"Konfirmasi Terima Pembayaran Tunai\"**.
+8. Backend memperbarui status pesanan: `status = 'paid'`, `payment_status = 'paid'`, `paid_at = now()`.
+", "10-status-order.md": "# Order Status Machine — Smart Canteen FEB
+
+## 1. State Machine Order Status
+
+Status pesanan pada Smart Canteen FEB mengontrol alur dari awal pembuatan pesanan hingga siap diambil melalui mekanisme **Self-Pickup**.
+
+```mermaid
+stateDiagram-v2
+    [*] --> MenungguPembayaran
+
+    state MenungguPembayaran {
+        [*] --> UnpaidCashless
+        [*] --> UnpaidCash
+    }
+
+    UnpaidCashless --> Dibayar : Midtrans Callback Success
+    UnpaidCash --> Dibayar : Tenant Scan QR & Konfirmasi
+
+    state Dibayar {
+        [*] --> Paid
+    }
+
+    Dibayar --> Diproses : Tenant Klik Proses Pesanan
+
+    state Diproses {
+        [*] --> Processing
+    }
+
+    Diproses --> SiapDiambil : Tenant Klik Siap Diambil
+
+    state SiapDiambil {
+        [*] --> ReadyForPickup
+    }
+
+    SiapDiambil --> Selesai : Mahasiswa Ambil & Tenant Konfirmasi
+
+    state Selesai {
+        [*] --> Completed
+    }
+```
+
+---
+
+## 2. Status & Timestamps Audit Matrix
+
+| Status | Label UI | Trigger Cashless | Trigger Cash | Updated Timestamp |
+| :--- | :--- | :--- | :--- | :--- |
+| `pending` | **Menunggu Pembayaran** | Order Created | Order Created | `created_at` |
+| `paid` | **Dibayar** | Midtrans Webhook Callback | Tenant Scan QR & Confirm | `paid_at` |
+| `processing` | **Diproses** | Tenant Action | Tenant Action | `processing_at` |
+| `ready` | **Siap Diambil** | Tenant Action | Tenant Action | `ready_at` |
+| `completed` | **Selesai** | Tenant / Mahasiswa Action | Tenant / Mahasiswa Action | `completed_at` |
+| `failed` | **Gagal** | Midtrans Expired/Denied | Tenant Cancel | - |
+", "11-demo-scenarios.md": "# Demo Scenarios — Smart Canteen FEB
+
+Dokumen ini berisi langkah-langkah pengujian (Walkthrough Test Script) untuk mendemonstrasikan sistem Smart Canteen FEB kepada penguji / stakeholder.
+
+---
+
+## 1. Demo Scenarios Flow
+
+```mermaid
+flowchart LR
+    S1[Skenario 1: Cashless Midtrans] --> S2[Skenario 2: Cash QR Scan]
+    S2 --> S3[Skenario 3: Soft Delete & Menu Kategori]
+    S3 --> S4[Skenario 4: Admin Supervision]
+```
+
+---
+
+## 2. Langkah-Langkah Skenario Demo
+
+### Skenario 1: Pemesanan Cashless (Midtrans Sandbox)
+1. Mahasiswa login (`mahasiswa@feb.ac.id`), pilih Tenant & Menu.
+2. Tambahkan ke keranjang $\rightarrow$ Checkout $\rightarrow$ Pilih **Cashless**.
+3. Pop-up Midtrans Sandbox akan terbuka.
+4. Selesaikan pembayaran menggunakan Midtrans Simulator:
+   - **BCA Virtual Account (Direkomendasikan)**: [https://simulator.sandbox.midtrans.com/bca/va/index](https://simulator.sandbox.midtrans.com/bca/va/index) *(Salin Nomor VA tanpa perlu simpan/salin link gambar QR)*.
+   - **QRIS Simulator**: [https://simulator.sandbox.midtrans.com/v2/qris/index](https://simulator.sandbox.midtrans.com/v2/qris/index).
+5. Status otomatis ter-update menjadi **\"Dibayar\"** dan pesanan muncul di Dashboard Tenant.
+
+### Skenario 2: Pemesanan Cash (Scan QR oleh Tenant)
+1. Mahasiswa buat pesanan baru $\rightarrow$ Checkout $\rightarrow$ Pilih **Cash / Tunai**.
+2. Aplikasi menampilkan **Kode QR & Pickup Code** (cth: `FEB-8821`).
+3. Pada tab Tenant (`tenant@feb.ac.id`), buka **Scan QR / Input Kode Pembayaran**.
+4. Scan / ketik `FEB-8821` $\rightarrow$ Klik **Konfirmasi Terima Pembayaran Tunai**.
+5. Status otomatis berubah menjadi **\"Dibayar\"** $\rightarrow$ Tenant memproses pesanan hingga **\"Siap Diambil\"** $\rightarrow$ **\"Selesai\"**.
+
+### Skenario 3: Demonstrasi Soft Delete & Kategori Menu
+1. Tenant menambah/menghapus menu ber-kategori.
+2. Saat menu di-soft delete, riwayat pesanan lama mahasiswa **tetap aman dan konsisten** karena menggunakan snapshot & SoftDeletes.
+
+### Skenario 4: Admin Supervision
+1. Admin login (`admin@feb.ac.id`), memantau rasio pembayaran Cash vs Cashless dan kelola data master (Tenant & User dengan Soft Delete).
+", "12-technical-guidelines.md": "# Technical Guidelines — Smart Canteen FEB
+
+Dokumen ini mendefinisikan arsitektur teknis, stack teknologi, konvensi kode, dan panduan pengembangan aplikasi Smart Canteen FEB.
+
+---
+
+## 1. Stack Teknologi
+
+```mermaid
+flowchart TD
+    subgraph Frontend[\"Frontend Layer (SPA)\"]
+        React[\"React 18 / TSX\"]
+        Inertia[\"Inertia.js v3\"]
+        Tailwind[\"Tailwind CSS v3\"]
+        Wayfinder[\"Laravel Wayfinder (Typed Routes)\"]
+    end
+
+    subgraph Backend[\"Backend Layer (Laravel Framework)\"]
+        PHP[\"PHP 8.4\"]
+        Laravel[\"Laravel 12 Framework\"]
+        Fortify[\"Laravel Fortify (Auth Engine)\"]
+        Spatie[\"Spatie Laravel Permission\"]
+        Midtrans[\"Midtrans PHP SDK (Sandbox)\"]
+    end
+
+    subgraph Database[\"Data Layer\"]
+        MySQL[\"SQLite / MySQL Database\"]
+    end
+
+    Frontend <-->|\"Inertia Protocol & JSON\"| Backend
+    Backend <--> Database
+    Backend <-->|\"HTTP API / Webhooks\"| Midtrans
+```
+
+---
+
+## 2. Dependensi Utama (Composer & NPM)
+
+### PHP Packages (Composer)
+* `laravel/framework`: ^12.0
+* `inertiajs/inertia-laravel`: ^2.0 / v3
+* `laravel/fortify`: Authentication backend (Login, Register, 2FA, Password Reset)
+* `spatie/laravel-permission`: ^8.3 (Manajemen Role: *Mahasiswa*, *Tenant*, *Admin*)
+* `midtrans/midtrans-php`: Integrasi SDK Pembayaran Midtrans Gateway
+* `laravel/wayfinder`: Auto-generate TypeScript/JS route actions
+
+### JS Packages (NPM)
+* `@inertiajs/react`: Interaksi Client-side React dengan Inertia
+* `react` & `react-dom`: Library UI Rendering
+* `tailwindcss`: Utility-first CSS styling
+* `lucide-react`: Icon Set Modern
+* `recharts`: Library Grafik Chart Metrik Dashboard
+
+---
+
+## 3. Struktur Direktori Utama
+
+```
+smart_canteen/
+├── app/
+│   ├── Actions/Fortify/        # Custom Fortify Auth Actions
+│   ├── Enums/                  # PHP 8.4 Enums (UserRole, OrderStatus, etc.)
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/          # Controller Modul Admin
+│   │   │   ├── Customer/       # Controller Modul Mahasiswa
+│   │   │   ├── Tenant/         # Controller Modul Tenant
+│   │   │   └── Api/            # Webhook & API Handlers
+│   ├── Models/                 # Eloquent Models dengan SoftDeletes
+│   └── Services/               # Service Classes (MidtransService, etc.)
+├── database/
+│   ├── migrations/             # Migrasi Database
+│   └── seeders/                # Database Seeders
+├── docs/                       # Dokumentasi Teknis & Panduan Pengguna
+└── resources/
+    └── js/
+        ├── components/         # Reusable UI Components
+        ├── layouts/            # Layout Components (StudentLayout, SettingsLayout, etc.)
+        └── pages/              # Inertia React Pages
+            ├── admin/          # Dashboard & Master Data Admin
+            ├── auth/           # Login, Register, 2FA Pages
+            ├── catalog/        # Katalog Utama & Cart
+            ├── orders/         # Tracker, Payment & History
+            ├── settings/       # Profile & Security Settings
+            └── tenant/         # Dashboard & Order Board Tenant
+```
+
+---
+
+## 4. Perintah Utama Development
+
+```bash
+# Menjalankan server backend Laravel
+php artisan serve
+
+# Menjalankan Vite dev server frontend
+npm run dev
+
+# Format kode PHP otomatis sesuai standar Pint
+vendor/bin/pint --format agent
+
+# Regenerate Wayfinder typed routes
+php artisan wayfinder:generate
+
+# Menjalankan seluruh pengujian Pest / PHPUnit
+php artisan test --compact
+```
+", "13-development-rules.md": "# Development Rules
+
+## 1. Scope First
+
+Semua implementasi HARUS mengikuti dokumen di folder `docs/`.
+
+Jangan menambahkan fitur baru hanya karena fitur tersebut dianggap umum,
+bagus, modern, atau dibutuhkan oleh aplikasi production.
+
+Jika sebuah fitur tidak tercantum dalam scope, jangan implementasikan.
+
+## 2. Project Type
+
+Project ini adalah:
+
+- Website dummy/demo
+- Bukan production system
+- Fokus pada UI dan demo flow
+- Fokus pada alur utama Smart Canteen FEB
+
+Jangan mengembangkan sistem menjadi platform production yang kompleks.
+
+## 3. Feature Addition
+
+Jika requirement baru ditemukan:
+
+1. Cek apakah requirement tersebut ada di `docs/`.
+2. Jika tidak ada, jangan langsung implementasikan.
+3. Tandai sebagai OUT OF SCOPE.
+4. Minta konfirmasi sebelum mengubah scope.
+
+## 4. Avoid Overengineering
+
+Jangan menambahkan:
+
+- microservices
+- queue system yang kompleks
+- event-driven architecture yang tidak diperlukan
+- caching layer yang kompleks
+- analytics
+- audit log kompleks
+- notification infrastructure
+- mobile application
+- financial accounting system
+
+kecuali secara eksplisit diminta.
+
+## 5. UI
+
+Prioritaskan:
+
+- tampilan rapi
+- responsive
+- konsisten
+- mudah digunakan
+- sesuai desain yang telah disepakati
+
+Jangan membuat halaman tambahan yang tidak diperlukan hanya untuk
+\"melengkapi\" aplikasi.
+
+## 6. Payment
+
+Payment hanya digunakan untuk kebutuhan demo/alur pembayaran.
+
+Jangan mengembangkan sistem payment production-grade di luar scope.", "14-out-of-scope.md": "# Out of Scope
+
+Fitur berikut TIDAK termasuk dalam proyek:
+
+- Mobile application
+- Native Android/iOS application
+- Sistem keuangan
+- Laporan keuangan kompleks
+- Accounting
+- Settlement system
+- Sistem inventory kompleks
+- Integrasi POS
+- Integrasi sistem kampus
+- WhatsApp notification
+- SMS notification
+- Email notification infrastructure
+- Push notification
+- Real-time infrastructure kompleks
+- Multi-campus management
+- Loyalty program
+- Voucher system kompleks
+- Membership system
+- Advanced analytics
+- Advanced reporting
+- Production-grade payment infrastructure
+- Infrastructure scaling
+- DevOps pipeline kompleks
+- Kubernetes
+- Microservices
+- AI recommendation
+- Machine learning
+- Fitur lain yang tidak tercantum dalam scope
+
+Jika fitur tersebut dibutuhkan, fitur dianggap sebagai
+CHANGE REQUEST / OUT OF SCOPE dan harus mendapat persetujuan terlebih dahulu.", "15-acceptance-criteria.md": "# Acceptance Criteria — Smart Canteen FEB
+
+## 1. Quality Gate Overview
+
+```mermaid
+flowchart TD
+    AC1[1. Dual Payment Engine: Cashless & Cash QR Scan] --> GATE{Definition of Done}
+    AC2[2. Soft Deletes Data Integrity pada User, Tenant, Menu, Order] --> GATE
+    AC3[3. Kategori Global/Internal & Snapshot Order Items] --> GATE
+    AC4[4. Self-Pickup Live Tracker 5-Tahap & Timestamps Audit] --> GATE
+    AC5[5. Admin & Tenant Dashboard Supervision Metrics] --> GATE
+    AC6[6. Rating & Ulasan Mahasiswa + Custom Menu Notes] --> GATE
+    GATE -- Pass All --> PASSED[PROYEK DEMO ACC / SELESAI]
+```
+
+---
+
+## 2. Checklist Acceptance Criteria
+
+* [x] Mahasiswa dapat melakukan checkout dengan metode pembayaran **Cashless** (Midtrans Sandbox via BCA VA/QRIS) maupun **Cash** (Tunai di Stand).
+* [x] Mahasiswa menerima Kode QR & string `pickup_code` unik (format `FEB-XXXX`) untuk transaksi pembayaran tunai & self-pickup.
+* [x] Tenant memiliki fitur **Scan Kode QR Kamera / Input Kode Manual** pada `/tenant/verify-payment` untuk mengonfirmasi pembayaran tunai.
+* [x] Model `User`, `Tenant`, `Menu`, dan `Order` mengimplementasikan Trait `SoftDeletes` (`deleted_at`) sehingga riwayat transaksi historis tetap utuh 100%.
+* [x] Model `OrderItem` menyimpan `menu_name`, `price`, `options`, dan `note` sebagai snapshot data saat transaksi dibuat.
+* [x] Tenant dapat mengelompokkan menu berdasarkan `Category` internal stand, dan menu terhubung dengan `global_category` (*makanan, minuman, camilan*).
+* [x] Status pesanan meng-update timestamp audit secara otomatis (`paid_at`, `processing_at`, `ready_at`, `completed_at`).
+* [x] Tenant dapat mengoperasikan saklar *Status Buka/Tutup Stand* (`is_open`) dan saklar *Stok Instant* (*Available/Out of Stock*).
+* [x] Mahasiswa dapat memberikan rating bintang 1–5 ⭐ dan ulasan teks setelah pesanan di-pickup.
+* [x] Admin dapat memantau statistik total omset kantin, mengelola master tenant & user, serta mengatur biaya layanan aplikasi (*Admin Fee*).
+", "16-rab.md": "# Rencana Anggaran Biaya (RAB) — Smart Canteen FEB
+
+Dokumen ini merincikan alokasi anggaran biaya (Rp1.000.000) dan estimasi pengerjaan (5–7 Hari Kerja) untuk pengembangan Website Demo Smart Canteen FEB.
+
+---
+
+## 1. Timeline & Budget Breakdown
+
+```mermaid
+%%{init: { \"gantt\": { \"leftPadding\": 160, \"useWidth\": 900 } } }%%
+gantt
+    title Timeline Pengerjaan Smart Canteen FEB (5-7 Hari)
+    dateFormat  YYYY-MM-DD
+    axisFormat  %d %b
+    tickInterval 1day
+    section Phase 1: Planning & Setup
+    Doc & DB Schema with SoftDeletes  :active, p1, 2026-09-18, 1d
+    section Phase 2: Core & Dual Payment
+    Auth & Category Menu Setup        :p2, after p1, 1d
+    Cart & Checkout (Cash vs Cashless):p3, after p2, 1d
+    Midtrans Sandbox & Cash QR Scan   :p4, after p3, 2d
+    section Phase 3: Tenant & Admin
+    Tenant QR Scanner & Order Board   :p5, after p4, 1d
+    Admin Dashboard & Final Polish    :p6, after p5, 1d
+```
+
+---
+
+## 2. Rincian Alokasi Biaya (Rp1.000.000)
+
+| No | Modul / Komponen Pekerjaan | Bobot (%) | Biaya (IDR) | Output / Deliverables |
+| :--- | :--- | :---: | :---: | :--- |
+| 1 | **Setup Architecture, DB Schema & SoftDeletes** | 15% | Rp150.000 | Core setup Laravel 12 + Inertia React, Spatie Roles, Migration with SoftDeletes & Categories. |
+| 2 | **Modul Mahasiswa (Katalog Kategori & Checkout)** | 25% | Rp250.000 | Katalog Menu per Kategori, Cart, Checkout pilihan Cashless / Cash, Digital QR Code display. |
+| 3 | **Dual Payment Engine (Midtrans & Cash QR Scan)**| 25% | Rp250.000 | Midtrans Sandbox integration + Tenant QR Code Scanner / Input Code Verifier for Cash payment. |
+| 4 | **Modul Tenant (Order Board & Menu CRUD)** | 20% | Rp200.000 | Tenant Order Status Board (`Dibayar` $\rightarrow$ `Diproses` $\rightarrow$ `Siap Diambil`), Category & Menu CRUD (Soft Delete). |
+| 5 | **Modul Admin & Final Polish** | 15% | Rp150.000 | Admin Supervision Dashboard, Master Data Management, Responsive Mobile & Desktop polish. |
+| **TOTAL** | | **100%** | **Rp1.000.000** | **Website Demo Ready Smart Canteen FEB** |
+"};Null | **Snapshot Harga Satuan** |\n| `quantity` | Integer | Not Null | Jumlah item |\n| `subtotal` | Decimal(12,2) | Not Null | Quantity x Price |\n", "09-payment-flow.md": "# Payment Flow & Verification — Smart Canteen FEB\n\n## 1. Dual Payment System Overview\n\nSmart Canteen FEB mendukung 2 metode pembayaran:\n1. **Cashless (Midtrans Sandbox):** Pembayaran digital otomatis dengan verifikasi HTTP callback.\n2. **Cash (Tunai):** Pembayaran tunai langsung di stand tenant menggunakan **Scan Kode QR / Input Kode Pesanan**.\n\n```mermaid\nflowchart TD\n    A[\"Checkout Mahasiswa\"] --> B{\"Pilih Metode Pembayaran\"}\n\n    B -->|\"Cashless\"| C[\"Midtrans Sandbox Snap Pop-up\"]\n    C --> D[\"Proses Pembayaran Digital\"]\n    D --> E[\"Midtrans Webhook Callback\"]\n    E --> F[\"Order Status: Dibayar\"]\n\n    B -->|\"Cash Tunai\"| G[\"Generate QR & pickup_code\"]\n    G --> H[\"Order Status: Menunggu Pembayaran Tunai\"]\n    H --> I[\"Mahasiswa Tunjukkan QR di Stand Tenant\"]\n    I --> J[\"Tenant Scan QR / Input Kode\"]\n    J --> K[\"Tenant Terima Uang & Konfirmasi\"]\n    K --> F\n```\n\n---\n\n## 2. Alur Pembayaran Cashless (Midtrans Sandbox)\n\n1. Mahasiswa mengklik \"Bayar Sekarang\" dengan opsi Cashless.\n2. Backend me-request Midtrans Snap Token via Midtrans Sandbox API.\n3. Midtrans Snap Modal muncul di layar Mahasiswa.\n4. Setelah transaksi dilakukan di Midtrans Simulator, Midtrans mengirimkan HTTP POST Callback Webhook ke `/api/midtrans/notification`.\n5. System mengecek signature key dan mengubah status `orders`:\n   - `status = 'paid'`, `payment_status = 'paid'`, `paid_at = now()`.\n\n---\n\n## 3. Alur Pembayaran Cash (Scan Kode QR oleh Tenant)\n\n1. Mahasiswa memilih opsi **Cash / Tunai**.\n2. System membuat pesanan dengan `payment_method = 'cash'`, `payment_status = 'unpaid'`, dan menghasilkan `pickup_code` unik (cth: `FEB-9912`) & QR Code string.\n3. Mahasiswa mendatangi stand tenant di kantin FEB dan menunjukkan Kode QR pada HP-nya.\n4. Tenant membuka modal **Scan / Verifikasi Pembayaran Cash** di aplikasi Tenant.\n5. Tenant melakukan scan QR via kamera atau mengetik `FEB-9912`.\n6. Aplikasi menampilkan rincian tagihan (cth: 2 Nasi Goreng + 1 Es Teh = Rp25.000).\n7. Tenant menerima uang fisik dari mahasiswa, lalu mengklik tombol **\"Konfirmasi Terima Pembayaran Tunai\"**.\n8. Backend memperbarui status pesanan: `status = 'paid'`, `payment_status = 'paid'`, `paid_at = now()`.\n", "10-status-order.md": "# Order Status Machine — Smart Canteen FEB\n\n## 1. State Machine Order Status\n\nStatus pesanan pada Smart Canteen FEB mengontrol alur dari awal pembuatan pesanan hingga siap diambil melalui mekanisme **Self-Pickup**.\n\n```mermaid\nstateDiagram-v2\n    [*] --> MenungguPembayaran\n\n    state MenungguPembayaran {\n        [*] --> UnpaidCashless\n        [*] --> UnpaidCash\n    }\n\n    UnpaidCashless --> Dibayar : Midtrans Callback Success\n    UnpaidCash --> Dibayar : Tenant Scan QR & Konfirmasi\n\n    state Dibayar {\n        [*] --> Paid\n    }\n\n    Dibayar --> Diproses : Tenant Klik Proses Pesanan\n\n    state Diproses {\n        [*] --> Processing\n    }\n\n    Diproses --> SiapDiambil : Tenant Klik Siap Diambil\n\n    state SiapDiambil {\n        [*] --> ReadyForPickup\n    }\n\n    SiapDiambil --> Selesai : Mahasiswa Ambil & Tenant Konfirmasi\n\n    state Selesai {\n        [*] --> Completed\n    }\n```\n\n---\n\n## 2. Status & Timestamps Audit Matrix\n\n| Status | Label UI | Trigger Cashless | Trigger Cash | Updated Timestamp |\n| :--- | :--- | :--- | :--- | :--- |\n| `pending` | **Menunggu Pembayaran** | Order Created | Order Created | `created_at` |\n| `paid` | **Dibayar** | Midtrans Webhook Callback | Tenant Scan QR & Confirm | `paid_at` |\n| `processing` | **Diproses** | Tenant Action | Tenant Action | `processing_at` |\n| `ready` | **Siap Diambil** | Tenant Action | Tenant Action | `ready_at` |\n| `completed` | **Selesai** | Tenant / Mahasiswa Action | Tenant / Mahasiswa Action | `completed_at` |\n| `failed` | **Gagal** | Midtrans Expired/Denied | Tenant Cancel | - |\n", "11-demo-scenarios.md": "# Demo Scenarios — Smart Canteen FEB\n\nDokumen ini berisi langkah-langkah pengujian (Walkthrough Test Script) untuk mendemonstrasikan sistem Smart Canteen FEB kepada penguji / stakeholder.\n\n---\n\n## 1. Demo Scenarios Flow\n\n```mermaid\nflowchart LR\n    S1[Skenario 1: Cashless Midtrans] --> S2[Skenario 2: Cash QR Scan]\n    S2 --> S3[Skenario 3: Soft Delete & Menu Kategori]\n    S3 --> S4[Skenario 4: Admin Supervision]\n```\n\n---\n\n## 2. Langkah-Langkah Skenario Demo\n\n### Skenario 1: Pemesanan Cashless (Midtrans Sandbox)\n1. Mahasiswa login (`mahasiswa@feb.ac.id`), pilih Tenant & Menu.\n2. Tambahkan ke keranjang $\\rightarrow$ Checkout $\\rightarrow$ Pilih **Cashless**.\n3. Selesaikan pembayaran di Pop-up Midtrans Sandbox.\n4. Status otomatis ter-update menjadi **\"Dibayar\"** dan pesanan muncul di Dashboard Tenant.\n\n### Skenario 2: Pemesanan Cash (Scan QR oleh Tenant)\n1. Mahasiswa buat pesanan baru $\\rightarrow$ Checkout $\\rightarrow$ Pilih **Cash / Tunai**.\n2. Aplikasi menampilkan **Kode QR & Pickup Code** (cth: `FEB-8821`).\n3. Pada tab Tenant (`tenant@feb.ac.id`), buka **Scan QR / Input Kode Pembayaran**.\n4. Scan / ketik `FEB-8821` $\\rightarrow$ Klik **Konfirmasi Terima Pembayaran Tunai**.\n5. Status otomatis berubah menjadi **\"Dibayar\"** $\\rightarrow$ Tenant memproses pesanan hingga **\"Siap Diambil\"** $\\rightarrow$ **\"Selesai\"**.\n\n### Skenario 3: Demonstrasi Soft Delete & Kategori Menu\n1. Tenant menambah/menghapus menu ber-kategori.\n2. Saat menu di-soft delete, riwayat pesanan lama mahasiswa **tetap aman dan konsisten** karena menggunakan snapshot & SoftDeletes.\n\n### Skenario 4: Admin Supervision\n1. Admin login (`admin@feb.ac.id`), memantau rasio pembayaran Cash vs Cashless dan kelola data master (Tenant & User dengan Soft Delete).\n", "12-technical-guidelines.md": "# Technical Guidelines — Smart Canteen FEB\n\nDokumen ini mendefinisikan arsitektur teknis, stack teknologi, konvensi kode, dan panduan pengembangan aplikasi Smart Canteen FEB.\n\n---\n\n## 1. Stack Teknologi\n\n```mermaid\nflowchart TD\n    subgraph Frontend[\"Frontend Layer (SPA)\"]\n        React[\"React 18 / JSX\"]\n        Inertia[\"Inertia.js v3\"]\n        Tailwind[\"Tailwind CSS\"]\n        Wayfinder[\"Laravel Wayfinder (Typed Routes)\"]\n    end\n\n    subgraph Backend[\"Backend Layer (Laravel Framework)\"]\n        PHP[\"PHP 8.4\"]\n        Laravel[\"Laravel 12 Framework\"]\n        Fortify[\"Laravel Fortify (Auth Engine)\"]\n        Spatie[\"Spatie Laravel Permission\"]\n        Midtrans[\"Midtrans PHP SDK\"]\n    end\n\n    subgraph Database[\"Data Layer\"]\n        MySQL[\"SQLite / MySQL Database\"]\n    end\n\n    Frontend <-->|\"Inertia Protocol & JSON\"| Backend\n    Backend <--> Database\n    Backend <-->|\"HTTP API / Webhooks\"| Midtrans\n```\n\n---\n\n## 2. Dependensi Utama (Composer & NPM)\n\n### PHP Packages (Composer)\n* `laravel/framework`: ^12.0\n* `inertiajs/inertia-laravel`: ^2.0 / v3\n* `laravel/fortify`: Authentication backend\n* `spatie/laravel-permission`: ^8.3 (Manajemen Role & Permisi)\n* `midtrans/midtrans-php`: Integrasi SDK Pembayaran Midtrans Sandbox\n* `laravel/wayfinder`: Auto-generate TypeScript/JS routes\n\n### JS Packages (NPM)\n* `@inertiajs/react`: Interaksi Client-side React dengan Inertia\n* `react` & `react-dom`: Library UI Rendering\n* `tailwindcss` & `@tailwindcss/vite`: Utility-first CSS styling\n\n---\n\n## 3. Struktur Direktori & Konvensi Kode\n\n* **Controller:** Disimpan di `app/Http/Controllers/`. Controller harus tipis (slim controllers), mengembalikan `Inertia::render('PageName', $props)`.\n* **Model:** Disimpan di `app/Models/`. Menggunakan Laravel Eloquent dengan typehints PHP 8.4.\n* **React Pages:** Disimpan di `resources/js/pages/`.\n  - `resources/js/pages/Mahasiswa/`: Halaman khusus flow mahasiswa.\n  - `resources/js/pages/Tenant/`: Halaman dashboard & pesanan tenant.\n  - `resources/js/pages/Admin/`: Halaman dashboard & master data admin.\n* **Components:** Component reusable disimpan di `resources/js/components/`.\n\n---\n\n## 4. Perintah Utama Development\n\n```bash\n# Menjalankan server backend Laravel\nphp artisan serve\n\n# Menjalankan Vite dev server frontend\nnpm run dev\n\n# Format kode PHP otomatis\nvendor/bin/pint --format agent\n\n# Regenerate Wayfinder typed routes\nphp artisan wayfinder:generate\n```\n", "13-development-rules.md": "# Development Rules\n\n## 1. Scope First\n\nSemua implementasi HARUS mengikuti dokumen di folder `docs/`.\n\nJangan menambahkan fitur baru hanya karena fitur tersebut dianggap umum,\nbagus, modern, atau dibutuhkan oleh aplikasi production.\n\nJika sebuah fitur tidak tercantum dalam scope, jangan implementasikan.\n\n## 2. Project Type\n\nProject ini adalah:\n\n- Website dummy/demo\n- Bukan production system\n- Fokus pada UI dan demo flow\n- Fokus pada alur utama Smart Canteen FEB\n\nJangan mengembangkan sistem menjadi platform production yang kompleks.\n\n## 3. Feature Addition\n\nJika requirement baru ditemukan:\n\n1. Cek apakah requirement tersebut ada di `docs/`.\n2. Jika tidak ada, jangan langsung implementasikan.\n3. Tandai sebagai OUT OF SCOPE.\n4. Minta konfirmasi sebelum mengubah scope.\n\n## 4. Avoid Overengineering\n\nJangan menambahkan:\n\n- microservices\n- queue system yang kompleks\n- event-driven architecture yang tidak diperlukan\n- caching layer yang kompleks\n- analytics\n- audit log kompleks\n- notification infrastructure\n- mobile application\n- financial accounting system\n\nkecuali secara eksplisit diminta.\n\n## 5. UI\n\nPrioritaskan:\n\n- tampilan rapi\n- responsive\n- konsisten\n- mudah digunakan\n- sesuai desain yang telah disepakati\n\nJangan membuat halaman tambahan yang tidak diperlukan hanya untuk\n\"melengkapi\" aplikasi.\n\n## 6. Payment\n\nPayment hanya digunakan untuk kebutuhan demo/alur pembayaran.\n\nJangan mengembangkan sistem payment production-grade di luar scope.", "14-out-of-scope.md": "# Out of Scope\n\nFitur berikut TIDAK termasuk dalam proyek:\n\n- Mobile application\n- Native Android/iOS application\n- Sistem keuangan\n- Laporan keuangan kompleks\n- Accounting\n- Settlement system\n- Sistem inventory kompleks\n- Integrasi POS\n- Integrasi sistem kampus\n- WhatsApp notification\n- SMS notification\n- Email notification infrastructure\n- Push notification\n- Real-time infrastructure kompleks\n- Multi-campus management\n- Loyalty program\n- Voucher system kompleks\n- Membership system\n- Advanced analytics\n- Advanced reporting\n- Production-grade payment infrastructure\n- Infrastructure scaling\n- DevOps pipeline kompleks\n- Kubernetes\n- Microservices\n- AI recommendation\n- Machine learning\n- Fitur lain yang tidak tercantum dalam scope\n\nJika fitur tersebut dibutuhkan, fitur dianggap sebagai\nCHANGE REQUEST / OUT OF SCOPE dan harus mendapat persetujuan terlebih dahulu.", "15-acceptance-criteria.md": "# Acceptance Criteria — Smart Canteen FEB\n\n## 1. Quality Gate Overview\n\n```mermaid\nflowchart TD\n    AC1[1. Dual Payment: Cashless & Cash QR Scan] --> GATE{Definition of Done}\n    AC2[2. Soft Deletes pada User, Tenant, Menu, Order] --> GATE\n    AC3[3. Kategori Menu & Snapshot Order Items] --> GATE\n    AC4[4. Self-Pickup Tracker & Timestamps] --> GATE\n    AC5[5. Admin & Tenant Dashboard Supervision] --> GATE\n    GATE -- Pass All --> PASSED[PROYEK DEMO ACC / SELESAI]\n```\n\n---\n\n## 2. Checklist Acceptance Criteria\n\n* [ ] Mahasiswa dapat memilih pembayaran **Cashless** (Midtrans Sandbox) atau **Cash** (Tunai di Stand).\n* [ ] Mahasiswa menerima Kode QR & string `pickup_code` unik untuk setiap transaksi.\n* [ ] Tenant memiliki fitur **Scan Kode QR / Input Kode** untuk mengonfirmasi pembayaran tunai.\n* [ ] Model `User`, `Tenant`, `Menu`, dan `Order` mengimplementasikan Trait `SoftDeletes` (`deleted_at`).\n* [ ] Model `OrderItem` menyimpan `menu_name` dan `price` sebagai snapshot saat transaksi dibuat.\n* [ ] Tenant dapat mengelompokkan menu berdasarkan `Category`.\n* [ ] Status pesanan mengupdate timestamp audit (`paid_at`, `processing_at`, `ready_at`, `completed_at`).\n* [ ] Seluruh alur demo berjalan lancar tanpa merusak data historis.\n", "16-rab.md": "# Rencana Anggaran Biaya (RAB) — Smart Canteen FEB\n\nDokumen ini merincikan alokasi anggaran biaya (Rp1.000.000) dan estimasi pengerjaan (5–7 Hari Kerja) untuk pengembangan Website Demo Smart Canteen FEB.\n\n---\n\n## 1. Timeline & Budget Breakdown\n\n```mermaid\n%%{init: { \"gantt\": { \"leftPadding\": 160, \"useWidth\": 900 } } }%%\ngantt\n    title Timeline Pengerjaan Smart Canteen FEB (5-7 Hari)\n    dateFormat  YYYY-MM-DD\n    axisFormat  %d %b\n    tickInterval 1day\n    section Phase 1: Planning & Setup\n    Doc & DB Schema with SoftDeletes  :active, p1, 2026-09-18, 1d\n    section Phase 2: Core & Dual Payment\n    Auth & Category Menu Setup        :p2, after p1, 1d\n    Cart & Checkout (Cash vs Cashless):p3, after p2, 1d\n    Midtrans Sandbox & Cash QR Scan   :p4, after p3, 2d\n    section Phase 3: Tenant & Admin\n    Tenant QR Scanner & Order Board   :p5, after p4, 1d\n    Admin Dashboard & Final Polish    :p6, after p5, 1d\n```\n\n---\n\n## 2. Rincian Alokasi Biaya (Rp1.000.000)\n\n| No | Modul / Komponen Pekerjaan | Bobot (%) | Biaya (IDR) | Output / Deliverables |\n| :--- | :--- | :---: | :---: | :--- |\n| 1 | **Setup Architecture, DB Schema & SoftDeletes** | 15% | Rp150.000 | Core setup Laravel 12 + Inertia React, Spatie Roles, Migration with SoftDeletes & Categories. |\n| 2 | **Modul Mahasiswa (Katalog Kategori & Checkout)** | 25% | Rp250.000 | Katalog Menu per Kategori, Cart, Checkout pilihan Cashless / Cash, Digital QR Code display. |\n| 3 | **Dual Payment Engine (Midtrans & Cash QR Scan)**| 25% | Rp250.000 | Midtrans Sandbox integration + Tenant QR Code Scanner / Input Code Verifier for Cash payment. |\n| 4 | **Modul Tenant (Order Board & Menu CRUD)** | 20% | Rp200.000 | Tenant Order Status Board (`Dibayar` $\\rightarrow$ `Diproses` $\\rightarrow$ `Siap Diambil`), Category & Menu CRUD (Soft Delete). |\n| 5 | **Modul Admin & Final Polish** | 15% | Rp150.000 | Admin Supervision Dashboard, Master Data Management, Responsive Mobile & Desktop polish. |\n| **TOTAL** | | **100%** | **Rp1.000.000** | **Website Demo Ready Smart Canteen FEB** |\n"};
     const filenames = Object.keys(docsData).sort();
 
     const docIcons = {
