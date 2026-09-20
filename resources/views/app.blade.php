@@ -6,27 +6,59 @@
 
         @php
             $pageProps = $page['props'] ?? [];
-            $ogTitle = config('app.name', 'Smart Canteen FEB');
-            $ogDescription = 'Smart Canteen FEB - Platform Pemesanan Makanan & Kantin Kampus Cepat, Praktis, dan Cashless.';
+            $ogTitle = 'Smart Canteen FEB - Platform Pemesanan Makanan Kantin Kampus';
+            $ogDescription = 'Pesan makanan & minuman secara praktis dan cepat di Kantin FEB. Cari tenant, lihat menu, dan bayar secara tunai atau QRIS.';
             $ogUrl = request()->url();
+
+            if (
+                request()->isSecure() ||
+                request()->header('x-forwarded-proto') === 'https' ||
+                str_contains($ogUrl, '.trycloudflare.com') ||
+                str_contains($ogUrl, '.ngrok-free.dev')
+            ) {
+                $ogUrl = preg_replace('/^http:/i', 'https:', $ogUrl);
+            }
 
             $formatImageUrl = function (?string $path) {
                 if (empty($path)) {
                     return null;
                 }
-                // Social media link preview crawlers (WhatsApp, FB, etc.) do NOT support SVG images
                 if (str_contains(strtolower($path), '.svg')) {
                     return null;
                 }
                 $fullUrl = str_starts_with($path, 'http') ? $path : asset(ltrim($path, '/'));
-                if (request()->isSecure() || request()->header('x-forwarded-proto') === 'https') {
-                    $fullUrl = str_replace('http://', 'https://', $fullUrl);
+                if (
+                    request()->isSecure() ||
+                    request()->header('x-forwarded-proto') === 'https' ||
+                    str_contains($fullUrl, '.trycloudflare.com') ||
+                    str_contains($fullUrl, '.ngrok-free.dev')
+                ) {
+                    $fullUrl = preg_replace('/^http:/i', 'https:', $fullUrl);
                 }
                 return $fullUrl;
             };
 
-            $defaultOgImage = $formatImageUrl('web-app-manifest-512x512.png');
+            $defaultOgImage = $formatImageUrl('og-banner.jpg');
             $ogImage = $defaultOgImage;
+            $ogImageWidth = 1200;
+            $ogImageHeight = 630;
+            $ogImageType = 'image/jpeg';
+
+            $schemaData = [
+                '@context' => 'https://schema.org',
+                '@type' => 'WebSite',
+                'name' => $ogTitle,
+                'url' => $ogUrl,
+                'description' => $ogDescription,
+                'publisher' => [
+                    '@type' => 'Organization',
+                    'name' => 'Smart Canteen FEB',
+                    'logo' => [
+                        '@type' => 'ImageObject',
+                        'url' => $formatImageUrl('web-app-manifest-512x512.png'),
+                    ],
+                ],
+            ];
 
             if (isset($pageProps['tenant']) && is_array($pageProps['tenant'])) {
                 $tenant = $pageProps['tenant'];
@@ -41,6 +73,17 @@
                 } else {
                     $ogImage = $formatImageUrl('images/tenant-placeholder.jpg');
                 }
+
+                $schemaData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'Restaurant',
+                    'name' => $ogTitle,
+                    'description' => $ogDescription,
+                    'image' => $ogImage,
+                    'url' => $ogUrl,
+                    'servesCuisine' => 'Indonesian Canteen Food',
+                    'priceRange' => 'Rp 5.000 - Rp 30.000',
+                ];
             } elseif (isset($pageProps['menu']) && is_array($pageProps['menu'])) {
                 $menu = $pageProps['menu'];
                 $ogTitle = ($menu['name'] ?? 'Menu') . ' - ' . ($menu['tenant_name'] ?? 'Kantin FEB') . ' | Smart Canteen FEB';
@@ -54,6 +97,15 @@
                 } else {
                     $ogImage = $formatImageUrl('images/food-placeholder.jpg');
                 }
+
+                $schemaData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'MenuItem',
+                    'name' => $ogTitle,
+                    'description' => $ogDescription,
+                    'image' => $ogImage,
+                    'url' => $ogUrl,
+                ];
             }
         @endphp
 
@@ -67,7 +119,7 @@
         <link rel="manifest" href="/site.webmanifest">
         <link rel="canonical" href="{{ $ogUrl }}">
 
-        {{-- Open Graph / Facebook / WhatsApp --}}
+        {{-- Open Graph / Facebook / LinkedIn / WhatsApp --}}
         <meta property="og:type" content="website">
         <meta property="og:url" content="{{ $ogUrl }}">
         <meta property="og:site_name" content="Smart Canteen FEB">
@@ -75,7 +127,12 @@
         <meta property="og:description" content="{{ $ogDescription }}">
         <meta property="og:image" content="{{ $ogImage }}">
         <meta property="og:image:secure_url" content="{{ $ogImage }}">
-        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:type" content="{{ $ogImageType }}">
+        <meta property="og:image:width" content="{{ $ogImageWidth }}">
+        <meta property="og:image:height" content="{{ $ogImageHeight }}">
+        <meta property="og:image:alt" content="{{ $ogTitle }}">
+        <meta property="og:locale" content="id_ID">
+        <meta property="og:locale:alternate" content="en_US">
 
         {{-- Twitter --}}
         <meta name="twitter:card" content="summary_large_image">
@@ -83,8 +140,16 @@
         <meta name="twitter:title" content="{{ $ogTitle }}">
         <meta name="twitter:description" content="{{ $ogDescription }}">
         <meta name="twitter:image" content="{{ $ogImage }}">
+        <meta name="twitter:image:alt" content="{{ $ogTitle }}">
+        <meta name="twitter:site" content="@smartcanteen_feb">
+        <meta name="twitter:creator" content="@smartcanteen_feb">
 
-        {{-- Inline script to detect system dark mode preference and apply it immediately --}}
+        {{-- Structured Data (JSON-LD) --}}
+        <script type="application/ld+json">
+        {!! json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!}
+        </script>
+
+        {{-- Inline script to detect system dark mode preference --}}
         <script>
             (function() {
                 const appearance = '{{ $appearance ?? "system" }}';
@@ -99,7 +164,6 @@
             })();
         </script>
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
             html {
                 background-color: oklch(1 0 0);
@@ -123,6 +187,7 @@
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
+        <h1 class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">{{ $ogTitle }}</h1>
         <x-inertia::app />
     </body>
 </html>
