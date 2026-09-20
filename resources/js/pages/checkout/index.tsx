@@ -332,7 +332,7 @@ export default function StudentCheckout({
                                 {tenantNamesStr}
                             </h3>
                             <p className="text-[10.5px] text-muted-foreground leading-tight truncate">
-                                Kantin FEB • Universitas Airlangga
+                                Kantin FEB • Universitas Negeri Surabaya
                             </p>
                         </div>
                     </div>

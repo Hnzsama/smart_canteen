@@ -66,6 +66,7 @@ class CreateNewUser implements CreatesNewUsers
                 'email' => $input['email'],
                 'password' => $input['password'],
                 'tenant_id' => $tenantId,
+                'email_verified_at' => now(),
             ]);
 
             $assignedRole = ($role === UserRole::Tenant->value)

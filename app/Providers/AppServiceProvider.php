@@ -32,8 +32,8 @@ class AppServiceProvider extends ServiceProvider
                 $this->app->usePublicPath(base_path('../'));
             }
 
-            URL::forceScheme('https');
         }
+        URL::forceScheme('https');
     }
 
     /**

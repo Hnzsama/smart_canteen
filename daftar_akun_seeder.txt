@@ -1,0 +1,112 @@
+====================================================================
+DAFTAR AKUN SEEDER SMART CANTEEN FEB
+Password Semua Akun: password
+====================================================================
+
+--- 1. AKUN ADMIN SYSTEM ---
+1. Admin FEB
+   Email    : admin@feb.ac.id
+   Password : password
+   Role     : Admin
+
+2. Supervisor Kantin FEB
+   Email    : supervisor@feb.ac.id
+   Password : password
+   Role     : Admin
+
+
+--- 2. AKUN TENANT / PENGELOLA STAND ---
+1. Kantin Bu Siti FEB (Bu Siti)
+   Email    : tenant@feb.ac.id
+   Password : password
+   Role     : Tenant
+
+2. Dapur Nusantara FEB (Pengelola Dapur Nusantara)
+   Email    : tenant2@feb.ac.id
+   Password : password
+   Role     : Tenant
+
+3. Kopi & Minuman FEB (Pengelola Kopi & Minuman)
+   Email    : kopi@feb.ac.id
+   Password : password
+   Role     : Tenant
+
+4. Ayam Geprek Juara (Mas Rian)
+   Email    : geprek@feb.ac.id
+   Password : password
+   Role     : Tenant
+
+5. Bakso & Mie Ayam Mas Dono (Mas Dono)
+   Email    : bakso@feb.ac.id
+   Password : password
+   Role     : Tenant
+
+6. Dimsum Corner FEB (Chef Hendra)
+   Email    : dimsum@feb.ac.id
+   Password : password
+   Role     : Tenant
+
+7. Juice & Smoothies Corner (Mbak Maya)
+   Email    : juice@feb.ac.id
+   Password : password
+   Role     : Tenant
+
+8. Penyetan Suroboyo Cak Malik (Cak Malik)
+   Email    : cakmalik@feb.ac.id
+   Password : password
+   Role     : Tenant
+
+9. Roti Bakar & Toast FEB (Bang Jay)
+   Email    : rotibakar@feb.ac.id
+   Password : password
+   Role     : Tenant
+
+
+--- 3. AKUN MAHASISWA (CUSTOMER) ---
+1. Ahmad Mahasiswa FEB
+   Email    : mahasiswa@feb.ac.id
+   Password : password
+
+2. Budi Santoso
+   Email    : budi@feb.ac.id
+   Password : password
+
+3. Siti Nurhaliza
+   Email    : siti.nur@student.feb.ac.id
+   Password : password
+
+4. Rizky Ramadhan
+   Email    : rizky.r@student.feb.ac.id
+   Password : password
+
+5. Putri Ayu Lestari
+   Email    : putri.ayu@student.feb.ac.id
+   Password : password
+
+6. Dimas Anggara
+   Email    : dimas.a@student.feb.ac.id
+   Password : password
+
+7. Anisa Rahmawati
+   Email    : anisa.r@student.feb.ac.id
+   Password : password
+
+8. Farhan Pratama
+   Email    : farhan.p@student.feb.ac.id
+   Password : password
+
+9. Tiara Andini
+   Email    : tiara.a@student.feb.ac.id
+   Password : password
+
+10. Kevin Sanjaya
+    Email    : kevin.s@student.feb.ac.id
+    Password : password
+
+11. Nabila Syakieb
+    Email    : nabila.s@student.feb.ac.id
+    Password : password
+
+12. Aditya Wicaksono
+    Email    : aditya.w@student.feb.ac.id
+    Password : password

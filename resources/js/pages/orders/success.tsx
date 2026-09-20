@@ -291,7 +291,7 @@ export default function OrderSuccess({ order }: OrderSuccessProps) {
                         {/* Header */}
                         <div className="text-center border-b border-slate-200 pb-3 space-y-0.5">
                             <h4 className="font-black text-sm tracking-tight text-slate-900">SMART CANTEEN FEB</h4>
-                            <p className="text-[10px] text-slate-500 font-medium">Universitas Airlangga • Surabaya</p>
+                            <p className="text-[10px] text-slate-500 font-medium">Universitas Negeri Surabaya • Surabaya</p>
                             <span className="text-[10px] text-slate-400 font-mono block pt-1">{order.paid_at}</span>
                         </div>
 

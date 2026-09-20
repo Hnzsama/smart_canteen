@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
 import type { Auth } from '@/types';
-import { send } from '@/routes/verification';
 
 type PageProps = {
     auth: Auth;
@@ -100,7 +99,8 @@ export default function Profile({
                                         <p>
                                             Email Anda belum diverifikasi.{' '}
                                             <Link
-                                                href={send()}
+                                                href="/email/verification-notification"
+                                                method="post"
                                                 as="button"
                                                 className="font-bold underline hover:text-amber-700"
                                             >

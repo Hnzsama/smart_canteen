@@ -2,6 +2,7 @@
 
 use App\Models\Tenant;
 use App\Models\User;
+use Laravel\Fortify\Features;
 
 test('admin user is redirected to admin dashboard upon login', function () {
     $admin = User::factory()->admin()->create([
@@ -69,6 +70,8 @@ test('tenant can access tenant dashboard but other roles are forbidden', functio
 });
 
 test('unverified user cannot access role dashboards before email verification', function () {
+    $this->skipUnlessFortifyHas(Features::emailVerification());
+
     $admin = User::factory()->admin()->unverified()->create();
     $tenant = Tenant::factory()->create();
     $tenantUser = User::factory()->tenant($tenant)->unverified()->create();
