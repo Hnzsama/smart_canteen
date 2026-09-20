@@ -412,8 +412,8 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                             <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider block font-bold">
                                 Nomor Virtual Account:
                             </span>
-                            <div className="flex items-center justify-between gap-2 bg-card p-3 rounded-xl border border-border font-mono">
-                                <span className="text-lg font-black tracking-widest text-foreground select-all">
+                            <div className="flex items-center justify-between gap-2 bg-card p-3 rounded-xl border border-border font-mono overflow-hidden">
+                                <span className="text-sm sm:text-base font-black tracking-wider text-foreground select-all break-all min-w-0 leading-snug">
                                     {vaNumber}
                                 </span>
                                 <Button
@@ -421,7 +421,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleCopy(vaNumber, 'va')}
-                                    className="h-8 px-3 text-xs font-bold gap-1 rounded-xl border-border shadow-2xs"
+                                    className="h-8 px-2.5 sm:px-3 text-xs font-bold gap-1 rounded-xl border-border shadow-2xs shrink-0"
                                 >
                                     {copiedText === 'va' ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
                                     <span>{copiedText === 'va' ? 'Tersalin' : 'Salin VA'}</span>
@@ -434,8 +434,8 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                             <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider block font-bold">
                                 Total Transfer Tepat
                             </span>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xl font-black font-mono text-primary">
+                            <div className="flex items-center justify-between gap-2">
+                                <span className="text-xl font-black font-mono text-primary min-w-0 truncate">
                                     Rp{order.total_amount.toLocaleString('id-ID')}
                                 </span>
                                 <Button
@@ -443,7 +443,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                                     size="sm"
                                     variant="ghost"
                                     onClick={() => handleCopy(String(order.total_amount), 'total')}
-                                    className="h-8 px-2.5 text-xs font-bold gap-1"
+                                    className="h-8 px-2.5 text-xs font-bold gap-1 shrink-0"
                                 >
                                     {copiedText === 'total' ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
                                     <span>{copiedText === 'total' ? 'Tersalin' : 'Salin Total'}</span>
@@ -460,7 +460,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                             <ol className="list-decimal list-inside text-[11px] text-muted-foreground space-y-1 leading-relaxed">
                                 <li>Buka aplikasi Mobile Banking / ATM bank kamu.</li>
                                 <li>Pilih menu <strong>Transfer &gt; Virtual Account</strong>.</li>
-                                <li>Masukkan nomor Virtual Account: <strong>{vaNumber}</strong>.</li>
+                                <li>Masukkan nomor Virtual Account: <strong className="break-all">{vaNumber}</strong>.</li>
                                 <li>Periksa nominal Rp{order.total_amount.toLocaleString('id-ID')} dan selesaikan transfer.</li>
                             </ol>
                         </div>
