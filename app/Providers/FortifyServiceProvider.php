@@ -11,6 +11,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
+use Laravel\Fortify\Contracts\LoginResponse;
+use Laravel\Fortify\Contracts\TwoFactorLoginResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
@@ -32,6 +34,16 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
+        $this->configureResponses();
+    }
+
+    /**
+     * Configure custom Fortify responses.
+     */
+    private function configureResponses(): void
+    {
+        $this->app->singleton(LoginResponse::class, \App\Http\Responses\LoginResponse::class);
+        $this->app->singleton(TwoFactorLoginResponse::class, \App\Http\Responses\TwoFactorLoginResponse::class);
     }
 
     /**

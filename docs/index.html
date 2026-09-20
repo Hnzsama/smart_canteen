@@ -112,9 +112,21 @@
       </div>
     </div>
 
-    <!-- Search & Theme Switcher -->
+    <!-- Search & User Guide Navigation & Theme Switcher -->
     <div class="flex items-center gap-3">
-      <div class="relative hidden sm:block w-64">
+      <nav class="hidden md:flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl text-xs font-semibold">
+        <a href="mahasiswa.html" class="px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-300 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-white dark:hover:bg-slate-900 transition-all flex items-center gap-1">
+          <span>🎓</span> Mahasiswa
+        </a>
+        <a href="tenant.html" class="px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-slate-900 transition-all flex items-center gap-1">
+          <span>🏪</span> Tenant
+        </a>
+        <a href="admin.html" class="px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-900 transition-all flex items-center gap-1">
+          <span>🛡️</span> Admin
+        </a>
+      </nav>
+
+      <div class="relative hidden sm:block w-48 lg:w-64">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
         <input type="text" id="search-input" placeholder="Cari dokumen..." class="w-full bg-slate-100 dark:bg-slate-800 text-xs pl-8 pr-4 py-2 rounded-lg border border-transparent focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 outline-none transition-all">
       </div>
@@ -125,7 +137,7 @@
 
       <a href="https://github.com/Hnzsama/smart_canteen" target="_blank" class="hidden md:flex items-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors shadow-sm">
         <i class="fa-brands fa-github text-sm"></i>
-        <span>GitHub Repo</span>
+        <span>GitHub</span>
       </a>
     </div>
   </header>
@@ -142,8 +154,30 @@
         <input type="text" id="mobile-search-input" placeholder="Cari dokumen..." class="w-full bg-slate-100 dark:bg-slate-800 text-xs px-3 py-2 rounded-lg outline-none">
       </div>
 
+      <!-- Quick User Guides Section -->
+      <div class="p-3 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40">
+        <div class="px-1 mb-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase flex items-center justify-between">
+          <span>📖 Panduan Pengguna</span>
+          <span class="text-emerald-500 font-semibold">User Guides</span>
+        </div>
+        <div class="space-y-1 text-xs">
+          <a href="mahasiswa.html" class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 border border-slate-200/60 dark:border-slate-700/60 transition-all font-medium">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-emerald-500"></i> Mahasiswa</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+          </a>
+          <a href="tenant.html" class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800/80 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 border border-slate-200/60 dark:border-slate-700/60 transition-all font-medium">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-store text-amber-500"></i> Tenant (Stand)</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+          </a>
+          <a href="admin.html" class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200/60 dark:border-slate-700/60 transition-all font-medium">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-user-shield text-indigo-500"></i> Admin System</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+          </a>
+        </div>
+      </div>
+
       <div class="px-4 py-3 flex items-center justify-between text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wider uppercase">
-        <span>Daftar Dokumen (17)</span>
+        <span>Dokumen Teknik (17)</span>
         <span class="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-bold">SPA</span>
       </div>
 

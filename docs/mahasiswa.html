@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panduan Mahasiswa Lengkap — Smart Canteen FEB</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#ecfdf5",
+              100: "#d1fae5",
+              500: "#10b981",
+              600: "#059669",
+              700: "#047857",
+              900: "#064e3b"
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body { font-family: "Inter", sans-serif; }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .mermaid-wrapper {
+      background: #0f172a;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border: 1px solid rgba(148,163,184,0.12);
+      overflow-x: auto;
+    }
+    .mermaid-wrapper .mermaid { display: flex; justify-content: center; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white">
+
+  <!-- Header Top Bar -->
+  <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mr-2">
+        <i class="fa-solid fa-arrow-left text-sm"></i>
+        <span class="text-xs font-semibold hidden sm:inline">Dokumentasi Teknik</span>
+      </a>
+      <div class="h-5 w-px bg-slate-800"></div>
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 font-bold text-base">
+          🎓
+        </div>
+        <div>
+          <h1 class="font-bold text-white text-base leading-tight">Panduan Mahasiswa (Per-Fitur)</h1>
+          <p class="text-xs text-emerald-400 font-medium">Smart Canteen FEB — Complete User Guide</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Hub Links -->
+    <div class="flex items-center gap-2">
+      <nav class="hidden md:flex items-center gap-1.5 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80 text-xs">
+        <a href="mahasiswa.html" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30 flex items-center gap-1.5">
+          <i class="fa-solid fa-user-graduate"></i> Mahasiswa
+        </a>
+        <a href="tenant.html" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-store"></i> Tenant
+        </a>
+        <a href="admin.html" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-user-shield"></i> Admin
+        </a>
+      </nav>
+
+      <a href="panduan/mahasiswa.md" target="_blank" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-700 transition-colors">
+        <i class="fa-regular fa-file-lines text-emerald-400"></i>
+        <span>Raw MD</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="flex-1 flex max-w-7xl w-full mx-auto relative px-4 lg:px-8 py-8 gap-8">
+    
+    <!-- Sidebar Table of Contents -->
+    <aside class="hidden lg:block w-72 shrink-0">
+      <div class="sticky top-24 space-y-4">
+        <div class="p-4 rounded-2xl glass-card border border-slate-800 max-h-[calc(100vh-120px)] overflow-y-auto">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-emerald-400"></i> 14 Fitur Mahasiswa
+          </h3>
+          <nav class="space-y-1 text-xs">
+            <a href="#fitur-auth" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">1. Auth & Quick Switcher</a>
+            <a href="#fitur-katalog" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">2. Beranda & Katalog (`/catalog`)</a>
+            <a href="#fitur-search" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">3. Search & Filter Kategori</a>
+            <a href="#fitur-stand" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">4. Halaman Stand (`/{slug}`)</a>
+            <a href="#fitur-modal" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">5. Modal Detail & Catatan</a>
+            <a href="#fitur-floating-cart" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">6. Floating Cart Bar</a>
+            <a href="#fitur-checkout" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">7. Checkout Multi-Stand</a>
+            <a href="#fitur-cashless" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">8. Midtrans Cashless Sandbox</a>
+            <a href="#fitur-cash" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">9. Tunai & Digital Pickup Pass</a>
+            <a href="#fitur-tracker" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">10. Live Status Order Tracker</a>
+            <a href="#fitur-pickup" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">11. Prosedur Self-Pickup</a>
+            <a href="#fitur-rating" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">12. Rating & Ulasan Menu</a>
+            <a href="#fitur-riwayat" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">13. Riwayat & Invoice Digital</a>
+            <a href="#fitur-settings" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all font-medium">14. Settings Profil & 2FA</a>
+          </nav>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 min-w-0 space-y-12">
+      
+      <!-- Hero Banner -->
+      <section class="p-8 rounded-3xl bg-gradient-to-r from-emerald-900/40 via-teal-900/20 to-slate-900 border border-emerald-500/30 relative overflow-hidden shadow-2xl">
+        <div class="relative z-10 max-w-2xl">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wide inline-block mb-3">
+            Panduan Rinci Per-Fitur
+          </span>
+          <h2 class="text-3xl font-extrabold text-white leading-tight">Panduan Mahasiswa Smart Canteen FEB</h2>
+          <p class="text-slate-300 text-sm mt-2 leading-relaxed">
+            Penjelasan rinci komponen UI, alur transaksi, hingga simulasi pembayaran untuk 14 fitur utama mahasiswa.
+          </p>
+        </div>
+      </section>
+
+      <!-- 1. Auth & Quick Switcher -->
+      <section id="fitur-auth" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">1</div>
+          <h2 class="text-xl font-bold text-white">Autentikasi & Quick Role Switcher</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Form pendaftaran (<code class="bg-slate-800 text-emerald-400 px-2 py-0.5 rounded text-xs">/register</code>) dan login (<code class="bg-slate-800 text-emerald-400 px-2 py-0.5 rounded text-xs">/login</code>) dilengkapi dengan pengingat sesi <em>Remember Me</em> dan bilah <strong>Quick Role Switcher</strong> di bagian atas layar untuk berpindah ke akun demo lain dalam 1-klik.
+          </p>
+        </div>
+      </section>
+
+      <!-- 2. Katalog -->
+      <section id="fitur-katalog" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">2</div>
+          <h2 class="text-xl font-bold text-white">Beranda & Katalog Utama (`/catalog`)</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Menampilkan slide banner pengumuman kantin, kartu toko stand, dan grid menu makanan beresolusi tinggi dengan indikator badge ketersediaan:
+          </p>
+          <div class="grid sm:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-400">
+              <strong>🟢 Stand Buka</strong>: Makanan siap dipesan.
+            </div>
+            <div class="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-400">
+              <strong>🔴 Stand Tutup</strong>: Tidak bisa dipesan saat ini.
+            </div>
+            <div class="p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-400">
+              <strong>⭐ Best Seller Badge</strong>: Menu favorit mahasiswa FEB.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Search & Filter -->
+      <section id="fitur-search" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">3</div>
+          <h2 class="text-xl font-bold text-white">Search Bar Real-Time & Tab Kategori</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-3">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Pencarian instan menyaring menu saat Anda mengetik huruf di kolom pencarian. Tab filter memisahkan hidangan berdasarkan <code class="bg-slate-800 text-emerald-400 px-2 py-0.5 rounded text-xs">Makanan Utama</code>, <code class="bg-slate-800 text-emerald-400 px-2 py-0.5 rounded text-xs">Minuman</code>, dan <code class="bg-slate-800 text-emerald-400 px-2 py-0.5 rounded text-xs">Camilan</code>.
+          </p>
+        </div>
+      </section>
+
+      <!-- 4. Halaman Stand -->
+      <section id="fitur-stand" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">4</div>
+          <h2 class="text-xl font-bold text-white">Halaman Detail Stand Kantin (`/{slug}`)</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-3">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Menampilkan profil spesifik stand: Banner header, foto logo, jam operasional, rating ulasan, dan seluruh menu yang dijual khusus oleh stand tersebut.
+          </p>
+        </div>
+      </section>
+
+      <!-- 5. Modal Detail & Catatan -->
+      <section id="fitur-modal" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">5</div>
+          <h2 class="text-xl font-bold text-white">Modal Detail Menu & Catatan Pesanan</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-3 border-l-4 border-l-emerald-500">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Klik kartu menu untuk membuka modal tampilan besar. Anda dapat menambahkan <strong>Catatan Khusus</strong> bagi penjual (misal: <em>"Pedas manis, nasi setengah porsi"</em>) dan mengatur kuantitas porsi sebelum dimasukkan ke keranjang.
+          </p>
+        </div>
+      </section>
+
+      <!-- 6. Floating Cart Bar -->
+      <section id="fitur-floating-cart" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">6</div>
+          <h2 class="text-xl font-bold text-white">Floating Cart Bar (Keranjang Melayang)</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-3">
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3 text-xs">
+              <span class="p-2.5 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold">🛒 3 Item</span>
+              <span class="text-white font-bold text-sm">Total: Rp 42.000</span>
+            </div>
+            <span class="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs">Checkout ➔</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-2">Bilah ini otomatis muncul melayang di bawah layar smartphone / desktop Anda ketika terdapat item di dalam keranjang.</p>
+        </div>
+      </section>
+
+      <!-- 7. Checkout Multi-Stand -->
+      <section id="fitur-checkout" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">7</div>
+          <h2 class="text-xl font-bold text-white">Keranjang & Checkout Multi-Stand (`/checkout`)</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-3">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Memungkinkan mahasiswa mengelompokkan pesanan dari beberapa stand berbeda dalam satu kali checkout. Menampilkan subtotal makanan, biaya admin (jika ada), dan total bayar akhir.
+          </p>
+        </div>
+      </section>
+
+      <!-- 8. Midtrans Cashless Sandbox -->
+      <section id="fitur-cashless" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">8</div>
+          <h2 class="text-xl font-bold text-white">Pembayaran Cashless (Midtrans Sandbox)</h2>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl space-y-4 border-l-4 border-l-emerald-500">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Untuk menguji pembayaran digital dalam mode Sandbox, gunakan salah satu simulator berikut:
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs space-y-2">
+              <strong class="text-emerald-400 font-bold block flex items-center gap-1.5">
+                <i class="fa-solid fa-star"></i> Pilihan Utama: BCA Virtual Account
+              </strong>
+              <p class="text-slate-300 leading-relaxed">
+                Paling praktis! Salin Nomor VA dari pop-up Midtrans Snap, lalu buka simulator BCA VA untuk bayar tanpa perlu menyalin link gambar.
+              </p>
+              <a href="https://simulator.sandbox.midtrans.com/bca/va/index" target="_blank" class="inline-flex items-center gap-1 text-emerald-400 underline font-semibold">
+                <span>Buka Simulator BCA VA</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+              </a>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-2">
+              <strong class="text-slate-200 font-bold block flex items-center gap-1.5">
+                <i class="fa-solid fa-qrcode text-emerald-400"></i> Alternatif: QRIS Simulator
+              </strong>
+              <p class="text-slate-300 leading-relaxed">
+                Gunakan simulator QRIS jika memilih pembayaran QR Code digital.
+              </p>
+              <a href="https://simulator.sandbox.midtrans.com/v2/qris/index" target="_blank" class="inline-flex items-center gap-1 text-emerald-400 underline font-semibold">
+                <span>Buka Simulator QRIS</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. Tunai & Digital Pickup Pass -->
+      <section id="fitur-cash" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">9</div>
+          <h2 class="text-xl font-bold text-white">Pembayaran Tunai & Digital Pickup Pass</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-3 border-l-4 border-l-amber-500">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Jika memilih metode Tunai / Cash, Anda menerima <strong>Digital Pickup Pass</strong> yang berisi gambar <strong>QR Code</strong>, kode unik format <code class="bg-slate-800 text-amber-400 px-1.5 py-0.5 rounded">FEB-XXXX</code>, dan timer hitung mundur 15 menit untuk bayar di kasir stand.
+          </p>
+        </div>
+      </section>
+
+      <!-- 10. Live Status Tracker -->
+      <section id="fitur-tracker" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">10</div>
+          <h2 class="text-xl font-bold text-white">Live Order Status Tracker & Timestamps</h2>
+        </div>
+
+        <div class="mermaid-wrapper">
+          <div class="mermaid">
+            stateDiagram-v2
+                [*] --> MenungguPembayaran: 🟡 Order Dibuat
+                MenungguPembayaran --> Dibayar: 🔵 Lunas (paid_at)
+                Dibayar --> Diproses: 🟣 Dimasak Penjual (processing_at)
+                Diproses --> SiapDiambil: 🟢 Makanan Matang (ready_at)
+                SiapDiambil --> Selesai: ⚪ Diserahkan ke Pembeli (completed_at)
+          </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl space-y-3">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Tracker memperbarui status secara otomatis di layar HP Anda tanpa perlu refresh browser. Saat status mencapai <strong>🟢 Siap Diambil</strong>, indikator hijau akan berkedip memberi tahu Anda untuk mengambil makanan.
+          </p>
+        </div>
+      </section>
+
+      <!-- 11, 12, 13, 14 Fitur Lainnya -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <section id="fitur-pickup" class="glass-card p-6 rounded-2xl space-y-3">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-bag-shopping text-emerald-400"></i> 11. Prosedur Self-Pickup
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Datangi stand kantin FEB, tunjukkan kode <code class="bg-slate-800 text-emerald-400 px-1 py-0.5 rounded">FEB-XXXX</code> di HP Anda, lalu ambil makanan yang telah dikemas.
+          </p>
+        </section>
+
+        <section id="fitur-rating" class="glass-card p-6 rounded-2xl space-y-3">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-star text-amber-400"></i> 12. Rating & Ulasan Menu
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Berikan rating bintang 1–5 ⭐ dan tulis ulasan makanan/pelayanan stand setelah transaksi selesai.
+          </p>
+        </section>
+
+        <section id="fitur-riwayat" class="glass-card p-6 rounded-2xl space-y-3">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> 13. Riwayat & Invoice Digital
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Lihat daftar transaksi lalu pada menu <code class="bg-slate-800 text-emerald-400 px-1 py-0.5 rounded">/orders</code> dan gunakan tombol <strong>Pesan Lagi (Re-order)</strong> untuk pemesanan cepat.
+          </p>
+        </section>
+
+        <section id="fitur-settings" class="glass-card p-6 rounded-2xl space-y-3">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-user-gear text-purple-400"></i> 14. Pengaturan Profil & 2FA
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Edit profil, ganti password, aktifkan 2FA Authenticator, serta pilih tampilan Dark Mode / Light Mode di <code class="bg-slate-800 text-emerald-400 px-1 py-0.5 rounded">/settings</code>.
+          </p>
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+  <footer class="border-t border-slate-800 bg-slate-900/60 py-6 text-center text-xs text-slate-500">
+    Smart Canteen FEB &copy; 2026 — Comprehensive Student User Guide
+  </footer>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+  </script>
+</body>
+</html>

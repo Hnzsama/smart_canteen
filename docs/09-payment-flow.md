@@ -30,8 +30,11 @@ flowchart TD
 1. Mahasiswa mengklik "Bayar Sekarang" dengan opsi Cashless.
 2. Backend me-request Midtrans Snap Token via Midtrans Sandbox API.
 3. Midtrans Snap Modal muncul di layar Mahasiswa.
-4. Setelah transaksi dilakukan di Midtrans Simulator, Midtrans mengirimkan HTTP POST Callback Webhook ke `/api/midtrans/notification`.
-5. System mengecek signature key dan mengubah status `orders`:
+4. Untuk pengujian di lingkungan **Sandbox**:
+   - **Saran Utama (BCA Virtual Account)**: [https://simulator.sandbox.midtrans.com/bca/va/index](https://simulator.sandbox.midtrans.com/bca/va/index) *(Praktis: Cukup salin Nomor VA dari Snap tanpa menyalin URL gambar QR)*.
+   - **Alternatif (QRIS)**: [https://simulator.sandbox.midtrans.com/v2/qris/index](https://simulator.sandbox.midtrans.com/v2/qris/index).
+5. Setelah transaksi dilakukan di Midtrans Simulator, Midtrans mengirimkan HTTP POST Callback Webhook ke `/api/midtrans/notification`.
+6. System mengecek signature key dan mengubah status `orders`:
    - `status = 'paid'`, `payment_status = 'paid'`, `paid_at = now()`.
 
 ---

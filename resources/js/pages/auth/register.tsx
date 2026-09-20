@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
-import { store } from '@/routes/register';
+import { store, tenant as registerTenant } from '@/routes/register';
 
 type Props = {
     passwordRules: string;
@@ -16,7 +16,20 @@ type Props = {
 export default function Register({ passwordRules }: Props) {
     return (
         <>
-            <Head title="Register" />
+            <Head title="Daftar Akun Mahasiswa" />
+
+            <div className="mb-4 flex items-center justify-center gap-2 rounded-lg bg-muted p-1 text-sm font-medium">
+                <span className="flex-1 rounded-md bg-background py-1.5 text-center font-semibold shadow-sm text-foreground">
+                    Mahasiswa
+                </span>
+                <TextLink
+                    href={registerTenant()}
+                    className="flex-1 rounded-md py-1.5 text-center text-muted-foreground transition hover:text-foreground"
+                >
+                    Stand Kantin / Tenant
+                </TextLink>
+            </div>
+
             <Form
                 {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
@@ -27,7 +40,7 @@ export default function Register({ passwordRules }: Props) {
                     <>
                         <div className="grid gap-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">Nama Lengkap</Label>
                                 <Input
                                     id="name"
                                     type="text"
@@ -36,7 +49,7 @@ export default function Register({ passwordRules }: Props) {
                                     tabIndex={1}
                                     autoComplete="name"
                                     name="name"
-                                    placeholder="Full name"
+                                    placeholder="Nama Lengkap Mahasiswa"
                                 />
                                 <InputError
                                     message={errors.name}
@@ -45,7 +58,7 @@ export default function Register({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">Email Mahasiswa</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -53,7 +66,7 @@ export default function Register({ passwordRules }: Props) {
                                     tabIndex={2}
                                     autoComplete="email"
                                     name="email"
-                                    placeholder="email@example.com"
+                                    placeholder="mahasiswa@feb.ac.id"
                                 />
                                 <InputError message={errors.email} />
                             </div>
@@ -74,7 +87,7 @@ export default function Register({ passwordRules }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation">
-                                    Confirm password
+                                    Konfirmasi Password
                                 </Label>
                                 <PasswordInput
                                     id="password_confirmation"
@@ -82,7 +95,7 @@ export default function Register({ passwordRules }: Props) {
                                     tabIndex={4}
                                     autoComplete="new-password"
                                     name="password_confirmation"
-                                    placeholder="Confirm password"
+                                    placeholder="Ulangi password"
                                     passwordrules={passwordRules}
                                 />
                                 <InputError
@@ -97,14 +110,14 @@ export default function Register({ passwordRules }: Props) {
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
-                                Create account
+                                Buat Akun Mahasiswa
                             </Button>
                         </div>
 
                         <div className="text-muted-foreground text-center text-sm">
-                            Already have an account?{' '}
+                            Sudah memiliki akun?{' '}
                             <TextLink href={login()} tabIndex={6}>
-                                Log in
+                                Masuk
                             </TextLink>
                         </div>
                     </>
@@ -115,6 +128,6 @@ export default function Register({ passwordRules }: Props) {
 }
 
 Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
+    title: 'Daftar Akun Mahasiswa',
+    description: 'Pesan makanan dan minuman di kantin FEB lebih cepat tanpa antre',
 };

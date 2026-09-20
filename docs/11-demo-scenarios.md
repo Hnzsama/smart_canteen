@@ -20,8 +20,11 @@ flowchart LR
 ### Skenario 1: Pemesanan Cashless (Midtrans Sandbox)
 1. Mahasiswa login (`mahasiswa@feb.ac.id`), pilih Tenant & Menu.
 2. Tambahkan ke keranjang $\rightarrow$ Checkout $\rightarrow$ Pilih **Cashless**.
-3. Selesaikan pembayaran di Pop-up Midtrans Sandbox.
-4. Status otomatis ter-update menjadi **"Dibayar"** dan pesanan muncul di Dashboard Tenant.
+3. Pop-up Midtrans Sandbox akan terbuka.
+4. Selesaikan pembayaran menggunakan Midtrans Simulator:
+   - **BCA Virtual Account (Direkomendasikan)**: [https://simulator.sandbox.midtrans.com/bca/va/index](https://simulator.sandbox.midtrans.com/bca/va/index) *(Salin Nomor VA tanpa perlu simpan/salin link gambar QR)*.
+   - **QRIS Simulator**: [https://simulator.sandbox.midtrans.com/v2/qris/index](https://simulator.sandbox.midtrans.com/v2/qris/index).
+5. Status otomatis ter-update menjadi **"Dibayar"** dan pesanan muncul di Dashboard Tenant.
 
 ### Skenario 2: Pemesanan Cash (Scan QR oleh Tenant)
 1. Mahasiswa buat pesanan baru $\rightarrow$ Checkout $\rightarrow$ Pilih **Cash / Tunai**.

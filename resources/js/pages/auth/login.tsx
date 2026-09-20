@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
+import { tenant as registerTenant } from '@/routes/register';
 
 type Props = {
     status?: string;
@@ -89,11 +90,17 @@ export default function Login({ status, canResetPassword }: Props) {
                             </Button>
                         </div>
 
-                        <div className="text-muted-foreground text-center text-sm">
-                            Don't have an account?{' '}
-                            <TextLink href={register()} tabIndex={5}>
-                                Sign up
-                            </TextLink>
+                        <div className="space-y-1 text-center text-sm text-muted-foreground">
+                            <div>
+                                Belum memiliki akun?{' '}
+                                <TextLink href={register()} tabIndex={5}>
+                                    Daftar Mahasiswa
+                                </TextLink>
+                                {' '}&bull;{' '}
+                                <TextLink href={registerTenant()} tabIndex={6}>
+                                    Daftar Stand Kantin
+                                </TextLink>
+                            </div>
                         </div>
                     </>
                 )}
