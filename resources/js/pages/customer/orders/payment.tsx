@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import {
     AlertTriangle,
     ArrowLeft,
@@ -9,110 +9,38 @@ import {
     CheckCircle2,
     Clock,
     Copy,
-    CreditCard,
     Download,
-    HelpCircle,
     Info,
-    MapPin,
     QrCode,
     Receipt,
     RefreshCw,
-    ShieldCheck,
-    ShoppingBag,
     Sparkles,
     Store,
     Timer,
-    Utensils,
 } from 'lucide-react';
 import StudentLayout from '@/layouts/student-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-type OrderPaymentProps = {
-    order: {
-        id: number;
-        order_number: string;
-        pickup_code: string;
-        status: string;
-        payment_status: string;
-        payment_method: string;
-        payment_channel_code?: string;
-        dining_option: string;
-        subtotal_amount: number;
-        app_fee: number;
-        channel_fee: number;
-        total_amount: number;
-        created_at: string;
-        expires_at?: string | null;
-        is_expired?: boolean;
-        notes?: string;
-        payment_details?: {
-            type?: 'qris' | 'bank_transfer' | 'cash';
-            channel_code?: string;
-            channel_name?: string;
-            va_number?: string;
-            qr_url?: string;
-            instructions?: string[];
-        };
-        tenant: {
-            id: number;
-            name: string;
-        };
-        items: Array<{
-            id: number;
-            menu_name: string;
-            price: number;
-            quantity: number;
-            subtotal: number;
-            options?: Record<string, { name: string; price: number }>;
-            note?: string;
-        }>;
-    };
-};
+import { OrderPaymentProps } from './types';
+import { usePaymentTimer } from './hooks/use-payment-timer';
+import { OrderSummaryCard } from './components/order-summary-card';
 
 export default function OrderPayment({ order }: OrderPaymentProps) {
     const [copiedText, setCopiedText] = useState<string | null>(null);
+    const [showSuccessToast, setShowSuccessToast] = useState(false);
 
     const isCash = order.payment_method === 'cash';
     const maxMinutes = isCash ? 15 : 10;
-    const maxSeconds = maxMinutes * 60;
 
-    // Calculate initial remaining seconds (15 mins for cash, 10 mins for cashless)
-    const calculateRemainingSeconds = () => {
-        if (!order.expires_at) return maxSeconds;
-        const expiryTime = new Date(order.expires_at).getTime();
-        const now = Date.now();
-        const diff = Math.floor((expiryTime - now) / 1000);
-        return Math.max(0, diff);
-    };
-
-    const [remainingSeconds, setRemainingSeconds] = useState<number>(calculateRemainingSeconds);
-    const [isExpired, setIsExpired] = useState<boolean>(
-        Boolean(order.is_expired || order.status === 'failed' || order.payment_status === 'failed' || calculateRemainingSeconds() <= 0)
-    );
-    const [showSuccessToast, setShowSuccessToast] = useState(false);
-
-    useEffect(() => {
-        if (isExpired) return;
-
-        const timer = setInterval(() => {
-            const secs = calculateRemainingSeconds();
-            setRemainingSeconds(secs);
-
-            if (secs <= 0) {
-                setIsExpired(true);
-                clearInterval(timer);
-            }
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [order.expires_at, isExpired]);
-
-    const [isCheckingStatus, setIsCheckingStatus] = useState(false);
-    const [statusMessage, setStatusMessage] = useState<string | null>(null);
+    const { remainingSeconds, isExpired, formattedTime } = usePaymentTimer({
+        expiresAt: order.expires_at,
+        isExpiredProp: order.is_expired,
+        isCash,
+        orderStatus: order.status,
+        paymentStatus: order.payment_status,
+    });
 
     const checkStatus = async (isManual = false) => {
-        if (isManual) setIsCheckingStatus(true);
         try {
             const res = await fetch(`/orders/${order.id}/status`, {
                 headers: { Accept: 'application/json' },
@@ -124,15 +52,10 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                     router.visit(data.success_url || `/orders/${order.id}/success`);
                 }, 1200);
             } else if (data.is_expired) {
-                setIsExpired(true);
-            } else if (isManual) {
-                setStatusMessage('Pembayaran belum terdeteksi. Silakan selesaikan transaksi atau tunggu beberapa saat.');
-                setTimeout(() => setStatusMessage(null), 3500);
+                // Handled via state in hook
             }
         } catch (e) {
             console.error('Status check error:', e);
-        } finally {
-            if (isManual) setIsCheckingStatus(false);
         }
     };
 
@@ -140,18 +63,10 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
     useEffect(() => {
         if (isExpired) return;
 
-        // Run immediately on page load
         checkStatus(false);
-
         const pollTimer = setInterval(() => checkStatus(false), 2500);
         return () => clearInterval(pollTimer);
     }, [order.id, isExpired]);
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    };
 
     const handleCopy = (text: string, label: string) => {
         navigator.clipboard.writeText(text);
@@ -215,7 +130,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                     {!isExpired ? (
                         <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 rounded-full font-mono text-xs font-black shadow-2xs animate-pulse">
                             <Timer className="size-3.5" />
-                            <span>{formatTime(remainingSeconds)}</span>
+                            <span>{formattedTime}</span>
                         </div>
                     ) : (
                         <Badge variant="destructive" className="text-[10px] font-black px-2.5 py-0.5 rounded-full">
@@ -244,7 +159,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
 
                             <div className="text-right">
                                 <span className="text-xl font-black font-mono text-primary tracking-tight">
-                                    {formatTime(remainingSeconds)}
+                                    {formattedTime}
                                 </span>
                             </div>
                         </div>
@@ -253,7 +168,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                         <div className="w-full bg-muted/60 h-1.5 rounded-full overflow-hidden">
                             <div
                                 className="bg-primary h-full transition-all duration-1000 ease-linear rounded-full"
-                                style={{ width: `${Math.min(100, (remainingSeconds / maxSeconds) * 100)}%` }}
+                                style={{ width: `${Math.min(100, (remainingSeconds / (maxMinutes * 60)) * 100)}%` }}
                             />
                         </div>
                     </div>
@@ -317,7 +232,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                             </p>
                         </div>
 
-                        {/* Tight QR Frame - Background sized closely around QR code */}
+                        {/* Tight QR Frame */}
                         <div className="p-2 bg-white rounded-2xl border border-slate-200/90 inline-block shadow-md relative z-10">
                             <img
                                 src={qrUrl}
@@ -326,7 +241,7 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                             />
                         </div>
 
-                        {/* Supported Payments Subtitle Outside the White Frame */}
+                        {/* Supported Payments Subtitle */}
                         <div className="text-muted-foreground font-mono text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 relative z-10">
                             <Sparkles className="size-3 text-emerald-500" />
                             <span>GoPay • OVO • ShopeePay • DANA • BCA</span>
@@ -513,12 +428,14 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                             <div key={item.id} className="flex items-start justify-between text-xs border-b border-border/30 pb-2 last:border-0 last:pb-0">
                                 <div className="space-y-0.5 flex-1 min-w-0 pr-2">
                                     <div className="flex items-center gap-1.5 font-bold text-foreground">
-                                        <span className="text-primary font-mono">{item.quantity}x</span>
-                                        <span className="truncate">{item.menu_name}</span>
+                                        <span className="text-primary font-mono">{(item.quantity || item.qty)}x</span>
+                                        <span className="truncate">{item.menu_name || item.name}</span>
                                     </div>
-                                    {item.options && Object.keys(item.options).length > 0 && (
+                                    {item.options && (
                                         <p className="text-[10px] text-muted-foreground">
-                                            {Object.values(item.options).map((opt) => opt.name).join(', ')}
+                                            {Array.isArray(item.options)
+                                                ? item.options.join(', ')
+                                                : Object.values(item.options).map((opt) => (opt as { name: string }).name).join(', ')}
                                         </p>
                                     )}
                                     {item.note && (
@@ -528,43 +445,18 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
                                     )}
                                 </div>
                                 <span className="font-mono font-bold text-foreground shrink-0">
-                                    Rp{item.subtotal.toLocaleString('id-ID')}
+                                    Rp{(item.subtotal ?? item.price * (item.quantity || item.qty || 1)).toLocaleString('id-ID')}
                                 </span>
                             </div>
                         ))}
                     </div>
 
-                    <div className="pt-2 border-t border-border/50 space-y-1.5 text-[11px] text-muted-foreground">
-                        <div className="flex items-center justify-between">
-                            <span>Subtotal Menu</span>
-                            <span className="font-mono font-medium text-foreground">
-                                Rp{order.subtotal_amount.toLocaleString('id-ID')}
-                            </span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <span>Admin Service</span>
-                            <span className="font-mono font-medium text-foreground">
-                                {order.app_fee > 0 ? `Rp${order.app_fee.toLocaleString('id-ID')}` : 'Rp 0 (Free)'}
-                            </span>
-                        </div>
-
-                        {order.channel_fee > 0 && (
-                            <div className="flex items-center justify-between">
-                                <span>Payment Service ({channelName})</span>
-                                <span className="font-mono font-medium text-foreground">
-                                    Rp{order.channel_fee.toLocaleString('id-ID')}
-                                </span>
-                            </div>
-                        )}
-
-                        <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs font-black text-foreground">
-                            <span>Total Tagihan</span>
-                            <span className="font-mono text-sm text-primary">
-                                Rp{order.total_amount.toLocaleString('id-ID')}
-                            </span>
-                        </div>
-                    </div>
+                    <OrderSummaryCard
+                        subtotalAmount={order.subtotal_amount}
+                        appFee={order.app_fee}
+                        channelFee={order.channel_fee}
+                        totalAmount={order.total_amount}
+                    />
                 </div>
 
                 {/* STICKY BOTTOM ACTION FOOTER */}

@@ -50,6 +50,7 @@ export type CatalogProps = {
     tenants?: TenantItem[];
     categories?: CategoryItem[];
     menus?: MenuItem[];
+    userFavorites?: number[];
     activeTenant?: TenantItem | null;
     filters?: {
         search?: string;

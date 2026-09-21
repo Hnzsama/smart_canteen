@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import {
+    Heart,
     LogIn,
     LogOut,
     MapPin,
@@ -29,7 +30,7 @@ import {
 import { UserInfo } from '@/components/user-info';
 import { useCart } from '@/hooks/use-cart';
 import { useInitials } from '@/hooks/use-initials';
-import CartDrawer from '@/pages/catalog/components/cart-drawer';
+import CartDrawer from '@/pages/customer/catalog/components/cart-drawer';
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
@@ -183,6 +184,12 @@ export default function StudentLayout({ children, showBottomNav = true }: Studen
                                                     </Link>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem asChild>
+                                                    <Link href="/favorites" className="cursor-pointer">
+                                                        <Heart className="mr-2 size-4 text-rose-500 fill-rose-500/20" />
+                                                        Menu Favorit
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
                                                     <Link href={edit().url} className="cursor-pointer">
                                                         <Settings className="mr-2 size-4 text-muted-foreground" />
                                                         Pengaturan Akun
@@ -195,10 +202,10 @@ export default function StudentLayout({ children, showBottomNav = true }: Studen
                                                     href={logout().url}
                                                     method="post"
                                                     as="button"
-                                                    className="w-full text-destructive cursor-pointer"
+                                                    className="w-full text-rose-500 hover:text-rose-600 dark:text-rose-500 focus:text-rose-500 cursor-pointer font-bold"
                                                 >
-                                                    <LogOut className="mr-2 size-4 text-destructive" />
-                                                    Keluar
+                                                    <LogOut className="mr-2 size-4 text-rose-500" />
+                                                    <span>Keluar</span>
                                                 </Link>
                                             </DropdownMenuItem>
                                         </>

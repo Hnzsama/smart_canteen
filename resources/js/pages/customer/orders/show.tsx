@@ -1,88 +1,34 @@
-import React, { useEffect } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import React from 'react';
+import { Head, router } from '@inertiajs/react';
 import {
     ArrowLeft,
-    Banknote,
-    Building2,
     Check,
     CheckCircle2,
     Clock,
     CookingPot,
     CreditCard,
-    Info,
-    MapPin,
     QrCode,
-    Receipt,
-    ShoppingBag,
-    Sparkles,
-    Store,
     Utensils,
 } from 'lucide-react';
 import StudentLayout from '@/layouts/student-layout';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-type OrderShowProps = {
-    order: {
-        id: number;
-        order_number: string;
-        pickup_code: string;
-        tenant_name: string;
-        tenant_slug: string;
-        tenant_location: string;
-        created_at: string;
-        status: string;
-        status_label: string;
-        payment_status: string;
-        payment_status_label: string;
-        payment_method: string;
-        payment_method_label: string;
-        payment_channel_code?: string;
-        dining_option: string;
-        subtotal_amount: number;
-        app_fee: number;
-        channel_fee: number;
-        total_amount: number;
-        estimated_time: string;
-        notes?: string;
-        qr_md5?: string;
-        items: Array<{
-            id: number;
-            name: string;
-            qty: number;
-            price: number;
-            subtotal: number;
-            image?: string;
-            choices?: string[];
-            note?: string;
-        }>;
-    };
-};
+import { OrderShowProps } from './types';
+import { useOrderPolling } from './hooks/use-order-polling';
+import { OrderStatusBadge } from './components/order-status-badge';
+import { OrderItemsList } from './components/order-items-list';
+import { OrderSummaryCard } from './components/order-summary-card';
+import { PickupQrCard } from './components/pickup-qr-dialog';
 
 export default function OrderShow({ order }: OrderShowProps) {
-    const foodFallback = '/images/food-placeholder.jpg';
-
     const isUnpaidCashless = order.payment_status === 'unpaid' && order.payment_method !== 'cash';
     const isCompleted = order.status === 'completed';
     const isReady = order.status === 'ready';
     const isProcessing = order.status === 'processing' || order.status === 'paid';
     const isCancelled = order.status === 'cancelled' || order.status === 'failed' || order.status === 'expired';
 
-    const md5Hash = order.qr_md5 || `md5_pickup_${order.pickup_code}`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(md5Hash)}`;
-
-    // Auto status polling for real-time status updates on Order Detail page
-    useEffect(() => {
-        if (order.status === 'completed' || order.status === 'cancelled' || order.status === 'failed') {
-            return;
-        }
-
-        const pollInterval = setInterval(() => {
-            router.reload({ only: ['order'] });
-        }, 3000);
-
-        return () => clearInterval(pollInterval);
-    }, [order.id, order.status]);
+    // Auto status polling for real-time status updates on Order Detail page unless terminal state
+    const isTerminal = isCompleted || isCancelled;
+    useOrderPolling(['order'], isTerminal ? 99999999 : 3000);
 
     return (
         <>
@@ -110,27 +56,12 @@ export default function OrderShow({ order }: OrderShowProps) {
                         </div>
                     </div>
 
-                    {isUnpaidCashless ? (
-                        <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 text-[10px] font-black px-2.5 py-0.5 rounded-full">
-                            Menunggu Pembayaran
-                        </Badge>
-                    ) : isCompleted ? (
-                        <Badge variant="outline" className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-black px-2.5 py-0.5 rounded-full">
-                            Selesai
-                        </Badge>
-                    ) : isReady ? (
-                        <Badge variant="outline" className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-black px-2.5 py-0.5 rounded-full">
-                            Siap Diambil!
-                        </Badge>
-                    ) : isCancelled ? (
-                        <Badge variant="destructive" className="text-[10px] font-black px-2.5 py-0.5 rounded-full">
-                            Dibatalkan
-                        </Badge>
-                    ) : (
-                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black px-2.5 py-0.5 rounded-full">
-                            Sedang Dimasak
-                        </Badge>
-                    )}
+                    <OrderStatusBadge
+                        status={order.status}
+                        paymentStatus={order.payment_status}
+                        paymentMethod={order.payment_method}
+                        statusLabel={order.status_label}
+                    />
                 </div>
 
                 {/* UNPAID CASHLESS WARNING BANNER */}
@@ -245,49 +176,13 @@ export default function OrderShow({ order }: OrderShowProps) {
                 </div>
 
                 {/* PICKUP TICKET QR CODE CARD WITH MD5 HASH */}
-                <div className="p-4 bg-card rounded-3xl border border-border/80 text-center space-y-3.5 shadow-2xs relative">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-1.5 border-b border-border/40 pb-2.5 text-left">
-                        <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
-                            <div className="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                <Store className="size-4" />
-                            </div>
-                            <h3 className="text-xs font-black text-foreground truncate max-w-[200px]">
-                                {order.tenant_name}
-                            </h3>
-                        </div>
-                        <span className="text-[10.5px] text-muted-foreground font-mono shrink-0">
-                            {order.tenant_location}
-                        </span>
-                    </div>
-
-                    <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider block font-bold">
-                        Tiket QR Pickup (Tunjukkan Ke Kasir)
-                    </span>
-
-                    <div className="p-3 bg-white rounded-2xl border border-slate-200 inline-block mx-auto shadow-md">
-                        <img
-                            src={qrUrl}
-                            alt="QR Code Pickup Hash"
-                            className="size-48 mx-auto object-contain rounded-lg select-none"
-                        />
-                    </div>
-
-                    <div className="space-y-2 pt-0.5 max-w-xs mx-auto">
-                        <div className="inline-flex items-center gap-1.5 bg-muted/60 px-3 py-1 rounded-full border border-border/60 text-[10px] font-mono text-muted-foreground shadow-2xs">
-                            <span className="font-extrabold text-foreground">MD5:</span>
-                            <span className="font-bold text-primary tracking-tight select-all">{md5Hash}</span>
-                        </div>
-
-                        <div className="bg-primary/10 border border-primary/20 p-2.5 rounded-2xl space-y-0.5">
-                            <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider block">
-                                Kode Pickup Manual
-                            </span>
-                            <span className="text-xl font-black font-mono text-primary tracking-widest block">
-                                {order.pickup_code}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                <PickupQrCard
+                    tenantName={order.tenant_name}
+                    tenantLocation={order.tenant_location}
+                    pickupCode={order.pickup_code}
+                    qrMd5={order.qr_md5}
+                    orderNumber={order.order_number}
+                />
 
                 {/* ITEMS DETAIL CARD */}
                 <div className="bg-card rounded-2xl border border-border/80 p-4 space-y-3 shadow-2xs">
@@ -301,89 +196,16 @@ export default function OrderShow({ order }: OrderShowProps) {
                         </span>
                     </div>
 
-                    <div className="space-y-3">
-                        {order.items.map((item) => (
-                            <div key={item.id} className="flex items-start justify-between gap-3 pb-2.5 border-b border-border/30 last:border-none last:pb-0">
-                                <div className="flex items-start gap-2.5 min-w-0">
-                                    <img
-                                        src={item.image || foodFallback}
-                                        alt={item.name}
-                                        className="size-11 rounded-xl object-cover border border-border shrink-0 bg-muted"
-                                        onError={(e) => {
-                                            (e.target as HTMLImageElement).src = foodFallback;
-                                        }}
-                                    />
-                                    <div className="flex flex-col min-w-0 space-y-0.5">
-                                        <span className="text-xs font-bold text-foreground">
-                                            {item.qty}x {item.name}
-                                        </span>
-                                        {item.choices && item.choices.length > 0 && (
-                                            <span className="text-[10px] text-muted-foreground">
-                                                {item.choices.join(', ')}
-                                            </span>
-                                        )}
-                                        {item.note && (
-                                            <p className="text-[10px] text-amber-600 italic">
-                                                Catatan: "{item.note}"
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <span className="font-mono text-xs font-bold text-foreground shrink-0">
-                                    Rp{item.subtotal.toLocaleString('id-ID')}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
+                    <OrderItemsList items={order.items} showSubtotal />
                 </div>
 
                 {/* COST BREAKDOWN CARD */}
-                <div className="bg-card rounded-2xl border border-border/80 p-4 space-y-2 shadow-2xs">
-                    <h3 className="text-xs font-black text-foreground flex items-center gap-1.5 border-b border-border/40 pb-2">
-                        <Receipt className="size-3.5 text-primary" />
-                        <span>Rincian Pembayaran</span>
-                    </h3>
-
-                    <div className="space-y-1.5 text-xs text-muted-foreground pt-1">
-                        <div className="flex justify-between">
-                            <span>Subtotal Menu</span>
-                            <span className="font-mono font-medium text-foreground">
-                                Rp{order.subtotal_amount.toLocaleString('id-ID')}
-                            </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                            <span>Admin Service</span>
-                            <span className="font-mono font-medium text-foreground">
-                                {order.app_fee > 0 ? `Rp${order.app_fee.toLocaleString('id-ID')}` : 'Rp 0 (Free)'}
-                            </span>
-                        </div>
-
-                        {order.channel_fee > 0 && (
-                            <div className="flex justify-between">
-                                <span>Payment Service</span>
-                                <span className="font-mono font-medium text-foreground">
-                                    Rp{order.channel_fee.toLocaleString('id-ID')}
-                                </span>
-                            </div>
-                        )}
-
-                        <div className="flex justify-between">
-                            <span>Metode Pembayaran</span>
-                            <span className="font-bold text-foreground">
-                                {order.payment_method_label}
-                            </span>
-                        </div>
-
-                        <div className="flex justify-between pt-2 border-t border-border/40 font-black text-foreground text-xs">
-                            <span>Total Pembayaran</span>
-                            <span className="font-mono text-sm text-primary">
-                                Rp{order.total_amount.toLocaleString('id-ID')}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                <OrderSummaryCard
+                    subtotalAmount={order.subtotal_amount}
+                    appFee={order.app_fee}
+                    channelFee={order.channel_fee}
+                    totalAmount={order.total_amount}
+                />
 
                 {/* BOTTOM FLOATING ACTION BAR */}
                 <div className="fixed bottom-3 z-50 w-full max-w-[430px] left-1/2 -translate-x-1/2 px-3 pointer-events-none">
@@ -423,4 +245,4 @@ export default function OrderShow({ order }: OrderShowProps) {
     );
 }
 
-OrderShow.layout = (page: React.ReactNode) => <StudentLayout>{page}</StudentLayout>;
+OrderShow.layout = (page: React.ReactNode) => <StudentLayout showBottomNav={false}>{page}</StudentLayout>;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CartItem, MenuItem } from '@/pages/catalog/types';
+import { CartItem, MenuItem } from '@/pages/customer/catalog/types';
 
 const CART_STORAGE_KEY = 'smart_canteen_cart';
 

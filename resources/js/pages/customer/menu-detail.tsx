@@ -54,6 +54,7 @@ type MenuDetailProps = {
             required?: boolean;
             choices: Array<{ name: string; price: number }>;
         }>;
+        is_favorite?: boolean;
     };
     related_menus?: Array<{
         id: number;
@@ -83,7 +84,29 @@ export default function MenuDetail({ menu, related_menus = [] }: MenuDetailProps
     const foodFallback = '/images/food-placeholder.jpg';
     const tenantFallback = '/images/tenant-placeholder.jpg';
 
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(Boolean(menu.is_favorite));
+
+    const handleToggleFavorite = async () => {
+        const nextState = !isFavorite;
+        setIsFavorite(nextState);
+        try {
+            const token = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
+            const res = await fetch(`/favorites/${menu.id}/toggle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                },
+            });
+            const data = await res.json();
+            if (data.message) {
+                toast.success(data.message);
+            }
+        } catch (err) {
+            console.error('Failed to toggle favorite:', err);
+        }
+    };
     const [selectedChoices, setSelectedChoices] = useState<Record<string, { name: string; price: number }>>(() => {
         const initial: Record<string, { name: string; price: number }> = {};
         if (menu.options && menu.options.length > 0) {
@@ -219,7 +242,7 @@ export default function MenuDetail({ menu, related_menus = [] }: MenuDetailProps
                     <div className="flex items-center gap-1.5">
                         <button
                             type="button"
-                            onClick={() => setIsFavorite(!isFavorite)}
+                            onClick={handleToggleFavorite}
                             className={`size-9 rounded-full border border-border flex items-center justify-center transition-all active:scale-90 shadow-2xs ${
                                 isFavorite
                                     ? 'bg-rose-500 text-white border-rose-500'

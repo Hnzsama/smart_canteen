@@ -32,7 +32,7 @@ test('authenticated user can view active orders list', function () {
 
     $response->assertStatus(200)
         ->assertInertia(fn ($page) => $page
-            ->component('orders/index')
+            ->component('customer/orders/index')
             ->has('activeOrders', 1)
         );
 });
@@ -51,7 +51,7 @@ test('authenticated user can view completed order history', function () {
 
     $response->assertStatus(200)
         ->assertInertia(fn ($page) => $page
-            ->component('orders/history')
+            ->component('customer/orders/history')
             ->has('orderHistory', 1)
         );
 });
@@ -70,7 +70,7 @@ test('authenticated user can view dedicated payment page for order', function ()
 
     $response->assertStatus(200)
         ->assertInertia(fn ($page) => $page
-            ->component('orders/payment')
+            ->component('customer/orders/payment')
             ->has('order')
         );
 });

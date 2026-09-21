@@ -1,10 +1,50 @@
 import { Head } from '@inertiajs/react';
 import { Monitor, Moon, Sun } from 'lucide-react';
-import AppearanceTabs from '@/components/appearance-tabs';
 import Heading from '@/components/heading';
+import { useAppearance, type Appearance as AppearanceType } from '@/hooks/use-appearance';
 import { edit as editAppearance } from '@/routes/appearance';
 
 export default function Appearance() {
+    const { appearance, updateAppearance } = useAppearance();
+
+    const themeOptions: Array<{
+        icon: typeof Sun;
+        label: string;
+        value: AppearanceType;
+        gradient: string;
+        border: string;
+        iconColor: string;
+        textColor: string;
+    }> = [
+        {
+            icon: Sun,
+            label: 'Terang',
+            value: 'light',
+            gradient: 'from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30',
+            border: 'border-amber-200/60 dark:border-amber-800/40',
+            iconColor: 'text-amber-500',
+            textColor: 'text-foreground',
+        },
+        {
+            icon: Moon,
+            label: 'Gelap',
+            value: 'dark',
+            gradient: 'from-slate-800 to-slate-900',
+            border: 'border-slate-700/60',
+            iconColor: 'text-slate-300',
+            textColor: 'text-white',
+        },
+        {
+            icon: Monitor,
+            label: 'Sistem',
+            value: 'system',
+            gradient: 'from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/30',
+            border: 'border-violet-200/60 dark:border-violet-800/40',
+            iconColor: 'text-violet-500',
+            textColor: 'text-foreground',
+        },
+    ];
+
     return (
         <>
             <Head title="Appearance settings" />
@@ -22,24 +62,26 @@ export default function Appearance() {
                         />
                     </div>
 
-                    {/* Theme options */}
-                    <AppearanceTabs className="w-full justify-center sm:justify-start" />
-
-                    {/* Visual previews */}
+                    {/* Interactive theme card buttons */}
                     <div className="grid grid-cols-3 gap-3 pt-1">
-                        {[
-                            { icon: Sun, label: 'Terang', value: 'light', gradient: 'from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30', border: 'border-amber-200/60 dark:border-amber-800/40', iconColor: 'text-amber-500' },
-                            { icon: Moon, label: 'Gelap', value: 'dark', gradient: 'from-slate-800 to-slate-900', border: 'border-slate-700/60', iconColor: 'text-slate-300' },
-                            { icon: Monitor, label: 'Sistem', value: 'system', gradient: 'from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/30', border: 'border-violet-200/60 dark:border-violet-800/40', iconColor: 'text-violet-500' },
-                        ].map(({ icon: Icon, label, gradient, border, iconColor }) => (
-                            <div
-                                key={label}
-                                className={`flex flex-col items-center gap-2 rounded-2xl border ${border} bg-gradient-to-br ${gradient} p-3 text-center`}
-                            >
-                                <Icon className={`size-5 ${iconColor}`} />
-                                <span className="text-xs font-semibold text-foreground">{label}</span>
-                            </div>
-                        ))}
+                        {themeOptions.map(({ icon: Icon, label, value, gradient, border, iconColor, textColor }) => {
+                            const isActive = appearance === value;
+                            return (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    onClick={() => updateAppearance(value)}
+                                    className={`group relative flex flex-col items-center gap-2.5 rounded-2xl border ${border} bg-gradient-to-br ${gradient} p-4 text-center transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${
+                                        isActive
+                                            ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-card shadow-md'
+                                            : 'opacity-85 hover:opacity-100'
+                                    }`}
+                                >
+                                    <Icon className={`size-6 transition-transform group-hover:scale-110 ${iconColor}`} />
+                                    <span className={`text-xs font-semibold ${textColor}`}>{label}</span>
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

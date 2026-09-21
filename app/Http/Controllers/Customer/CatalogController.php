@@ -100,10 +100,13 @@ class CatalogController extends Controller
             'options' => $m->options ?? [],
         ]);
 
-        return Inertia::render('catalog', [
+        $userFavorites = $user?->favoriteMenus()->pluck('menus.id')->toArray() ?? [];
+
+        return Inertia::render('customer/catalog', [
             'tenants' => $tenants,
             'categories' => $categories,
             'menus' => $menus,
+            'userFavorites' => $userFavorites,
             'filters' => [
                 'search' => $search ?? '',
                 'tenant_id' => $tenantId ?? 'all',
@@ -159,7 +162,9 @@ class CatalogController extends Controller
                 'options' => $m->options ?? [],
             ]);
 
-        return Inertia::render('tenant-detail', [
+        $userFavorites = $user?->favoriteMenus()->pluck('menus.id')->toArray() ?? [];
+
+        return Inertia::render('customer/tenant-detail', [
             'tenant' => [
                 'id' => $tenant->id,
                 'name' => $tenant->name,
@@ -177,6 +182,7 @@ class CatalogController extends Controller
             ],
             'categories' => $categories,
             'menus' => $menus,
+            'userFavorites' => $userFavorites,
         ]);
     }
 
@@ -211,7 +217,9 @@ class CatalogController extends Controller
                 'estimated_time' => $m->estimated_time ?? 15,
             ]);
 
-        return Inertia::render('menu-detail', [
+        $isFavorite = $user ? $user->favoriteMenus()->where('menus.id', $menu->id)->exists() : false;
+
+        return Inertia::render('customer/menu-detail', [
             'menu' => [
                 'id' => $menu->id,
                 'tenant_id' => $menu->tenant_id,
@@ -230,6 +238,7 @@ class CatalogController extends Controller
                 'is_recommended' => (bool) $menu->is_recommended,
                 'estimated_time' => $menu->estimated_time ?? 15,
                 'options' => $menu->options ?? [],
+                'is_favorite' => $isFavorite,
             ],
             'related_menus' => $relatedMenus,
         ]);

@@ -45,7 +45,7 @@ class CheckoutController extends Controller
             ? 'https://app.midtrans.com/snap/snap.js'
             : 'https://app.sandbox.midtrans.com/snap/snap.js';
 
-        return Inertia::render('checkout/index', [
+        return Inertia::render('customer/checkout/index', [
             'bankTransferMethods' => $bankTransferMethods,
             'eWalletMethods' => $eWalletMethods,
             'appFee' => $appFee,
@@ -255,7 +255,7 @@ class CheckoutController extends Controller
         $expiryMinutes = $order->payment_method === PaymentMethodEnum::Cash ? 15 : 10;
         $expiresAt = $order->created_at ? $order->created_at->copy()->addMinutes($expiryMinutes)->toIso8601String() : null;
 
-        return Inertia::render('orders/payment', [
+        return Inertia::render('customer/orders/payment', [
             'order' => [
                 'id' => $order->id,
                 'order_number' => $order->order_number,

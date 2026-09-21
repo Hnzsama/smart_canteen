@@ -38,6 +38,7 @@ export default function DeleteUser() {
                     <DialogTrigger asChild>
                         <Button
                             variant="destructive"
+                            className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold border-none"
                             data-test="delete-user-button"
                         >
                             Delete account
@@ -98,6 +99,7 @@ export default function DeleteUser() {
 
                                         <Button
                                             variant="destructive"
+                                            className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold border-none"
                                             disabled={processing}
                                             asChild
                                         >

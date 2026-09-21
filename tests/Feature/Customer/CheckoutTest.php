@@ -27,7 +27,7 @@ test('authenticated user can view checkout page', function () {
 
     $response->assertStatus(200)
         ->assertInertia(fn ($page) => $page
-            ->component('checkout/index')
+            ->component('customer/checkout/index')
             ->has('bankTransferMethods')
             ->has('eWalletMethods')
             ->has('appFee')

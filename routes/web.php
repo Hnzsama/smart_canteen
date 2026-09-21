@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\MidtransCallbackController;
 use App\Http\Controllers\Auth\RegisteredTenantController;
 use App\Http\Controllers\Customer\CatalogController;
 use App\Http\Controllers\Customer\CheckoutController;
+use App\Http\Controllers\Customer\FavoriteController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Tenant\CategoryController as TenantCategoryController;
 use App\Http\Controllers\Tenant\DashboardController as TenantDashboardController;
@@ -41,6 +42,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
     Route::get('orders/{order}/status', [CustomerOrderController::class, 'status'])->name('orders.status');
     Route::get('orders/{order}/success', [CustomerOrderController::class, 'success'])->name('orders.success');
+    Route::get('favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('favorites/{menu}/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     Route::post('orders/{order}/rate', [CustomerOrderController::class, 'rate'])->name('orders.rate');
 
     Route::get('dashboard', function (Request $request) {

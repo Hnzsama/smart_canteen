@@ -69,7 +69,7 @@ class OrderController extends Controller
                 ];
             });
 
-        return Inertia::render('orders/index', [
+        return Inertia::render('customer/orders/index', [
             'activeOrders' => $orders,
         ]);
     }
@@ -114,7 +114,7 @@ class OrderController extends Controller
                 ];
             });
 
-        return Inertia::render('orders/history', [
+        return Inertia::render('customer/orders/history', [
             'orderHistory' => $orders,
         ]);
     }
@@ -132,7 +132,7 @@ class OrderController extends Controller
         $order->checkAutoExpire();
         $order->load(['tenant', 'items.menu']);
 
-        return Inertia::render('orders/show', [
+        return Inertia::render('customer/orders/show', [
             'order' => [
                 'id' => $order->id,
                 'order_number' => $order->order_number,
@@ -209,7 +209,7 @@ class OrderController extends Controller
 
         $order->load(['tenant', 'items.menu', 'user']);
 
-        return Inertia::render('orders/success', [
+        return Inertia::render('customer/orders/success', [
             'order' => [
                 'id' => $order->id,
                 'order_number' => $order->order_number,
