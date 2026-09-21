@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { OrderPaymentProps } from './types';
 import { usePaymentTimer } from './hooks/use-payment-timer';
 import { OrderSummaryCard } from './components/order-summary-card';
+import { PickupQrCard } from './components/pickup-qr-dialog';
 
 export default function OrderPayment({ order }: OrderPaymentProps) {
     const [copiedText, setCopiedText] = useState<string | null>(null);
@@ -384,16 +385,14 @@ export default function OrderPayment({ order }: OrderPaymentProps) {
 
                 {/* CASH PAYMENT SECTION */}
                 {!isExpired && isCash && (
-                    <div className="p-5 bg-card rounded-3xl border border-border/80 text-center space-y-4 shadow-sm">
-                        <div className="space-y-1">
-                            <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3.5 py-1 rounded-full border border-emerald-500/20 text-xs font-extrabold">
-                                <Banknote className="size-3.5" />
-                                <span>Bayar Tunai di Kasir</span>
-                            </div>
-                            <p className="text-[11px] text-muted-foreground">
-                                Lakukan pembayaran tunai saat mengambil makanan di kasir stand
-                            </p>
-                        </div>
+                    <div className="space-y-4">
+                        <PickupQrCard
+                            tenantName={order.tenant?.name || 'Mitra Stand Kantin'}
+                            tenantLocation="Kantin FEB • Universitas Negeri Surabaya"
+                            pickupCode={order.pickup_code}
+                            qrMd5={(order as any).qr_md5}
+                            orderNumber={order.order_number}
+                        />
 
                         <div className="p-4 bg-muted/60 rounded-2xl border border-border/80 text-left space-y-2">
                             <div className="flex items-center justify-between border-b border-border/40 pb-2">

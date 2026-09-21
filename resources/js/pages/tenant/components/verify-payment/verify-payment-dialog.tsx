@@ -54,17 +54,32 @@ export function VerifyPaymentDialog({
 
     const activeOrder = order;
 
+    const findMatchingOrder = (input: string) => {
+        const raw = input.trim();
+        if (!raw) return null;
+        const code = raw.toUpperCase();
+
+        return orders.find((o) => {
+            const pCode = (o.pickup_code || '').toUpperCase();
+            const oNum = (o.order_number || '').toUpperCase();
+            const md5Hash = ((o as any).qr_md5 || '').toUpperCase();
+            const fallbackHash = `ORDER_${oNum}_${pCode}`;
+
+            return (
+                pCode === code ||
+                oNum === code ||
+                (md5Hash && md5Hash === code) ||
+                fallbackHash === code ||
+                (pCode && raw.toUpperCase().includes(pCode)) ||
+                (oNum && raw.toUpperCase().includes(oNum))
+            );
+        });
+    };
+
     const handleScanSuccess = (decodedText: string) => {
         setLookupError(null);
         const raw = decodedText.trim();
-        const code = raw.toUpperCase();
-
-        const found = orders.find((o) => {
-            const pCode = o.pickup_code.toUpperCase();
-            const oNum = o.order_number.toUpperCase();
-            const md5 = ((o as any).qr_md5 || `order_${o.order_number}_${o.pickup_code}`).toUpperCase();
-            return pCode === code || oNum === code || md5 === code || raw.includes(pCode) || raw.includes(oNum);
-        });
+        const found = findMatchingOrder(raw);
 
         if (found) {
             onSelectOrder?.(found);
@@ -79,18 +94,14 @@ export function VerifyPaymentDialog({
     const handleLookup = (e: React.FormEvent) => {
         e.preventDefault();
         setLookupError(null);
-        const code = lookupCode.trim().toUpperCase();
+        const code = lookupCode.trim();
 
         if (!code) {
             setLookupError('Silakan masukkan atau scan kode pickup (cth: FEB-1047).');
             return;
         }
 
-        const found = orders.find(
-            (o) =>
-                o.pickup_code.toUpperCase() === code ||
-                o.order_number.toUpperCase() === code
-        );
+        const found = findMatchingOrder(code);
 
         if (found) {
             onSelectOrder?.(found);

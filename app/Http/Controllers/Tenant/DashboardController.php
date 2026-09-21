@@ -139,6 +139,7 @@ class DashboardController extends Controller
                         'id' => $order->id,
                         'order_number' => $order->order_number,
                         'pickup_code' => $order->pickup_code,
+                        'qr_md5' => md5("CANTEEN:{$order->order_number}:{$order->pickup_code}"),
                         'customer_name' => $order->user?->name ?? 'Mahasiswa FEB',
                         'customer_phone' => null,
                         'total_amount' => (float) $order->total_amount,

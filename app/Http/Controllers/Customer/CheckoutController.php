@@ -260,6 +260,7 @@ class CheckoutController extends Controller
                 'id' => $order->id,
                 'order_number' => $order->order_number,
                 'pickup_code' => $order->pickup_code,
+                'qr_md5' => md5("CANTEEN:{$order->order_number}:{$order->pickup_code}"),
                 'status' => $order->status->value,
                 'payment_status' => $order->payment_status->value,
                 'payment_method' => $order->payment_method->value,
