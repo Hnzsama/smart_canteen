@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import {
+    Camera,
     CheckCircle2,
     Loader2,
     QrCode,
@@ -20,6 +21,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { QrCameraScanner } from '@/components/qr-camera-scanner';
 import { confirmCash as confirmCashRoute } from '@/routes/tenant/orders';
 import type { TenantOrderDetailItem } from '../../types';
 
@@ -48,8 +50,31 @@ export function VerifyPaymentDialog({
     const [lookupCode, setLookupCode] = useState('');
     const [isConfirming, setIsConfirming] = useState(false);
     const [lookupError, setLookupError] = useState<string | null>(null);
+    const [showCamera, setShowCamera] = useState(false);
 
     const activeOrder = order;
+
+    const handleScanSuccess = (decodedText: string) => {
+        setLookupError(null);
+        const raw = decodedText.trim();
+        const code = raw.toUpperCase();
+
+        const found = orders.find((o) => {
+            const pCode = o.pickup_code.toUpperCase();
+            const oNum = o.order_number.toUpperCase();
+            const md5 = ((o as any).qr_md5 || `order_${o.order_number}_${o.pickup_code}`).toUpperCase();
+            return pCode === code || oNum === code || md5 === code || raw.includes(pCode) || raw.includes(oNum);
+        });
+
+        if (found) {
+            onSelectOrder?.(found);
+            setLookupCode(found.pickup_code);
+            setShowCamera(false);
+        } else {
+            setLookupCode(raw);
+            setLookupError(`QR Code "${raw}" tidak ditemukan pada daftar pesanan kasir.`);
+        }
+    };
 
     const handleLookup = (e: React.FormEvent) => {
         e.preventDefault();
@@ -118,24 +143,49 @@ export function VerifyPaymentDialog({
                 </DialogHeader>
 
                 <div className="space-y-4 py-2">
-                    {/* Quick Code Lookup Form */}
-                    <form onSubmit={handleLookup} className="flex gap-2">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Ketik / Scan Kode (cth: FEB-1047)..."
-                                value={lookupCode}
-                                onChange={(e) => {
-                                    setLookupCode(e.target.value);
-                                    if (lookupError) setLookupError(null);
-                                }}
-                                className="pl-9 text-xs font-mono uppercase"
+                    {/* Quick Code Lookup Form & Camera Toggle */}
+                    <div className="space-y-3">
+                        <form onSubmit={handleLookup} className="flex flex-col sm:flex-row gap-2">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Ketik / Scan Kode (cth: FEB-1047)..."
+                                    value={lookupCode}
+                                    onChange={(e) => {
+                                        setLookupCode(e.target.value);
+                                        if (lookupError) setLookupError(null);
+                                    }}
+                                    className="pl-9 text-xs font-mono uppercase"
+                                />
+                            </div>
+                            <div className="flex gap-2">
+                                <Button type="submit" size="sm" variant="secondary" className="text-xs font-semibold flex-1 sm:flex-none">
+                                    Cari
+                                </Button>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={() => setShowCamera(!showCamera)}
+                                    className={`text-xs font-semibold gap-1.5 flex-1 sm:flex-none ${
+                                        showCamera
+                                            ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                    }`}
+                                >
+                                    <Camera className="h-4 w-4" />
+                                    <span>{showCamera ? 'Tutup Kamera' : 'Kamera'}</span>
+                                </Button>
+                            </div>
+                        </form>
+
+                        {/* Live Camera Scanner Feed */}
+                        {showCamera && (
+                            <QrCameraScanner
+                                onScanSuccess={handleScanSuccess}
+                                onClose={() => setShowCamera(false)}
                             />
-                        </div>
-                        <Button type="submit" size="sm" variant="secondary" className="text-xs font-semibold">
-                            Cari Pesanan
-                        </Button>
-                    </form>
+                        )}
+                    </div>
 
                     {lookupError && (
                         <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-xs font-medium">

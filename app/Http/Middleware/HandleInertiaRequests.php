@@ -106,6 +106,17 @@ class HandleInertiaRequests extends Middleware
             ],
             'queueCount' => $queueCount,
             'verifyPaymentCount' => $verifyPaymentCount,
+            'activeOrdersSummary' => fn () => $user && ! in_array('tenant', $user->getRoleNames()->values()->all()) && ! in_array('admin', $user->getRoleNames()->values()->all())
+                ? Order::query()
+                    ->where('user_id', $user->id)
+                    ->whereIn('status', [
+                        OrderStatus::Paid,
+                        OrderStatus::Processing,
+                        OrderStatus::Ready,
+                    ])
+                    ->select(['id', 'order_number', 'status'])
+                    ->get()
+                : [],
             'flash' => [
                 'toast' => fn () => $request->session()->get('toast'),
             ],

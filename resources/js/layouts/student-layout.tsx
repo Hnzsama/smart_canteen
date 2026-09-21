@@ -34,6 +34,9 @@ import CartDrawer from '@/pages/customer/catalog/components/cart-drawer';
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
+import { router } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { useOrderSound, type SimpleOrderSummary } from '@/pages/customer/orders/hooks/use-order-sound';
 
 type StudentLayoutProps = {
     children: React.ReactNode;
@@ -43,6 +46,7 @@ type StudentLayoutProps = {
 export default function StudentLayout({ children, showBottomNav = true }: StudentLayoutProps) {
     const page = usePage();
     const auth = page.props.auth as { user: User | null };
+    const activeOrdersSummary = (page.props.activeOrdersSummary || []) as SimpleOrderSummary[];
     const url = page.url;
     const componentName = page.component || '';
     const getInitials = useInitials();
@@ -51,6 +55,22 @@ export default function StudentLayout({ children, showBottomNav = true }: Studen
     const { cartItems, setCartItems, totalCartCount } = useCart();
 
     const isLoggedIn = Boolean(auth?.user);
+
+    // Global order status change audio & toast notifications for customer
+    useOrderSound(activeOrdersSummary);
+
+    // Auto-poll active orders summary every 4s if logged-in student has active orders and not on /orders page
+    useEffect(() => {
+        if (!isLoggedIn || activeOrdersSummary.length === 0 || url.startsWith('/orders')) {
+            return;
+        }
+
+        const interval = setInterval(() => {
+            router.reload({ only: ['activeOrdersSummary'] });
+        }, 4000);
+
+        return () => clearInterval(interval);
+    }, [isLoggedIn, activeOrdersSummary.length, url]);
 
     const isCheckoutPage =
         !showBottomNav ||

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Head, router } from '@inertiajs/react';
-import { ChefHat, Kanban, LayoutList, Radio, Volume2, VolumeX } from 'lucide-react';
+import { ChefHat, Kanban, LayoutList, QrCode, Radio, Volume2, VolumeX } from 'lucide-react';
 import { DataTable } from '@/components/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { getTenantOrderColumns } from './components/orders/tenant-order-columns'
 import { TenantOrderDetailDialog, type TenantOrderDetailItem } from './components/orders/tenant-order-detail-dialog';
 import { TenantOrderFilters } from './components/orders/tenant-order-filters';
 import { TenantOrderSummaryCards } from './components/orders/tenant-order-summary-cards';
+import { VerifyPaymentDialog } from './components/verify-payment/verify-payment-dialog';
 import { TenantPageHeader } from './components/tenant-page-header';
 
 type Props = {
@@ -86,6 +87,7 @@ export default function TenantOrders({
     const [isSearching, setIsSearching] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<TenantOrderDetailItem | null>(null);
     const [soundEnabled, setSoundEnabled] = useState(true);
+    const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
 
     const previousOrdersRef = useRef<Set<number> | null>(null);
 
@@ -213,6 +215,16 @@ export default function TenantOrders({
                     }
                     actions={
                         <>
+                            {/* QR Camera Scanner Button */}
+                            <Button
+                                size="sm"
+                                onClick={() => setIsVerifyModalOpen(true)}
+                                className="h-8 gap-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-xs"
+                            >
+                                <QrCode className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Scan QR / Kasir</span>
+                            </Button>
+
                             {/* Sound controls */}
                             <Button
                                 variant="outline"
@@ -306,6 +318,15 @@ export default function TenantOrders({
                 isOpen={!!selectedOrder}
                 onClose={() => setSelectedOrder(null)}
                 onUpdateStatus={handleUpdateStatus}
+            />
+
+            {/* Verify Payment & QR Camera Scanner Modal */}
+            <VerifyPaymentDialog
+                order={selectedOrder}
+                orders={orders}
+                isOpen={isVerifyModalOpen}
+                onClose={() => setIsVerifyModalOpen(false)}
+                onSelectOrder={(ord) => setSelectedOrder(ord)}
             />
         </>
     );
