@@ -9,6 +9,7 @@ Dokumen ini mendefinisikan struktur basis data lengkap yang disesuaikan dengan s
 ```mermaid
 erDiagram
     USERS ||--o{ ORDERS : "places"
+    USERS ||--o{ FAVORITES : "marks"
     TENANTS ||--o{ MENUS : "owns"
     TENANTS ||--o{ CATEGORIES : "owns"
     TENANTS ||--o{ ORDERS : "receives"
@@ -18,6 +19,7 @@ erDiagram
     ORDERS ||--|{ ORDER_ITEMS : "contains"
     ORDERS ||--o{ TENANT_RATINGS : "rated_in"
     MENUS ||--o{ ORDER_ITEMS : "referenced_by"
+    MENUS ||--o{ FAVORITES : "is_favorited"
 
     USERS {
         bigint id PK
@@ -140,6 +142,13 @@ erDiagram
         string key UK
         text value
         string label
+        timestamp created_at
+    }
+
+    FAVORITES {
+        bigint id PK
+        bigint user_id FK
+        bigint menu_id FK
         timestamp created_at
     }
 ```
@@ -302,3 +311,23 @@ erDiagram
 | `value` | Text | Nullable | Nilai Konfigurasi |
 | `label` | String | Nullable | Label Keterangan Pengaturan |
 | `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+---
+
+### 2.10 `favorites`
+| Column Name | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BigIncrements | Primary Key | ID Favorit |
+| `user_id` | ForeignId | Constrained `users`, Cascade | Mahasiswa yang Menyukai Menu |
+| `menu_id` | ForeignId | Constrained `menus`, Cascade | Menu yang Difavoritkan |
+| `created_at`, `updated_at` | Timestamp | Nullable | Audit Timestamps |
+
+*Unique Constraint*: `['user_id', 'menu_id']`
+
+---
+
+### 2.11 Permission Tables (Spatie Permission)
+- `roles`: Definisi peran pengguna (`student`, `tenant`, `admin`).
+- `permissions`: Hak akses spesifik.
+- `model_has_roles`, `model_has_permissions`, `role_has_permissions`: Pivot tabel relasi peran dan izin.
+
