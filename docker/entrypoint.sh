@@ -29,9 +29,9 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Run database migrations & seeders
-echo "Running database migrations & seeders..."
-php artisan migrate --force --seed
+# Run database fresh migrations & seeders
+echo "Running database fresh migrations & seeders..."
+php artisan migrate:fresh --force --seed
 
 # Fix ownership and permissions AFTER all artisan commands run as root
 echo "Fixing storage & database permissions..."

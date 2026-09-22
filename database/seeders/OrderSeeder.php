@@ -34,95 +34,105 @@ class OrderSeeder extends Seeder
         }
 
         // 1. Skenario Cashless Midtrans (Selesai / Completed)
-        $order1 = Order::query()->create([
-            'order_number' => 'SC-'.now()->format('Ymd').'-0001',
-            'pickup_code' => 'FEB-1001',
-            'user_id' => $mahasiswa->id,
-            'tenant_id' => $tenant1->id,
-            'total_amount' => 27000.00,
-            'payment_method' => PaymentMethod::Cashless,
-            'payment_status' => PaymentStatus::Paid,
-            'status' => OrderStatus::Completed,
-            'snap_token' => 'snap-demo-token-12345',
-            'paid_at' => now()->subHours(3),
-            'processing_at' => now()->subHours(3)->addMinutes(5),
-            'ready_at' => now()->subHours(3)->addMinutes(20),
-            'completed_at' => now()->subHours(2)->addMinutes(45),
-        ]);
+        $order1 = Order::query()->firstOrCreate(
+            ['order_number' => 'SC-'.now()->format('Ymd').'-0001'],
+            [
+                'pickup_code' => 'FEB-1001',
+                'user_id' => $mahasiswa->id,
+                'tenant_id' => $tenant1->id,
+                'total_amount' => 27000.00,
+                'payment_method' => PaymentMethod::Cashless,
+                'payment_status' => PaymentStatus::Paid,
+                'status' => OrderStatus::Completed,
+                'snap_token' => 'snap-demo-token-12345',
+                'paid_at' => now()->subHours(3),
+                'processing_at' => now()->subHours(3)->addMinutes(5),
+                'ready_at' => now()->subHours(3)->addMinutes(20),
+                'completed_at' => now()->subHours(2)->addMinutes(45),
+            ]
+        );
 
         $item1 = $menus->first();
-        OrderItem::query()->create([
-            'order_id' => $order1->id,
-            'menu_id' => $item1->id,
-            'menu_name' => $item1->name,
-            'price' => $item1->price,
-            'quantity' => 1,
-            'subtotal' => $item1->price,
-        ]);
+        OrderItem::query()->firstOrCreate(
+            ['order_id' => $order1->id, 'menu_id' => $item1->id],
+            [
+                'menu_name' => $item1->name,
+                'price' => $item1->price,
+                'quantity' => 1,
+                'subtotal' => $item1->price,
+            ]
+        );
 
         if ($menus->count() > 1) {
             $item2 = $menus->get(1);
-            OrderItem::query()->create([
-                'order_id' => $order1->id,
-                'menu_id' => $item2->id,
-                'menu_name' => $item2->name,
-                'price' => $item2->price,
-                'quantity' => 1,
-                'subtotal' => $item2->price,
-            ]);
+            OrderItem::query()->firstOrCreate(
+                ['order_id' => $order1->id, 'menu_id' => $item2->id],
+                [
+                    'menu_name' => $item2->name,
+                    'price' => $item2->price,
+                    'quantity' => 1,
+                    'subtotal' => $item2->price,
+                ]
+            );
         }
 
         // 2. Skenario Cash (Selesai / Completed)
-        $order2 = Order::query()->create([
-            'order_number' => 'SC-'.now()->format('Ymd').'-0002',
-            'pickup_code' => 'FEB-8821',
-            'user_id' => $budi ? $budi->id : $mahasiswa->id,
-            'tenant_id' => $tenant1->id,
-            'total_amount' => 15000.00,
-            'payment_method' => PaymentMethod::Cash,
-            'payment_status' => PaymentStatus::Paid,
-            'status' => OrderStatus::Completed,
-            'snap_token' => null,
-            'paid_at' => now()->subHours(2)->addMinutes(5),
-            'processing_at' => now()->subHours(2)->addMinutes(5),
-            'ready_at' => now()->subHours(2)->addMinutes(20),
-            'completed_at' => now()->subHours(1)->addMinutes(30),
-        ]);
+        $order2 = Order::query()->firstOrCreate(
+            ['order_number' => 'SC-'.now()->format('Ymd').'-0002'],
+            [
+                'pickup_code' => 'FEB-8821',
+                'user_id' => $budi ? $budi->id : $mahasiswa->id,
+                'tenant_id' => $tenant1->id,
+                'total_amount' => 15000.00,
+                'payment_method' => PaymentMethod::Cash,
+                'payment_status' => PaymentStatus::Paid,
+                'status' => OrderStatus::Completed,
+                'snap_token' => null,
+                'paid_at' => now()->subHours(2)->addMinutes(5),
+                'processing_at' => now()->subHours(2)->addMinutes(5),
+                'ready_at' => now()->subHours(2)->addMinutes(20),
+                'completed_at' => now()->subHours(1)->addMinutes(30),
+            ]
+        );
 
-        OrderItem::query()->create([
-            'order_id' => $order2->id,
-            'menu_id' => $item1->id,
-            'menu_name' => $item1->name,
-            'price' => $item1->price,
-            'quantity' => 1,
-            'subtotal' => $item1->price,
-        ]);
+        OrderItem::query()->firstOrCreate(
+            ['order_id' => $order2->id, 'menu_id' => $item1->id],
+            [
+                'menu_name' => $item1->name,
+                'price' => $item1->price,
+                'quantity' => 1,
+                'subtotal' => $item1->price,
+            ]
+        );
 
         // 3. Skenario Selesai (Completed)
-        $order3 = Order::query()->create([
-            'order_number' => 'SC-'.now()->format('Ymd').'-0003',
-            'pickup_code' => 'FEB-9901',
-            'user_id' => $mahasiswa->id,
-            'tenant_id' => $tenant1->id,
-            'total_amount' => 12000.00,
-            'payment_method' => PaymentMethod::Cashless,
-            'payment_status' => PaymentStatus::Paid,
-            'status' => OrderStatus::Completed,
-            'snap_token' => 'snap-completed-token-999',
-            'paid_at' => now()->subHours(2),
-            'processing_at' => now()->subHours(2)->addMinutes(5),
-            'ready_at' => now()->subHours(2)->addMinutes(20),
-            'completed_at' => now()->subHours(1)->addMinutes(45),
-        ]);
+        $order3 = Order::query()->firstOrCreate(
+            ['order_number' => 'SC-'.now()->format('Ymd').'-0003'],
+            [
+                'pickup_code' => 'FEB-9901',
+                'user_id' => $mahasiswa->id,
+                'tenant_id' => $tenant1->id,
+                'total_amount' => 12000.00,
+                'payment_method' => PaymentMethod::Cashless,
+                'payment_status' => PaymentStatus::Paid,
+                'status' => OrderStatus::Completed,
+                'snap_token' => 'snap-completed-token-999',
+                'paid_at' => now()->subHours(2),
+                'processing_at' => now()->subHours(2)->addMinutes(5),
+                'ready_at' => now()->subHours(2)->addMinutes(20),
+                'completed_at' => now()->subHours(1)->addMinutes(45),
+            ]
+        );
 
-        OrderItem::query()->create([
-            'order_id' => $order3->id,
-            'menu_id' => $item1->id,
-            'menu_name' => $item1->name,
-            'price' => 12000.00,
-            'quantity' => 1,
-            'subtotal' => 12000.00,
-        ]);
+        OrderItem::query()->firstOrCreate(
+            ['order_id' => $order3->id, 'menu_id' => $item1->id],
+            [
+                'menu_name' => $item1->name,
+                'price' => 12000.00,
+                'quantity' => 1,
+                'subtotal' => 12000.00,
+            ]
+        );
 
         // 4. Seed 55+ realistic completed orders distributed across all tenants, students, and dates
         $allTenants = Tenant::with('menus')->has('menus')->get();
@@ -201,21 +211,23 @@ class OrderSeeder extends Seeder
             $orderNumber = 'SC-'.$orderDate->format('Ymd').'-'.str_pad((string) $i, 4, '0', STR_PAD_LEFT);
             $pickupCode = 'FEB-'.str_pad((string) (1000 + $i), 4, '0', STR_PAD_LEFT);
 
-            $order = Order::query()->create([
-                'order_number' => $orderNumber,
-                'pickup_code' => $pickupCode,
-                'user_id' => $customer->id,
-                'tenant_id' => $tenant->id,
-                'total_amount' => $totalAmount,
-                'payment_method' => $paymentMethod,
-                'payment_status' => $paymentStatus,
-                'status' => $status,
-                'snap_token' => $paymentMethod === PaymentMethod::Cashless ? 'snap-'.Str::random(24) : null,
-                'paid_at' => $paidAt,
-                'processing_at' => $processingAt,
-                'ready_at' => $readyAt,
-                'completed_at' => $completedAt,
-            ]);
+            $order = Order::query()->firstOrCreate(
+                ['order_number' => $orderNumber],
+                [
+                    'pickup_code' => $pickupCode,
+                    'user_id' => $customer->id,
+                    'tenant_id' => $tenant->id,
+                    'total_amount' => $totalAmount,
+                    'payment_method' => $paymentMethod,
+                    'payment_status' => $paymentStatus,
+                    'status' => $status,
+                    'snap_token' => $paymentMethod === PaymentMethod::Cashless ? 'snap-'.Str::random(24) : null,
+                    'paid_at' => $paidAt,
+                    'processing_at' => $processingAt,
+                    'ready_at' => $readyAt,
+                    'completed_at' => $completedAt,
+                ]
+            );
 
             $order->forceFill([
                 'created_at' => $orderDate,
