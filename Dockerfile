@@ -16,36 +16,29 @@ RUN npm run build
 # Stage 2: Production PHP Runtime
 FROM php:8.3-fpm-alpine AS runner
 
-# Install system dependencies & Nginx + Supervisor + gettext
+# Install system dependencies (Nginx, Supervisor, gettext, zip, curl)
 RUN apk add --no-cache \
     nginx \
     supervisor \
     gettext \
     curl \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
     zip \
-    unzip \
-    oniguruma-dev \
-    postgresql-dev \
-    icu-dev
+    unzip
+
+# Install helper script for PHP extensions (fast & reliable)
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 # Install PHP Extensions required by Laravel
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_mysql \
-        pdo_pgsql \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        zip \
-        opcache \
-        intl
+RUN install-php-extensions \
+    pdo_mysql \
+    pdo_pgsql \
+    bcmath \
+    gd \
+    zip \
+    opcache \
+    intl \
+    exif \
+    pcntl
 
 # Configure OPcache
 RUN echo "[opcache]" > /usr/local/etc/php/conf.d/opcache.ini \
