@@ -2,7 +2,7 @@
 FROM node:20-alpine AS frontend
 WORKDIR /app
 
-# Install PHP in Node container for Laravel Wayfinder (php artisan wayfinder:generate)
+# Install PHP & Extensions in Node container for Wayfinder plugin (php artisan wayfinder:generate)
 RUN apk add --no-cache \
     php83 \
     php83-cli \
@@ -13,10 +13,23 @@ RUN apk add --no-cache \
     php83-openssl \
     php83-pdo \
     php83-fileinfo \
+    php83-phar \
+    php83-dom \
+    php83-xml \
+    php83-xmlwriter \
+    php83-curl \
     && if [ -f /usr/bin/php83 ]; then ln -sf /usr/bin/php83 /usr/bin/php; fi
 
+# Copy Composer binary
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Install Node dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
+
+# Install Composer dependencies needed by Artisan/Wayfinder
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
 # Copy application files needed by Wayfinder & Vite build
 COPY app ./app
@@ -28,6 +41,9 @@ COPY artisan ./artisan
 COPY resources ./resources
 COPY vite.config.ts tsconfig.json components.json ./
 COPY public ./public
+
+# Generate autoloader so PHP artisan works
+RUN composer dump-autoload --no-dev
 
 # Ensure output goes to public/build
 ENV BUILD_TARGET=local
