@@ -29,9 +29,13 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Run database fresh migrations & seeders
-echo "Running database fresh migrations & seeders..."
-php artisan migrate:fresh --force --seed
+# Ensure composer autoloader is up-to-date
+echo "Regenerating composer autoloader..."
+composer dump-autoload --optimize --no-dev
+
+# Run database migrations & seeders
+echo "Running database migrations & seeders..."
+php artisan migrate --force --seed || php artisan migrate --force
 
 # Fix ownership and permissions AFTER all artisan commands run as root
 echo "Fixing storage & database permissions..."
