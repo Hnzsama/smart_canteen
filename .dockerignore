@@ -12,4 +12,3 @@ storage/framework/views/*
 storage/logs/*
 Dockerfile
 .dockerignore
-docker
