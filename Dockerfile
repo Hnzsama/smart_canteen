@@ -17,7 +17,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-RUN install-php-extensions zip intl
+RUN install-php-extensions \
+    pdo_mysql \
+    pdo_pgsql \
+    bcmath \
+    gd \
+    zip \
+    intl \
+    exif \
+    pcntl
 
 # Install Node dependencies
 COPY package.json package-lock.json ./
@@ -35,11 +43,20 @@ COPY database ./database
 COPY routes ./routes
 COPY artisan ./artisan
 COPY resources ./resources
+COPY storage ./storage
+COPY .env.example ./.env
 COPY vite.config.ts tsconfig.json components.json ./
 COPY public ./public
 
-# Generate autoloader so PHP artisan works
-RUN composer dump-autoload --no-dev
+# Ensure storage & database directories exist
+RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs database \
+    && touch database/database.sqlite
+
+# Generate autoloader, key, discover packages & pre-generate wayfinder routes
+RUN composer dump-autoload --no-dev \
+    && php artisan key:generate --no-interaction \
+    && php artisan package:discover --no-interaction \
+    && php artisan wayfinder:generate --with-form
 
 # Ensure output goes to public/build
 ENV BUILD_TARGET=local
@@ -96,7 +113,8 @@ COPY . .
 COPY --from=frontend /app/public/build ./public/build
 
 # Autoload Optimization
-RUN composer dump-autoload --optimize --no-dev
+RUN composer dump-autoload --optimize --no-dev \
+    && php artisan package:discover --no-interaction
 
 # Setup Docker Configurations
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf.template

@@ -7,11 +7,7 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import path from 'node:path';
 import { defineConfig, lazyPlugins, loadEnv } from 'vite-plus';
-
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, process.cwd(), '');
-    const isProduction = env.APP_ENV === 'production' || env.BUILD_TARGET === 'production';
-
+export default defineConfig(() => {
     return {
         plugins: lazyPlugins(() => [
             laravel({
@@ -34,11 +30,7 @@ export default defineConfig(({ mode }) => {
             }),
         ]),
         build: {
-            // Jika production: keluar 1 tingkat ke root web (/man-finance-better/build)
-            // Jika local: tetap di folder public proyek biasa (/public/build)
-            outDir: isProduction
-                ? path.resolve(__dirname, '../build')
-                : 'public/build',
+            outDir: 'public/build',
             emptyOutDir: true,
         },
         server: {
