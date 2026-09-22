@@ -2,9 +2,29 @@
 FROM node:20-alpine AS frontend
 WORKDIR /app
 
+# Install PHP in Node container for Laravel Wayfinder (php artisan wayfinder:generate)
+RUN apk add --no-cache \
+    php83 \
+    php83-cli \
+    php83-tokenizer \
+    php83-ctype \
+    php83-json \
+    php83-mbstring \
+    php83-openssl \
+    php83-pdo \
+    php83-fileinfo \
+    && if [ -f /usr/bin/php83 ]; then ln -sf /usr/bin/php83 /usr/bin/php; fi
+
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# Copy application files needed by Wayfinder & Vite build
+COPY app ./app
+COPY bootstrap ./bootstrap
+COPY config ./config
+COPY database ./database
+COPY routes ./routes
+COPY artisan ./artisan
 COPY resources ./resources
 COPY vite.config.ts tsconfig.json components.json ./
 COPY public ./public
@@ -25,7 +45,7 @@ RUN apk add --no-cache \
     zip \
     unzip
 
-# Install helper script for PHP extensions (fast & reliable)
+# Install helper script for PHP extensions
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 # Install PHP Extensions required by Laravel
