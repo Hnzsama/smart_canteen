@@ -67,7 +67,7 @@ export default defineConfig(() => {
             singleQuote: true,
             semi: true,
             singleAttributePerLine: false,
-            htmlWhitespaceSensitivity: 'css',
+            htmlWhitespaceSensitivity: 'css' as const,
             ignorePatterns: [
                 '.github/**',
                 'composer.json',

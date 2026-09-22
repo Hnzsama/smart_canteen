@@ -672,20 +672,26 @@ class TenantSeeder extends Seeder
         ];
 
         foreach ($tenantsData as $tenantInfo) {
-            $tenant = Tenant::query()->create([
-                'name' => $tenantInfo['name'],
-                'slug' => Str::slug($tenantInfo['name']),
-                'description' => $tenantInfo['description'],
-                'image' => null,
-                'is_active' => $tenantInfo['is_active'] ?? true,
-            ]);
+            $tenant = Tenant::query()->firstOrCreate(
+                ['name' => $tenantInfo['name']],
+                [
+                    'slug' => Str::slug($tenantInfo['name']),
+                    'description' => $tenantInfo['description'],
+                    'image' => null,
+                    'is_active' => $tenantInfo['is_active'] ?? true,
+                ]
+            );
 
             foreach ($tenantInfo['categories'] as $categoryName => $menus) {
-                $category = Category::query()->create([
-                    'tenant_id' => $tenant->id,
-                    'name' => $categoryName,
-                    'slug' => Str::slug($categoryName),
-                ]);
+                $category = Category::query()->firstOrCreate(
+                    [
+                        'tenant_id' => $tenant->id,
+                        'name' => $categoryName,
+                    ],
+                    [
+                        'slug' => Str::slug($categoryName),
+                    ]
+                );
 
                 foreach ($menus as $menuItem) {
                     $name = $menuItem['name'];
@@ -716,20 +722,24 @@ class TenantSeeder extends Seeder
                         default => $makananOptions,
                     };
 
-                    Menu::query()->create([
-                        'tenant_id' => $tenant->id,
-                        'category_id' => $category->id,
-                        'global_category' => $globalCategory,
-                        'name' => $menuItem['name'],
-                        'description' => $menuItem['description'],
-                        'price' => $menuItem['price'],
-                        'original_price' => $originalPrice,
-                        'image' => $image,
-                        'is_available' => $menuItem['is_available'],
-                        'is_recommended' => $isRecommended,
-                        'estimated_time' => $menuItem['estimated_time'] ?? rand(10, 20),
-                        'options' => $menuItem['options'] ?? $options,
-                    ]);
+                    Menu::query()->firstOrCreate(
+                        [
+                            'tenant_id' => $tenant->id,
+                            'name' => $menuItem['name'],
+                        ],
+                        [
+                            'category_id' => $category->id,
+                            'global_category' => $globalCategory,
+                            'description' => $menuItem['description'],
+                            'price' => $menuItem['price'],
+                            'original_price' => $originalPrice,
+                            'image' => $image,
+                            'is_available' => $menuItem['is_available'],
+                            'is_recommended' => $isRecommended,
+                            'estimated_time' => $menuItem['estimated_time'] ?? rand(10, 20),
+                            'options' => $menuItem['options'] ?? $options,
+                        ]
+                    );
                 }
             }
         }

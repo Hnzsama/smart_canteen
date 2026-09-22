@@ -18,20 +18,24 @@ class UserSeeder extends Seeder
         $tenants = Tenant::query()->orderBy('id')->get();
 
         // 1. Admin System
-        $admin = User::query()->create([
-            'name' => 'Admin FEB',
-            'email' => 'admin@feb.ac.id',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
+        $admin = User::query()->firstOrCreate(
+            ['email' => 'admin@feb.ac.id'],
+            [
+                'name' => 'Admin FEB',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
         $admin->assignRole(UserRole::Admin->value);
 
-        $admin2 = User::query()->create([
-            'name' => 'Supervisor Kantin FEB',
-            'email' => 'supervisor@feb.ac.id',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
+        $admin2 = User::query()->firstOrCreate(
+            ['email' => 'supervisor@feb.ac.id'],
+            [
+                'name' => 'Supervisor Kantin FEB',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
         $admin2->assignRole(UserRole::Admin->value);
 
         // 2. Tenant Staff / Owner for all tenants
@@ -53,13 +57,15 @@ class UserSeeder extends Seeder
                 'email' => 'staff'.$tenant->id.'@feb.ac.id',
             ];
 
-            $user = User::query()->create([
-                'name' => $staff['name'],
-                'email' => $staff['email'],
-                'tenant_id' => $tenant->id,
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]);
+            $user = User::query()->firstOrCreate(
+                ['email' => $staff['email']],
+                [
+                    'name' => $staff['name'],
+                    'tenant_id' => $tenant->id,
+                    'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
+                ]
+            );
             $user->assignRole(UserRole::Tenant->value);
         }
 
@@ -92,12 +98,14 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($mahasiswaList as $mhs) {
-            $user = User::query()->create([
-                'name' => $mhs['name'],
-                'email' => $mhs['email'],
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]);
+            $user = User::query()->firstOrCreate(
+                ['email' => $mhs['email']],
+                [
+                    'name' => $mhs['name'],
+                    'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
+                ]
+            );
             $user->assignRole(UserRole::Mahasiswa->value);
         }
     }

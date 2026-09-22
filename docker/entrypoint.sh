@@ -12,15 +12,12 @@ if [ "${DB_CONNECTION}" = "sqlite" ] || [ -z "${DB_CONNECTION}" ]; then
     chown -R www-data:www-data /var/www/html/database
 fi
 
-# Set direktori & izin storage/bootstrap cache
+# Set direktori storage/bootstrap cache
 mkdir -p /var/www/html/storage/framework/sessions \
          /var/www/html/storage/framework/views \
          /var/www/html/storage/framework/cache \
          /var/www/html/storage/logs \
          /var/www/html/storage/app/public
-
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Create storage link
 echo "Creating storage link..."
@@ -32,9 +29,14 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Run database migrations
-echo "Running database migrations..."
-php artisan migrate --force
+# Run database migrations & seeders
+echo "Running database migrations & seeders..."
+php artisan migrate --force --seed
+
+# Fix ownership and permissions AFTER all artisan commands run as root
+echo "Fixing storage & database permissions..."
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
 # Start Supervisor (PHP-FPM + Nginx)
 echo "Starting server on port ${PORT}..."
