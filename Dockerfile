@@ -1,27 +1,18 @@
 # Stage 1: Build Frontend Assets (Vite + React)
-FROM node:20-alpine AS frontend
+FROM node:20-slim AS frontend
 WORKDIR /app
 
-# Install PHP & Extensions in Node container for Wayfinder plugin (php artisan wayfinder:generate)
-RUN apk add --no-cache \
-    php83 \
-    php83-cli \
-    php83-tokenizer \
-    php83-ctype \
-    php83-json \
-    php83-mbstring \
-    php83-openssl \
-    php83-pdo \
-    php83-fileinfo \
-    php83-phar \
-    php83-dom \
-    php83-xml \
-    php83-xmlwriter \
-    php83-curl \
-    && if [ -f /usr/bin/php83 ]; then ln -sf /usr/bin/php83 /usr/bin/php; fi
-
-# Copy Composer binary
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install PHP & Composer for Wayfinder (php artisan wayfinder:generate)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    php-cli \
+    php-mbstring \
+    php-xml \
+    php-curl \
+    php-zip \
+    composer \
+    git \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Node dependencies
 COPY package.json package-lock.json ./
@@ -49,22 +40,23 @@ RUN composer dump-autoload --no-dev
 ENV BUILD_TARGET=local
 RUN npm run build
 
-# Stage 2: Production PHP Runtime
-FROM php:8.3-fpm-alpine AS runner
+# Stage 2: Production PHP Runtime (Debian based for fast pre-compiled extensions)
+FROM php:8.3-fpm AS runner
 
-# Install system dependencies (Nginx, Supervisor, gettext, zip, curl)
-RUN apk add --no-cache \
+# Install system dependencies (Nginx, Supervisor, gettext)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     supervisor \
-    gettext \
+    gettext-base \
     curl \
     zip \
-    unzip
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install helper script for PHP extensions
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-# Install PHP Extensions required by Laravel
+# Install PHP Extensions using pre-compiled debian packages (instant build)
 RUN install-php-extensions \
     pdo_mysql \
     pdo_pgsql \
