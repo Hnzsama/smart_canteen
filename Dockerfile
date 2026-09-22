@@ -1,18 +1,23 @@
 # Stage 1: Build Frontend Assets (Vite + React)
-FROM node:20-slim AS frontend
+FROM php:8.4-cli AS frontend
 WORKDIR /app
 
-# Install PHP & Composer for Wayfinder (php artisan wayfinder:generate)
+# Copy Node.js 20 & Composer binaries
+COPY --from=node:20 /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:20 /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
+# Install system dependencies & PHP extensions needed by Composer & Wayfinder
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    php-cli \
-    php-mbstring \
-    php-xml \
-    php-curl \
-    php-zip \
-    composer \
     git \
     unzip \
     && rm -rf /var/lib/apt/lists/*
+
+RUN install-php-extensions zip intl
 
 # Install Node dependencies
 COPY package.json package-lock.json ./
@@ -41,7 +46,7 @@ ENV BUILD_TARGET=local
 RUN npm run build
 
 # Stage 2: Production PHP Runtime (Debian based for fast pre-compiled extensions)
-FROM php:8.3-fpm AS runner
+FROM php:8.4-fpm AS runner
 
 # Install system dependencies (Nginx, Supervisor, gettext)
 RUN apt-get update && apt-get install -y --no-install-recommends \
