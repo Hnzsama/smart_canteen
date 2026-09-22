@@ -11,6 +11,7 @@ use App\Models\OrderItem;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class OrderSeeder extends Seeder
@@ -159,19 +160,19 @@ class OrderSeeder extends Seeder
             // Date distribution
             if ($i <= 25) {
                 // Today
-                $orderDate = now()->copy()->startOfDay()->addHours(fake()->numberBetween(7, 16))->addMinutes(fake()->numberBetween(0, 59));
+                $orderDate = now()->copy()->startOfDay()->addHours(rand(7, 16))->addMinutes(rand(0, 59));
                 if ($orderDate->isFuture()) {
-                    $orderDate = now()->subMinutes(fake()->numberBetween(5, 180));
+                    $orderDate = now()->subMinutes(rand(5, 180));
                 }
             } elseif ($i <= 42) {
                 // This week
-                $orderDate = now()->subDays(fake()->numberBetween(1, 5))->setTime(fake()->numberBetween(8, 16), fake()->numberBetween(0, 59));
+                $orderDate = now()->subDays(rand(1, 5))->setTime(rand(8, 16), rand(0, 59));
             } else {
                 // Earlier this month
-                $orderDate = now()->subDays(fake()->numberBetween(6, 25))->setTime(fake()->numberBetween(8, 16), fake()->numberBetween(0, 59));
+                $orderDate = now()->subDays(rand(6, 25))->setTime(rand(8, 16), rand(0, 59));
             }
 
-            $config = fake()->randomElement($orderConfigs);
+            $config = Arr::random($orderConfigs);
             $status = $config['status'];
             $paymentMethod = $config['method'];
             $paymentStatus = $config['payment'];
@@ -189,14 +190,14 @@ class OrderSeeder extends Seeder
                 ? (clone $orderDate)->addMinutes(30)
                 : null;
 
-            $itemCount = min($tenantMenus->count(), fake()->numberBetween(1, 3));
+            $itemCount = min($tenantMenus->count(), rand(1, 3));
             $selectedMenus = $tenantMenus->random($itemCount);
 
             $totalAmount = 0;
             $orderItemsData = [];
 
             foreach ($selectedMenus as $menu) {
-                $qty = fake()->numberBetween(1, 2);
+                $qty = rand(1, 2);
                 $subtotal = $menu->price * $qty;
                 $totalAmount += $subtotal;
                 $orderItemsData[] = [
