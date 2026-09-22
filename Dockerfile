@@ -35,7 +35,6 @@ RUN install-php-extensions \
     bcmath \
     gd \
     zip \
-    opcache \
     intl \
     exif \
     pcntl
