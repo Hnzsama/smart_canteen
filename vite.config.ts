@@ -7,12 +7,15 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import path from 'node:path';
 import { defineConfig, lazyPlugins, loadEnv } from 'vite-plus';
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+    const isProduction = mode === 'production' || process.env.NODE_ENV === 'production';
+
     return {
         plugins: lazyPlugins(() => [
             laravel({
                 input: ['resources/css/app.css', 'resources/js/app.tsx'],
                 refresh: true,
+                buildDirectory: isProduction ? '../build' : 'build',
                 fonts: [
                     bunny('Instrument Sans', {
                         weights: [400, 500, 600],
@@ -30,7 +33,7 @@ export default defineConfig(() => {
             }),
         ]),
         build: {
-            outDir: 'public/build',
+            outDir: isProduction ? '../build' : 'public/build',
             emptyOutDir: true,
         },
         server: {
