@@ -93,7 +93,8 @@ Seluruh spesifikasi teknis dan aturan bisnis terdokumentasi lengkap di folder `d
 6. 📄 [05-feature-specification.md](file:///home/darbi/Projects/smart_canteen/docs/05-feature-specification.md) — Spesifikasi Fitur Per Modul
 7. 📄 [06-page-specification.md](file:///home/darbi/Projects/smart_canteen/docs/06-page-specification.md) — Spesifikasi Halaman & Layout
 8. 📄 [07-ui-ux-guidelines.md](file:///home/darbi/Projects/smart_canteen/docs/07-ui-ux-guidelines.md) — Design System & UI States
-9. 📄 [08-data-model.md](file:///home/darbi/Projects/smart_canteen/docs/08-data-model.md) — ERD & Schema Database (SoftDeletes & Snapshots)
+9. 📄 [08-data-model.md](file:///home/Akuma/projects/study/basdat_lanjut/smart_canteen/docs/08-data-model.md) — ERD & Schema Database Inti (SoftDeletes & Snapshots)
+   - 📄 [08-data-model-full.md](file:///home/Akuma/projects/study/basdat_lanjut/smart_canteen/docs/08-data-model-full.md) — **ERD & Skema Lengkap Seluruh Tabel Migrasi (22 Tabel)**
 10. 📄 [09-payment-flow.md](file:///home/darbi/Projects/smart_canteen/docs/09-payment-flow.md) — Midtrans Sandbox & Cash QR Scan Integration
 11. 📄 [10-status-order.md](file:///home/darbi/Projects/smart_canteen/docs/10-status-order.md) — Order State Machine & Audit Timestamps
 12. 📄 [11-demo-scenarios.md](file:///home/darbi/Projects/smart_canteen/docs/11-demo-scenarios.md) — Langkah-Langkah Skenario Demo
