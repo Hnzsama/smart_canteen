@@ -3,6 +3,7 @@ import {
     ChefHat,
     Clock,
     CreditCard,
+    Info,
     Phone,
     RefreshCw,
     ShoppingBag,
@@ -157,12 +158,73 @@ export function TenantOrderDetailDialog({
                         </div>
                     </div>
 
-                    {/* Total Amount */}
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-primary/10 border border-primary/20">
-                        <span className="font-bold text-foreground">Total Tagihan</span>
-                        <span className="font-mono font-black text-lg text-primary">
-                            {formatCurrency(order.total_amount)}
-                        </span>
+                    {/* Cost Breakdown & Revenue Transparency */}
+                    <div className="rounded-xl border border-border/70 bg-card p-3 space-y-2.5">
+                        <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                            <span className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
+                                Rincian Pembayaran & Pendapatan
+                            </span>
+                            <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                Transparan
+                            </span>
+                        </div>
+
+                        {/* Stand Clean Revenue */}
+                        <div className="flex items-center justify-between py-1 px-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                            <div>
+                                <div className="font-bold text-xs text-emerald-800 dark:text-emerald-300">
+                                    Pendapatan Bersih Stand (Subtotal)
+                                </div>
+                                <div className="text-[10px] text-emerald-700/80 dark:text-emerald-400/80">
+                                    Hak penjual murni dari penjualan menu
+                                </div>
+                            </div>
+                            <span className="font-mono font-black text-sm text-emerald-700 dark:text-emerald-300">
+                                {formatCurrency(order.subtotal_amount ?? (order.total_amount - (order.app_fee || 0) - (order.channel_fee || 0)))}
+                            </span>
+                        </div>
+
+                        {/* Platform Fee */}
+                        <div className="flex items-center justify-between px-2.5 text-xs text-muted-foreground">
+                            <div>
+                                <span className="font-medium text-foreground">Biaya Layanan Aplikasi:</span>
+                                <span className="text-[10px] text-muted-foreground ml-1">(Operasional Sistem Canteen FEB)</span>
+                            </div>
+                            <span className="font-mono font-medium text-foreground">
+                                {order.app_fee && order.app_fee > 0 ? `+ ${formatCurrency(order.app_fee)}` : 'Rp 0'}
+                            </span>
+                        </div>
+
+                        {/* Payment Gateway Fee */}
+                        <div className="flex items-center justify-between px-2.5 text-xs text-muted-foreground">
+                            <div>
+                                <span className="font-medium text-foreground">Biaya Payment Gateway:</span>
+                                <span className="text-[10px] text-muted-foreground ml-1">
+                                    {order.payment_method === 'cash' ? '(Tunai Kasir)' : '(Midtrans VA / QRIS)'}
+                                </span>
+                            </div>
+                            <span className="font-mono font-medium text-foreground">
+                                {order.channel_fee && order.channel_fee > 0 ? `+ ${formatCurrency(order.channel_fee)}` : 'Rp 0'}
+                            </span>
+                        </div>
+
+                        {/* Total Billed to Customer */}
+                        <div className="flex items-center justify-between pt-2 border-t border-border/60 px-2.5">
+                            <div>
+                                <div className="font-bold text-xs text-foreground">Total Tagihan Mahasiswa:</div>
+                                <div className="text-[10px] text-muted-foreground">Nominal yang dibayar oleh pemesan</div>
+                            </div>
+                            <span className="font-mono font-black text-base text-primary">
+                                {formatCurrency(order.total_amount)}
+                            </span>
+                        </div>
+
+                        <div className="flex items-start gap-1.5 p-2 rounded-lg bg-muted/40 border border-border/40 text-[11px] text-muted-foreground leading-relaxed">
+                            <Info className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                            <span>
+                                Uang yang menjadi hak stand adalah <strong>{formatCurrency(order.subtotal_amount ?? (order.total_amount - (order.app_fee || 0) - (order.channel_fee || 0)))}</strong>. Biaya layanan dan payment gateway ditagihkan ke mahasiswa untuk operasional server & transaksi switching.
+                            </span>
+                        </div>
                     </div>
 
                     {order.notes && (

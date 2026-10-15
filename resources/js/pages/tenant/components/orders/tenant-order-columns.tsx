@@ -67,13 +67,47 @@ export function getTenantOrderColumns(
             },
         },
         {
-            accessorKey: 'total_amount',
-            header: 'Total Biaya',
-            cell: ({ row }) => (
-                <span className="font-mono font-bold text-sm text-foreground">
-                    {formatCurrency(row.original.total_amount)}
-                </span>
+            accessorKey: 'subtotal_amount',
+            header: () => (
+                <div className="flex flex-col">
+                    <span className="font-semibold text-foreground">Pendapatan Stand</span>
+                    <span className="text-[10px] text-muted-foreground font-normal">Bersih & Rincian Fee</span>
+                </div>
             ),
+            cell: ({ row }) => {
+                const subtotal = row.original.subtotal_amount ?? row.original.total_amount;
+                const total = row.original.total_amount;
+                const appFee = row.original.app_fee ?? 0;
+                const channelFee = row.original.channel_fee ?? 0;
+                const hasFee = appFee > 0 || channelFee > 0;
+
+                return (
+                    <div className="flex flex-col items-start gap-0.5 py-0.5">
+                        <div className="flex items-center gap-1.5">
+                            <span className="font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400">
+                                {formatCurrency(subtotal)}
+                            </span>
+                            <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                Bersih
+                            </span>
+                        </div>
+                        <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                            <span>Total Bayar:</span>
+                            <span className="font-mono font-medium text-foreground">{formatCurrency(total)}</span>
+                        </div>
+                        {hasFee ? (
+                            <div className="text-[10px] text-muted-foreground/80 flex flex-wrap gap-x-1.5 leading-tight">
+                                {appFee > 0 && <span>App: {formatCurrency(appFee)}</span>}
+                                {channelFee > 0 && <span>• PG: {formatCurrency(channelFee)}</span>}
+                            </div>
+                        ) : (
+                            <span className="text-[10px] text-muted-foreground/60 italic">
+                                Tanpa potongan fee
+                            </span>
+                        )}
+                    </div>
+                );
+            },
         },
         {
             accessorKey: 'payment_method',

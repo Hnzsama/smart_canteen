@@ -249,12 +249,25 @@ export function getOrderColumns({
             ),
             cell: ({ row }) => {
                 const order = row.original;
+                const subtotal = order.subtotal_amount ?? order.total_amount;
+                const appFee = order.app_fee ?? 0;
+                const channelFee = order.channel_fee ?? 0;
+                const hasFee = appFee > 0 || channelFee > 0;
+
                 return (
-                    <div className="text-right">
+                    <div className="text-right flex flex-col items-end gap-0.5">
                         <div className="font-mono font-bold text-foreground text-sm">
                             {formatCurrency(order.total_amount)}
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono">
+                            Stand: {formatCurrency(subtotal)}
+                        </div>
+                        {hasFee && (
+                            <div className="text-[10px] text-muted-foreground">
+                                Fee: App {formatCurrency(appFee)} • PG {formatCurrency(channelFee)}
+                            </div>
+                        )}
+                        <div className="text-[10px] text-muted-foreground/70">
                             {order.items.length} menu
                         </div>
                     </div>

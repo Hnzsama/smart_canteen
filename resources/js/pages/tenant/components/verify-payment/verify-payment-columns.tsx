@@ -54,12 +54,29 @@ export function getVerifyPaymentColumns(
         },
         {
             accessorKey: 'total_amount',
-            header: 'Tagihan Tunai',
-            cell: ({ row }) => (
-                <span className="font-mono font-black text-sm text-foreground">
-                    {formatCurrency(row.original.total_amount)}
-                </span>
-            ),
+            header: 'Tagihan Tunai Kasir',
+            cell: ({ row }) => {
+                const subtotal = row.original.subtotal_amount ?? row.original.total_amount;
+                const total = row.original.total_amount;
+                const hasDiff = total !== subtotal;
+
+                return (
+                    <div className="flex flex-col items-start gap-0.5">
+                        <span className="font-mono font-black text-sm text-foreground">
+                            {formatCurrency(total)}
+                        </span>
+                        {hasDiff ? (
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
+                                Subtotal Menu: {formatCurrency(subtotal)}
+                            </span>
+                        ) : (
+                            <span className="text-[10px] text-muted-foreground">
+                                Pendapatan Stand Penuh
+                            </span>
+                        )}
+                    </div>
+                );
+            },
         },
         {
             accessorKey: 'payment_status',

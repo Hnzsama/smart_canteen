@@ -54,6 +54,9 @@ export type TenantOrderDetailItem = {
     customer_name: string;
     customer_phone?: string;
     customer_email?: string;
+    subtotal_amount?: number;
+    app_fee?: number;
+    channel_fee?: number;
     total_amount: number;
     payment_method: 'cash' | 'cashless' | string;
     payment_method_label: string;

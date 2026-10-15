@@ -89,9 +89,14 @@ export function TenantOrderBoardPreview({ orders = [] }: Props) {
                                     <span className="font-mono text-muted-foreground text-[10px]">
                                         {ord.created_at}
                                     </span>
-                                    <span className="font-mono font-bold text-foreground">
-                                        {formatRupiah(ord.total_amount)}
-                                    </span>
+                                    <div className="flex flex-col items-end">
+                                        <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs">
+                                            {formatRupiah(ord.subtotal_amount ?? ord.total_amount)}
+                                        </span>
+                                        <span className="text-[9px] text-muted-foreground">
+                                            Tagihan: {formatRupiah(ord.total_amount)}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         ))}

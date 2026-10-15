@@ -117,8 +117,36 @@ export function OrderReceiptDialog({ order, onClose }: Props) {
                                 </tbody>
                                 <tfoot className="border-t-2 border-border/80 bg-muted/30 font-semibold">
                                     <tr>
+                                        <td colSpan={3} className="p-2 text-right text-xs text-muted-foreground">
+                                            Subtotal Menu (Stand):
+                                        </td>
+                                        <td className="p-2 text-right text-xs font-mono font-bold text-foreground">
+                                            {formatCurrency(order.subtotal_amount ?? (order.total_amount - (order.app_fee || 0) - (order.channel_fee || 0)))}
+                                        </td>
+                                    </tr>
+                                    {order.app_fee !== undefined && order.app_fee > 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="p-2 text-right text-xs text-muted-foreground">
+                                                Biaya Layanan Aplikasi FEB:
+                                            </td>
+                                            <td className="p-2 text-right text-xs font-mono text-muted-foreground">
+                                                +{formatCurrency(order.app_fee)}
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {order.channel_fee !== undefined && order.channel_fee > 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="p-2 text-right text-xs text-muted-foreground">
+                                                Biaya Payment Gateway (Midtrans):
+                                            </td>
+                                            <td className="p-2 text-right text-xs font-mono text-muted-foreground">
+                                                +{formatCurrency(order.channel_fee)}
+                                            </td>
+                                        </tr>
+                                    )}
+                                    <tr className="border-t border-border/60">
                                         <td colSpan={3} className="p-2.5 text-right font-bold text-foreground">
-                                            Total Pembayaran:
+                                            Total Pembayaran Pelanggan:
                                         </td>
                                         <td className="p-2.5 text-right text-sm font-mono font-black text-primary">
                                             {formatCurrency(order.total_amount)}

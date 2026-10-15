@@ -146,7 +146,7 @@ export function TenantKitchenKanbanBoard({
                                                     <span className="font-mono font-semibold text-muted-foreground text-[11px]">
                                                         {ord.created_at}
                                                     </span>
-                                                    <div className="flex items-center gap-1.5">
+                                                    <div className="flex items-center gap-2">
                                                         <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${
                                                             ord.payment_status === 'paid'
                                                                 ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400'
@@ -154,9 +154,14 @@ export function TenantKitchenKanbanBoard({
                                                         }`}>
                                                             {ord.payment_status === 'paid' ? 'Lunas' : 'Belum Bayar'}
                                                         </span>
-                                                        <span className="font-mono font-bold text-foreground">
-                                                            {formatCurrency(ord.total_amount)}
-                                                        </span>
+                                                        <div className="flex flex-col items-end">
+                                                            <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs">
+                                                                {formatCurrency(ord.subtotal_amount ?? ord.total_amount)}
+                                                            </span>
+                                                            <span className="text-[9px] text-muted-foreground">
+                                                                Tagihan: {formatCurrency(ord.total_amount)}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
 

@@ -252,14 +252,30 @@ export function VerifyPaymentDialog({
                                     </div>
                                 </div>
 
-                                {/* Large Total Cash Highlight */}
-                                <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                                    <span className="font-bold text-xs uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-                                        Total Wajib Bayar (Cash):
-                                    </span>
-                                    <span className="font-mono font-black text-xl text-emerald-600 dark:text-emerald-400">
-                                        {formatCurrency(activeOrder.total_amount)}
-                                    </span>
+                                {/* Large Total Cash Highlight with Transparency Breakdown */}
+                                <div className="space-y-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="text-emerald-800 dark:text-emerald-300 font-medium">
+                                            Pendapatan Bersih Menu (Stand):
+                                        </span>
+                                        <span className="font-mono font-bold text-emerald-700 dark:text-emerald-300">
+                                            {formatCurrency(activeOrder.subtotal_amount ?? activeOrder.total_amount)}
+                                        </span>
+                                    </div>
+                                    {activeOrder.app_fee && activeOrder.app_fee > 0 && (
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>Biaya Layanan Kampus:</span>
+                                            <span className="font-mono">{formatCurrency(activeOrder.app_fee)}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center justify-between pt-1.5 border-t border-emerald-500/20">
+                                        <span className="font-bold text-xs uppercase tracking-wider text-emerald-800 dark:text-emerald-200">
+                                            Total Uang Tunai Diterima:
+                                        </span>
+                                        <span className="font-mono font-black text-xl text-emerald-600 dark:text-emerald-400">
+                                            {formatCurrency(activeOrder.total_amount)}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

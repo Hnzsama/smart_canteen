@@ -14,6 +14,9 @@ export type OrderItem = {
     customer_email: string;
     tenant_id: number;
     tenant_name: string;
+    subtotal_amount?: number;
+    app_fee?: number;
+    channel_fee?: number;
     total_amount: number;
     payment_method: string;
     payment_method_label: string;
