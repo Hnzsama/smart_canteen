@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('midtrans_client_key')->nullable()->after('midtrans_merchant_id');
             $table->text('midtrans_server_key')->nullable()->after('midtrans_client_key');
             $table->boolean('midtrans_is_production')->default(false)->after('midtrans_server_key');
-            $table->boolean('midtrans_is_active')->default(true)->after('midtrans_is_production');
+            $table->boolean('midtrans_is_active')->default(false)->after('midtrans_is_production');
         });
     }
 

@@ -4671,11 +4671,11 @@ class TenantSeeder extends Seeder
                     'is_open' => true,
                     'rating' => $rating,
                     'reviews_count' => $reviewsCount,
-                    'midtrans_merchant_id' => $idx === 0 ? 'G123456789' : null,
-                    'midtrans_client_key' => $idx === 0 ? (config('services.midtrans.client_key') ?? 'SB-Mid-client-demo-123') : null,
-                    'midtrans_server_key' => $idx === 0 ? (config('services.midtrans.server_key') ?? 'SB-Mid-server-demo-456') : null,
+                    'midtrans_merchant_id' => null,
+                    'midtrans_client_key' => null,
+                    'midtrans_server_key' => null,
                     'midtrans_is_production' => false,
-                    'midtrans_is_active' => $idx === 0,
+                    'midtrans_is_active' => false,
                 ]
             );
 
