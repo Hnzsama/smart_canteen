@@ -109,19 +109,19 @@
           </h3>
           <nav class="space-y-1 text-xs">
             <a href="#dashboard" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">1. Dashboard Pengawasan Admin</a>
-            <a href="#tenants" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">2. Kelola Master Stand Tenant</a>
-            <a href="#users" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">3. Kelola Pengguna & Role</a>
-            <a href="#orders" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">4. Monitoring Transaksi Global</a>
-            <a href="#settings" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">5. Pengaturan Biaya Layanan</a>
+            <a href="#tenants" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">2. Kelola Stand & Pengguna</a>
+            <a href="#orders" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">3. Monitoring Transaksi Global</a>
+            <a href="#fee-governance" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">4. Tata Kelola Biaya Terpusat</a>
+            <a href="#multi-tenant-midtrans" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">5. Multi-Tenant Midtrans & Single Cart</a>
             <a href="#softdelete" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all font-medium">6. Keamanan Soft Delete Data</a>
           </nav>
         </div>
 
         <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-950/40 to-slate-900 border border-indigo-500/20 text-xs">
           <div class="flex items-center gap-2 text-indigo-400 font-bold mb-1">
-            <i class="fa-solid fa-shield-halved"></i> Integritas Data
+            <i class="fa-solid fa-scale-balanced"></i> Standar Fee Terpusat
           </div>
-          <p class="text-slate-400 leading-relaxed">Seluruh data yang dihapus menggunakan Soft Delete sehingga riwayat transaksi tetap konsisten 100%.</p>
+          <p class="text-slate-400 leading-relaxed">Admin mengendalikan Biaya Aplikasi & Gateway. Tenant tidak dapat menaikkan fee demi transparansi bagi mahasiswa.</p>
         </div>
       </div>
     </aside>
@@ -173,29 +173,172 @@
         </div>
       </section>
 
-      <!-- Section 2 & 3: Master Data -->
+      <!-- Section 2: Master Data Tenant & User -->
       <section id="tenants" class="scroll-mt-24 space-y-4">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">2 & 3</div>
-          <h2 class="text-xl font-bold text-white">Kelola Master Stand Tenant & User</h2>
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">2</div>
+          <h2 class="text-xl font-bold text-white">Kelola Master Stand Tenant & Pengguna</h2>
         </div>
         <div class="grid md:grid-cols-2 gap-6">
           <div class="glass-card p-6 rounded-2xl space-y-3">
             <h3 class="font-bold text-base text-white flex items-center gap-2">
-              <i class="fa-solid fa-store text-indigo-400"></i> Master Data Tenant
+              <i class="fa-solid fa-store text-indigo-400"></i> Master Data Stand Tenant
             </h3>
             <p class="text-xs text-slate-300 leading-relaxed">
-              Registrasikan stand kantin baru (<code class="bg-slate-800 text-indigo-400 px-1.5 py-0.5 rounded">/admin/tenants</code>), hubungkan dengan pengguna ber-role <em>Tenant</em>, dan atur banner serta status aktif.
+              Registrasikan stand kantin baru (<code class="bg-slate-800 text-indigo-400 px-1.5 py-0.5 rounded">/admin/tenants</code>), hubungkan dengan pemilik akun ber-role <em>Tenant</em>, atur banner cover, status buka/tutup, serta pantau apakah kredensial Midtrans mereka sudah aktif.
             </p>
           </div>
 
-          <div class="glass-card p-6 rounded-2xl space-y-3">
+          <div id="users" class="glass-card p-6 rounded-2xl space-y-3">
             <h3 class="font-bold text-base text-white flex items-center gap-2">
               <i class="fa-solid fa-users-gear text-indigo-400"></i> Kelola Pengguna & Role
             </h3>
             <p class="text-xs text-slate-300 leading-relaxed">
-              Atur hak akses pengguna di (<code class="bg-slate-800 text-indigo-400 px-1.5 py-0.5 rounded">/admin/users</code>). Admin dapat mengubah role dari Mahasiswa menjadi Tenant atau Administrator.
+              Atur hak akses pengguna di (<code class="bg-slate-800 text-indigo-400 px-1.5 py-0.5 rounded">/admin/users</code>). Admin dapat menetapkan role (Mahasiswa, Tenant, Administrator) dan mengatur penguncian akun jika diperlukan.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Monitoring Transaksi Global -->
+      <section id="orders" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">3</div>
+          <h2 class="text-xl font-bold text-white">Supervisi & Monitoring Transaksi Global</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Halaman Monitoring Pesanan (<code class="bg-slate-800 text-indigo-400 px-2 py-0.5 rounded text-xs">/admin/orders</code>) memberikan visibilitas penuh terhadap seluruh transaksi lintas stand kantin FEB.
+          </p>
+          <div class="grid sm:grid-cols-3 gap-4 text-xs">
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <div class="text-indigo-400 font-bold flex items-center gap-2">
+                <i class="fa-solid fa-filter"></i> Filter Multi-Dimensi
+              </div>
+              <p class="text-slate-400">Penyaringan berdasarkan Stand Tenant, Rentang Tanggal, Saluran Bayar (BCA VA, QRIS, Tunai), dan Status Pesanan.</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <div class="text-emerald-400 font-bold flex items-center gap-2">
+                <i class="fa-solid fa-receipt"></i> Rincian Tagihan Akurat
+              </div>
+              <p class="text-slate-400">Lihat pembagian biaya: Subtotal pesanan, <code class="text-slate-300 font-mono">app_fee</code> fakultas, dan <code class="text-slate-300 font-mono">channel_fee</code> gateway secara rinci.</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <div class="text-amber-400 font-bold flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left"></i> Audit Timestamps Lengkap
+              </div>
+              <p class="text-slate-400">Verifikasi kapan pesanan dibuat, dibayar, diproses dapur, siap diambil, hingga selesai diserahkan ke mahasiswa.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Tata Kelola Biaya Terpusat -->
+      <section id="fee-governance" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">4</div>
+          <h2 class="text-xl font-bold text-white">Tata Kelola Biaya Terpusat (Centralized Fee Governance)</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Untuk memastikan harga makanan tetap wajar dan tidak ada biaya tersembunyi yang memberatkan mahasiswa, <strong>seluruh komponen biaya non-makanan dikendalikan secara eksklusif oleh Administrator</strong> di menu <code class="bg-slate-800 text-indigo-400 px-2 py-0.5 rounded text-xs">/admin/payment-settings</code>.
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="p-5 rounded-xl bg-indigo-950/30 border border-indigo-500/20 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-indigo-300 uppercase tracking-wide">1. Biaya Layanan Aplikasi (Platform Fee)</span>
+                <span class="px-2 py-0.5 rounded text-[10px] bg-indigo-500/20 text-indigo-300 font-mono font-bold">app_fee</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Biaya operasional pemeliharaan sistem Smart Canteen FEB (default: <strong class="text-white">Rp 1.000</strong> per transaksi). Disimpan di tabel <code class="text-indigo-400 font-mono">app_settings</code>. Biaya ini sama untuk seluruh stand dan hanya diatur oleh Admin.
+              </p>
+            </div>
+
+            <div class="p-5 rounded-xl bg-purple-950/30 border border-purple-500/20 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-purple-300 uppercase tracking-wide">2. Biaya Saluran Pembayaran (Gateway Fee)</span>
+                <span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-300 font-mono font-bold">channel_fee</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Biaya transaksi resmi dari switching provider (contoh: QRIS 0.7%, BCA VA Rp 4.000, atau Rp 0 untuk Tunai). Dikelola di tabel <code class="text-purple-400 font-mono">payment_methods</code> oleh Admin agar tarifnya transparan dan terstandarisasi.
+              </p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-base mt-0.5 shrink-0"></i>
+            <div>
+              <strong class="font-bold">Aturan Bisnis Kunci untuk Admin:</strong>
+              <p class="text-slate-300 mt-1">
+                Tenant <em>tidak memiliki akses</em> untuk menambah markup atau memanipulasi <code class="text-amber-400 font-mono">app_fee</code> maupun <code class="text-amber-400 font-mono">channel_fee</code>. Tenant hanya mengelola harga murni item menu mereka sendiri.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Multi-Tenant Midtrans & Single-Tenant Cart -->
+      <section id="multi-tenant-midtrans" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">5</div>
+          <h2 class="text-xl font-bold text-white">Panduan Multi-Tenant Midtrans & Kebijakan Keranjang Tunggal</h2>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl space-y-5">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-network-wired text-indigo-400"></i> Model Desentralisasi Merchant Midtrans
+            </h3>
+            <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+              Setiap stand kantin dapat menginput kredensial Midtrans mereka masing-masing sehingga uang hasil penjualan langsung disalurkan oleh Midtrans ke rekening pemilik stand tanpa penampungan terpusat (No Escrow Liability).
+            </p>
+          </div>
+
+          <div class="mermaid-wrapper">
+            <div class="mermaid">
+              flowchart TD
+                  subgraph Mahasiswa["📱 Mahasiswa FEB"]
+                      Cart["Pilih Menu dari Stand A"] --> Checkout["Halaman Checkout"]
+                  end
+
+                  subgraph AdminControl["🛡️ Pengawasan Admin"]
+                      Gov["Governance: Atur app_fee & channel_fee standar"]
+                      Audit["Pantau status transaksi & status gateway stand"]
+                  end
+
+                  subgraph TenantMidtrans["🏪 Tenant Stand A (Midtrans Merchant)"]
+                      Check{"Apakah Stand A Punya Midtrans Aktif?"}
+                      Check -->|"Ya (Kredensial Terisi)"| DynamicMidtrans["Inisialisasi Midtrans SDK dengan ServerKey Stand A"]
+                      DynamicMidtrans --> Snap["Tampilkan Snap Pop-up (Uang Masuk ke Stand A)"]
+                      Check -->|"Tidak (Kredensial Kosong)"| CashOnly["Fallback Otomatis: Hanya Opsi Tunai (Cash di Kasir)"]
+                  end
+
+                  Checkout --> Check
+                  Gov -.-> DynamicMidtrans
+                  Snap --> Audit
+                  CashOnly --> Audit
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 text-xs">
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-white font-bold flex items-center gap-2">
+                <i class="fa-solid fa-cart-shopping text-indigo-400"></i> Mengapa Single-Tenant Cart Diberlakukan?
+              </div>
+              <p class="text-slate-400 leading-relaxed">
+                Sistem e-commerce makanan skala besar (seperti ShopeeFood) memberlakukan checkout per stand. Pada Smart Canteen FEB, kebijakan ini mencegah kegagalan pembayaran ganda antar akun Midtrans stand yang berbeda, serta mempermudah dapur stand memproses pesanan secara mandiri.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-white font-bold flex items-center gap-2">
+                <i class="fa-solid fa-shield-cat text-emerald-400"></i> Keamanan Enkripsi Kredensial
+              </div>
+              <p class="text-slate-400 leading-relaxed">
+                Seluruh <code class="text-slate-300 font-mono">midtrans_server_key</code> milik stand disimpan di basis data menggunakan enkripsi kuat <strong class="text-emerald-400">AES-256-CBC</strong> melalui Laravel Encrypted Casts, melindungi kerahasiaan merchant bahkan dari kebocoran SQL dump.
+              </p>
+            </div>
           </div>
         </div>
       </section>

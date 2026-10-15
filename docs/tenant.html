@@ -109,20 +109,20 @@
           </h3>
           <nav class="space-y-1 text-xs">
             <a href="#dashboard" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">1. Dashboard Operasional</a>
-            <a href="#settings" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">2. Pengaturan Status Buka/Tutup</a>
-            <a href="#kategori" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">3. Kelola Kategori Menu</a>
-            <a href="#menu" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">4. Kelola Menu & Stok</a>
-            <a href="#orders" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">5. Kelola Pesanan Masuk</a>
-            <a href="#verify" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">6. Verifikasi Tunai (QR Scan)</a>
-            <a href="#ratings" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">7. Rating & Ulasan</a>
+            <a href="#settings" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">2. Status Stand & Profil</a>
+            <a href="#midtrans-setup" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">3. Pengaturan Midtrans Gateway (Opsional)</a>
+            <a href="#cash-fallback" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">4. Mode Tunai (Cash-Only Fallback)</a>
+            <a href="#menu" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">5. Kelola Kategori & Menu</a>
+            <a href="#verify" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">6. Pesanan & QR Verifikasi Tunai</a>
+            <a href="#ratings" class="block py-1.5 px-2.5 rounded-lg text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition-all font-medium">7. Rating & Ulasan Mahasiswa</a>
           </nav>
         </div>
 
         <div class="p-4 rounded-2xl bg-gradient-to-br from-amber-950/40 to-slate-900 border border-amber-500/20 text-xs">
           <div class="flex items-center gap-2 text-amber-400 font-bold mb-1">
-            <i class="fa-solid fa-qrcode"></i> Fitur QR Scan Tunai
+            <i class="fa-solid fa-credit-card"></i> Midtrans Fleksibel & Opsional
           </div>
-          <p class="text-slate-400 leading-relaxed">Gunakan fitur verifikasi di <code class="text-amber-400">/tenant/verify-payment</code> saat mahasiswa bayar cash di kasir stand!</p>
+          <p class="text-slate-400 leading-relaxed">Belum punya akun Midtrans? Tenang! Stand Anda otomatis menerima pembayaran <strong>Tunai (Cash di Stand)</strong> tanpa kendala.</p>
         </div>
       </div>
     </aside>
@@ -199,10 +199,101 @@
         </div>
       </section>
 
-      <!-- Section 3 & 4: Menu -->
+      <!-- Section 3: Midtrans Setup -->
+      <section id="midtrans-setup" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">3</div>
+          <h2 class="text-xl font-bold text-white">Integrasi Pembayaran Digital (Midtrans Gateway) — Opsional</h2>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl space-y-5">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Stand Anda dapat menerima pembayaran cashless digital (QRIS, GoPay, ShopeePay, Virtual Account BCA/Mandiri/BRI) langsung ke rekening Anda sendiri tanpa perantara perbankan kampus melalui akun merchant Midtrans mandiri.
+          </p>
+
+          <div class="grid sm:grid-cols-3 gap-4 text-xs">
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-amber-400 font-bold flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px]">1</span>
+                Daftar Akun Midtrans
+              </div>
+              <p class="text-slate-400">Daftar di <a href="https://dashboard.midtrans.com" target="_blank" class="text-amber-400 underline">dashboard.midtrans.com</a>. Buka menu <em>Settings &rarr; Access Keys</em> untuk melihat Merchant ID, Client Key, dan Server Key.</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-amber-400 font-bold flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px]">2</span>
+                Input di Profil Stand
+              </div>
+              <p class="text-slate-400">Buka menu <code class="text-amber-300">/tenant/settings</code>, isi kolom <strong>Merchant ID</strong>, <strong>Client Key</strong>, dan <strong>Server Key</strong> Anda dengan cermat.</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-amber-400 font-bold flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px]">3</span>
+                Pilih Mode & Aktifkan
+              </div>
+              <p class="text-slate-400">Pilih mode <strong>Sandbox</strong> (uji coba/demo) atau <strong>Production</strong> (uang riil), nyalakan switch <em>"Aktifkan Midtrans Gateway"</em>, lalu klik Simpan.</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/20 space-y-2 text-xs">
+            <div class="flex items-center gap-2 text-emerald-400 font-bold">
+              <i class="fa-solid fa-lock"></i> Keamanan Enkripsi Kredensial Stand Anda
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+              Server Key Anda dienkripsi secara otomatis menggunakan algoritma militer <strong>AES-256-CBC</strong> sebelum disimpan ke basis data. Pihak lain tidak dapat membaca kunci rahasia transaksi Anda.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-blue-950/30 border border-blue-500/20 space-y-2 text-xs">
+            <div class="flex items-center gap-2 text-blue-400 font-bold">
+              <i class="fa-solid fa-link"></i> Webhook Notification URL (Auto-Update Pembayaran)
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+              Agar pesanan otomatis berubah menjadi <strong>Dibayar</strong> saat mahasiswa selesai transfer, salin URL berikut ke dashboard Midtrans Anda di menu <em>Settings &rarr; Configuration &rarr; Payment Notification URL</em>:
+            </p>
+            <div class="p-2.5 rounded-lg bg-slate-950 font-mono text-[11px] text-blue-300 border border-blue-900/60 select-all">
+              https://canteen.feb.ac.id/api/midtrans/notification
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Cash Fallback & Single Tenant Cart -->
+      <section id="cash-fallback" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">4</div>
+          <h2 class="text-xl font-bold text-white">Mode Tunai Otomatis & Kebijakan Keranjang Tunggal</h2>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+          <div class="grid md:grid-cols-2 gap-4 text-xs">
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <h4 class="font-bold text-sm text-emerald-400 flex items-center gap-2">
+                <i class="fa-solid fa-money-bill-wave"></i> Belum Punya Akun Midtrans? Tetap Berjualan Normal!
+              </h4>
+              <p class="text-slate-300 leading-relaxed">
+                Penggunaan Midtrans sepenuhnya <strong>opsional</strong>. Jika kredensial kosong atau gateway dimatikan, sistem Smart Canteen FEB secara cerdas menerapkan <em>Graceful Fallback</em>. Mahasiswa yang memesan dari stand Anda tetap bisa memesan dengan metode <strong>Tunai (Bayar Cash di Stand)</strong> tanpa error apapun.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <h4 class="font-bold text-sm text-amber-400 flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping"></i> Kebijakan Keranjang Tunggal (Single-Tenant Checkout)
+              </h4>
+              <p class="text-slate-300 leading-relaxed">
+                Sama seperti aplikasi food delivery terkemuka, 1 keranjang pemesanan hanya memuat menu dari 1 stand kantin. Jika mahasiswa ingin memesan dari stand lain, sistem akan meminta konfirmasi ganti stand terlebih dahulu. Ini menjamin pesanan Anda tidak tertukar dan langsung masuk ke dapur stand Anda.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Menu -->
       <section id="menu" class="scroll-mt-24 space-y-4">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">3 & 4</div>
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">5</div>
           <h2 class="text-xl font-bold text-white">Manajemen Kategori, Menu & Stok</h2>
         </div>
         <div class="glass-card p-6 rounded-2xl space-y-4">
@@ -227,19 +318,19 @@
         </div>
       </section>
 
-      <!-- Section 5 & 6: Order & QR Scan -->
+      <!-- Section 6: Order & QR Scan -->
       <section id="verify" class="scroll-mt-24 space-y-4">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">5 & 6</div>
-          <h2 class="text-xl font-bold text-white">Kelola Pesanan & Verifikasi Tunai (QR Scan)</h2>
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">6</div>
+          <h2 class="text-xl font-bold text-white">Kelola Pesanan Masuk & Verifikasi Tunai (QR Scan)</h2>
         </div>
 
         <div class="mermaid-wrapper">
           <div class="mermaid">
             flowchart TD
-                Orders["Pesanan Masuk"] --> StatusCheck{"Metode Bayar"}
-                StatusCheck -->|"Cashless"| Paid["Status: Dibayar"]
-                StatusCheck -->|"Tunai (Cash)"| Unpaid["Status: Menunggu Pembayaran Tunai"]
+                Orders["Pesanan Masuk di Kitchen Board"] --> StatusCheck{"Metode Bayar"}
+                StatusCheck -->|"Cashless (Midtrans)"| Paid["Status: Dibayar (Otomatis via Webhook)"]
+                StatusCheck -->|"Tunai (Cash di Stand)"| Unpaid["Status: Menunggu Pembayaran Tunai"]
                 Unpaid --> Scan["Buka /tenant/verify-payment -> Scan QR / Input Kode FEB-xxxx"]
                 Scan --> Confirm["Klik 'Konfirmasi Pembayaran Tunai'"]
                 Confirm --> Paid
@@ -259,6 +350,33 @@
             <li>Aplikasi akan menampilkan rincian pesanan dan total tagihan rupiah.</li>
             <li>Terima uang fisik dari mahasiswa, lalu klik tombol <strong>💵 Konfirmasi Pembayaran Tunai</strong>.</li>
           </ol>
+        </div>
+      </section>
+
+      <!-- Section 7: Ratings -->
+      <section id="ratings" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">7</div>
+          <h2 class="text-xl font-bold text-white">Rating & Ulasan Mahasiswa</h2>
+        </div>
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Pantau kepuasan pembeli melalui menu <code class="bg-slate-800 text-amber-400 px-2 py-0.5 rounded text-xs">/tenant/ratings</code>:
+          </p>
+          <div class="grid sm:grid-cols-2 gap-4 text-xs">
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-amber-400 font-bold flex items-center gap-2">
+                <i class="fa-solid fa-star"></i> Skor Bintang Rata-Rata
+              </div>
+              <p class="text-slate-400">Rata-rata rating 1.00 - 5.00 ⭐ dari pesanan yang sudah selesai di-pickup oleh mahasiswa.</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="text-amber-400 font-bold flex items-center gap-2">
+                <i class="fa-solid fa-comments"></i> Ulasan & Komentar
+              </div>
+              <p class="text-slate-400">Feedback rasa masakan dan pelayanan untuk membantu stand Anda mempertahankan pelanggan setia di FEB.</p>
+            </div>
+          </div>
         </div>
       </section>
 

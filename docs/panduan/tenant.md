@@ -7,14 +7,16 @@ Panduan ini ditujukan bagi **Pemilik Stand / Kantin FEB (Tenant)** dalam mengope
 ## 📌 Daftar Isi
 1. [Dashboard Operasional Tenant](#1-dashboard-operasional-tenant)
 2. [Pengaturan Profil Stand & Status Operasional](#2-pengaturan-profil-stand--status-operasional)
-3. [Manajemen Kategori Menu](#3-manajemen-kategori-menu)
-4. [Manajemen Katalog Menu (CRUD & Stok)](#4-manajemen-katalog-menu-crud--stok)
-   - [4.1 Menambah Menu Baru](#41-menambah-menu-baru)
-   - [4.2 Mengatur Ketersediaan Stok (Toggle Stock)](#42-mengatur-ketersediaan-stok-toggle-stock)
-   - [4.3 Soft Delete & Fitur Sampah (Restore Data)](#43-soft-delete--fitur-sampah-restore-data)
-5. [Pengelolaan Pesanan Masuk (Order Board)](#5-pengelolaan-pesanan-masuk-order-board)
-6. [Verifikasi Pembayaran Tunai (QR Scan / Kode Tunai)](#6-verifikasi-pembayaran-tunai-qr-scan--kode-tunai)
-7. [Melihat Rating & Ulasan Mahasiswa](#7-melihat-rating--ulasan-mahasiswa)
+3. [Integrasi Pembayaran Digital (Midtrans Gateway) — Opsional](#3-integrasi-pembayaran-digital-midtrans-gateway--opsional)
+4. [Mode Tunai Otomatis (Cash-Only Fallback) & Single-Tenant Cart](#4-mode-tunai-otomatis-cash-only-fallback--single-tenant-cart)
+5. [Manajemen Kategori Menu](#5-manajemen-kategori-menu)
+6. [Manajemen Katalog Menu (CRUD & Stok)](#6-manajemen-katalog-menu-crud--stok)
+   - [6.1 Menambah Menu Baru](#61-menambah-menu-baru)
+   - [6.2 Mengatur Ketersediaan Stok (Toggle Stock)](#62-mengatur-ketersediaan-stok-toggle-stock)
+   - [6.3 Soft Delete & Fitur Sampah (Restore Data)](#63-soft-delete--fitur-sampah-restore-data)
+7. [Pengelolaan Pesanan Masuk (Order Board)](#7-pengelolaan-pesanan-masuk-order-board)
+8. [Verifikasi Pembayaran Tunai (QR Scan / Kode Tunai)](#8-verifikasi-pembayaran-tunai-qr-scan--kode-tunai)
+9. [Melihat Rating & Ulasan Mahasiswa](#9-melihat-rating--ulasan-mahasiswa)
 
 ---
 
@@ -54,7 +56,47 @@ Untuk mengatur informasi stand dan mengubah status operasional (buka/tutup kanti
 
 ---
 
-## 3. Manajemen Kategori Menu
+## 3. Integrasi Pembayaran Digital (Midtrans Gateway) — Opsional
+
+Stand Anda dapat menerima uang pembayaran digital (QRIS, GoPay, BCA/Mandiri/BRI Virtual Account) langsung ke rekening Anda tanpa perantara rekening kampus dengan menghubungkan akun Midtrans merchant mandiri di `/tenant/settings`.
+
+### 3.1 Langkah Aktivasi Midtrans Merchant
+1. Buat akun di [dashboard.midtrans.com](https://dashboard.midtrans.com).
+2. Buka menu **Settings &rarr; Access Keys** di dashboard Midtrans.
+3. Salin ketiga nilai berikut ke menu `/tenant/settings` di aplikasi Smart Canteen:
+   - **Merchant ID** (contoh: `G123456789`)
+   - **Client Key** (contoh: `SB-Mid-client-XXXX`)
+   - **Server Key** (contoh: `SB-Mid-server-XXXX`)
+4. Tentukan Mode Lingkungan:
+   - **Sandbox**: Untuk simulasi dan pengujian presentasi demo.
+   - **Production**: Untuk transaksi riil uang sungguhan.
+5. Nyalakan switch **"Aktifkan Midtrans Gateway"**, lalu klik **Simpan Pengaturan**.
+
+### 3.2 Keamanan Data Terenkripsi
+Server Key Anda disimpan di database dengan enkripsi standar militer **AES-256-CBC**. Kunci rahasia Anda aman dari akses pihak lain.
+
+### 3.3 Konfigurasi Webhook Notification URL
+Agar status pesanan berubah menjadi **Dibayar** secara otomatis saat pembeli selesai transfer, pasang URL berikut di menu Midtrans *Settings &rarr; Configuration &rarr; Payment Notification URL*:
+```text
+https://canteen.feb.ac.id/api/midtrans/notification
+```
+
+---
+
+## 4. Mode Tunai Otomatis (Cash-Only Fallback) & Single-Tenant Cart
+
+### 4.1 Fleksibilitas Tanpa Midtrans (Graceful Fallback)
+- Penggunaan Midtrans bersifat **opsional**.
+- Jika Anda belum memiliki akun Midtrans atau menonaktifkan saklar gateway, stand Anda **tetap dapat berjualan 100% normal**.
+- Sistem secara otomatis akan menampilkan opsi pembayaran **Tunai (Bayar Cash di Kasir Stand)** kepada mahasiswa saat memesan di stand Anda tanpa pesan error apapun.
+
+### 4.2 Kebijakan Keranjang Tunggal (Single-Tenant Checkout)
+- Pelanggan hanya dapat memesan makanan dari 1 stand dalam 1 kali transaksi checkout (seperti ShopeeFood).
+- Menjamin nota tagihan dan rincian item masuk langsung secara spesifik ke antrean dapur stand Anda tanpa tercampur menu stand lain.
+
+---
+
+## 5. Manajemen Kategori Menu
 
 Mengelompokkan makanan dan minuman agar mudah ditemukan oleh pembeli (`/tenant/categories`).
 
@@ -66,7 +108,7 @@ Mengelompokkan makanan dan minuman agar mudah ditemukan oleh pembeli (`/tenant/c
 
 ---
 
-## 4. Manajemen Katalog Menu (CRUD & Stok)
+## 6. Manajemen Katalog Menu (CRUD & Stok)
 
 Kelola makanan/minuman yang dijual di stand Anda (`/tenant/menus`).
 
@@ -79,7 +121,7 @@ flowchart TD
     E --> F[Menu Tampil di Katalog Mahasiswa]
 ```
 
-### 4.1 Menambah Menu Baru
+### 6.1 Menambah Menu Baru
 1. Buka menu **Daftar Menu** (`/tenant/menus`), lalu klik **+ Tambah Menu**.
 2. Isi formulir pembuatan menu:
    - **Nama Menu**: Contoh `Ayam Geprek Sambal Korek`
@@ -90,20 +132,20 @@ flowchart TD
    - **Menu Rekomendasi**: Centang opsi *Rekomendasi* jika menu ini adalah *Best Seller*.
 3. Klik **Simpan Menu**.
 
-### 4.2 Mengatur Ketersediaan Stok (Toggle Stock)
+### 6.2 Mengatur Ketersediaan Stok (Toggle Stock)
 Jika bahan makanan habis saat jam istirahat:
 - Di tabel menu (`/tenant/menus`), temukan tombol saklar **Tersedia / Habis** pada baris menu tersebut.
 - Geser saklar menjadi **Habis (Out of Stock)**.
 - Menu akan otomatis bertuliskan *"Stok Habis"* pada aplikasi mahasiswa dan tombol tambah order di-nonaktifkan secara instan.
 
-### 4.3 Soft Delete & Fitur Sampah (Restore Data)
+### 6.3 Soft Delete & Fitur Sampah (Restore Data)
 - **Menghapus Menu**: Jika suatu menu tidak lagi dijual, klik ikon **Hapus (Trash)**.
 - **Keamanan Data**: Sistem menggunakan **Soft Delete**. Menu yang dihapus tidak benar-benar hilang dari database, sehingga riwayat pesanan lama mahasiswa tidak rusak!
 - **Fitur Restore (Pemulihan)**: Anda dapat membuka tab **Sampah / Trash**, lalu mengklik tombol **Pulihkan (Restore)** untuk mengaktifkan kembali menu tersebut kapan saja.
 
 ---
 
-## 5. Pengelolaan Pesanan Masuk (Order Board)
+## 7. Pengelolaan Pesanan Masuk (Order Board)
 
 Halaman **Kelola Pesanan** (`/tenant/orders`) menyajikan papan kontrol status pesanan.
 
@@ -134,7 +176,7 @@ flowchart LR
 
 ---
 
-## 6. Verifikasi Pembayaran Tunai (QR Scan / Kode Tunai)
+## 8. Verifikasi Pembayaran Tunai (QR Scan / Kode Tunai)
 
 Khusus untuk pesanan dengan metode **Tunai / Cash**, pembayaran harus di-verifikasi di kasir stand (`/tenant/verify-payment`).
 
@@ -161,7 +203,7 @@ flowchart TD
 
 ---
 
-## 7. Melihat Rating & Ulasan Mahasiswa
+## 9. Melihat Rating & Ulasan Mahasiswa
 
 Buka menu **Ulasan & Rating** (`/tenant/ratings`):
 - Lihat skor rata-rata bintang stand Anda (misal: 4.8 / 5.0 ⭐).
@@ -171,3 +213,4 @@ Buka menu **Ulasan & Rating** (`/tenant/ratings`):
 ---
 
 [⬅️ Kembali ke Indeks Panduan](README.md) | [Lanjut ke Panduan Admin ➡️](admin.md)
+

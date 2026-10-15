@@ -97,21 +97,49 @@ Admin memiliki akses pengawasan ke seluruh transaksi kantin tanpa batas stand (`
 
 ---
 
-## 5. Pengaturan Pembayaran & Biaya Layanan
+## 5. Tata Kelola Biaya Terpusat (Centralized Fee Governance)
 
-Mengatur parameter gateway pembayaran dan biaya admin aplikasi (`/admin/payment-settings`).
+Untuk memastikan keadilan tarif bagi seluruh mahasiswa dan mencegah manipulasi harga, seluruh komponen biaya non-makanan dikendalikan secara terpusat oleh Administrator di `/admin/payment-settings`:
 
-### 5.1 Mode Midtrans Gateway (Sandbox / Production)
-- Masukkan **Client Key** dan **Server Key** dari akun Midtrans Merchant FEB.
-- Tentukan status lingkungan (*Environment*): `Sandbox` (untuk uji coba demo) atau `Production` (untuk pemakaian riil).
+### 5.1 Biaya Layanan Aplikasi (`app_fee`)
+- Biaya platform pemeliharaan sistem kantin FEB (default: `Rp1.000` per checkout).
+- Dikelola di tabel `app_settings` (key: `app_fee`).
+- Berlaku seragam untuk semua transaksi.
 
-### 5.2 Pengaturan Biaya Layanan (Admin Fee)
-- Tentukan apakah transaksi dikenakan **Biaya Penanganan / Admin Fee** per transaksi (misal: `Rp1.000` per checkout).
-- Simpan perubahan pengaturan.
+### 5.2 Biaya Saluran Pembayaran (`channel_fee`)
+- Biaya switching payment gateway resmi (misal QRIS 0.7%, BCA Virtual Account Rp4.000, Tunai Rp0).
+- Dikelola di tabel `payment_methods` dengan tipe biaya tetap (*fixed*) atau persentase (*percentage*).
+- **Aturan Tegas**: Tenant tidak diberikan izin untuk menambah markup biaya gateway atau memotong fee sepihak.
 
 ---
 
-## 6. Audit Data & Keamanan Soft Delete
+## 6. Pengawasan Multi-Tenant Midtrans & Kebijakan Keranjang Tunggal
+
+Sistem Smart Canteen FEB mengadopsi arsitektur desentralisasi Midtrans:
+
+```mermaid
+flowchart TD
+    Cart["Mahasiswa Checkout Stand A"] --> Check{"Stand A Punya Midtrans Aktif?"}
+    Check -->|"Ya (Kredensial Terisi)"| DynamicMidtrans["Inisialisasi SDK Midtrans Stand A"]
+    DynamicMidtrans --> Snap["Snap Popup (Dana masuk ke rekening Stand A)"]
+    Check -->|"Tidak (Kosong/Nonaktif)"| CashOnly["Fallback Tunai: Hanya Opsi Bayar di Kasir Stand"]
+    Gov["Admin Mengendalikan Biaya Standar (app_fee & channel_fee)"] -.-> Cart
+```
+
+### 6.1 Status Gateway Stand (Active vs Cash-Only)
+- Stand dengan kredensial Midtrans aktif (`midtrans_is_active = true` dan Server Key terisi) dapat melayani pembayaran digital Snap.
+- Stand tanpa akun Midtrans otomatis beralih (*graceful fallback*) ke mode **Tunai Saja (Cash-Only)** tanpa error sistem.
+
+### 6.2 Kebijakan Single-Tenant Cart
+- Mahasiswa hanya dapat melakukan checkout untuk 1 stand dalam 1 transaksi.
+- Mencegah kompleksitas split-settlement antar rekening bank merchant Midtrans yang berbeda, sekaligus menyederhanakan alur antrean dapur masing-masing stand.
+
+### 6.3 Keamanan Enkripsi Kredensial
+- Server Key tenant dienkripsi menggunakan algoritma `AES-256-CBC` via Laravel Encrypted Casts, melindungi kerahasiaan merchant dari kebocoran data.
+
+---
+
+## 7. Audit Data & Keamanan Soft Delete
 
 Seluruh penghapusan data penting pada aplikasi Smart Canteen FEB menerapkan prinsip **Soft Delete** (`deleted_at`).
 
@@ -130,3 +158,4 @@ flowchart LR
 ---
 
 [⬅️ Kembali ke Indeks Panduan](README.md)
+
