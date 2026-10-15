@@ -170,7 +170,7 @@ export function TenantOrderDetailDialog({
                         </div>
 
                         {/* Stand Clean Revenue */}
-                        <div className="flex items-center justify-between py-1 px-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                        <div className="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                             <div>
                                 <div className="font-bold text-xs text-emerald-800 dark:text-emerald-300">
                                     Pendapatan Bersih Stand (Subtotal)
@@ -179,7 +179,7 @@ export function TenantOrderDetailDialog({
                                     Hak penjual murni dari penjualan menu
                                 </div>
                             </div>
-                            <span className="font-mono font-black text-sm text-emerald-700 dark:text-emerald-300">
+                            <span className="font-bold text-sm text-emerald-700 dark:text-emerald-300 tabular-nums">
                                 {formatCurrency(order.subtotal_amount ?? (order.total_amount - (order.app_fee || 0) - (order.channel_fee || 0)))}
                             </span>
                         </div>
@@ -190,7 +190,7 @@ export function TenantOrderDetailDialog({
                                 <span className="font-medium text-foreground">Biaya Layanan Aplikasi:</span>
                                 <span className="text-[10px] text-muted-foreground ml-1">(Operasional Sistem Canteen FEB)</span>
                             </div>
-                            <span className="font-mono font-medium text-foreground">
+                            <span className="font-medium text-foreground tabular-nums">
                                 {order.app_fee && order.app_fee > 0 ? `+ ${formatCurrency(order.app_fee)}` : 'Rp 0'}
                             </span>
                         </div>
@@ -203,7 +203,7 @@ export function TenantOrderDetailDialog({
                                     {order.payment_method === 'cash' ? '(Tunai Kasir)' : '(Midtrans VA / QRIS)'}
                                 </span>
                             </div>
-                            <span className="font-mono font-medium text-foreground">
+                            <span className="font-medium text-foreground tabular-nums">
                                 {order.channel_fee && order.channel_fee > 0 ? `+ ${formatCurrency(order.channel_fee)}` : 'Rp 0'}
                             </span>
                         </div>
@@ -214,7 +214,7 @@ export function TenantOrderDetailDialog({
                                 <div className="font-bold text-xs text-foreground">Total Tagihan Mahasiswa:</div>
                                 <div className="text-[10px] text-muted-foreground">Nominal yang dibayar oleh pemesan</div>
                             </div>
-                            <span className="font-mono font-black text-base text-primary">
+                            <span className="font-bold text-base text-primary tabular-nums">
                                 {formatCurrency(order.total_amount)}
                             </span>
                         </div>

@@ -82,23 +82,31 @@ export function getTenantOrderColumns(
                 const hasFee = appFee > 0 || channelFee > 0;
 
                 return (
-                    <div className="flex flex-col items-start gap-0.5 py-0.5">
+                    <div className="flex flex-col items-start gap-1 py-1">
+                        {/* Pendapatan Bersih Hak Stand */}
                         <div className="flex items-center gap-1.5">
-                            <span className="font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400">
+                            <span className="text-sm font-bold tracking-tight text-emerald-500 dark:text-emerald-400 tabular-nums">
                                 {formatCurrency(subtotal)}
                             </span>
-                            <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 leading-none">
                                 Bersih
                             </span>
                         </div>
+
+                        {/* Total Tagihan Pembeli */}
                         <div className="text-[11px] text-muted-foreground flex items-center gap-1">
                             <span>Total Bayar:</span>
-                            <span className="font-mono font-medium text-foreground">{formatCurrency(total)}</span>
+                            <span className="font-semibold text-foreground/90 tabular-nums">
+                                {formatCurrency(total)}
+                            </span>
                         </div>
+
+                        {/* Rincian Potongan Biaya (Micro-Chip) */}
                         {hasFee ? (
-                            <div className="text-[10px] text-muted-foreground/80 flex flex-wrap gap-x-1.5 leading-tight">
+                            <div className="inline-flex items-center gap-1.5 text-[10px] text-muted-foreground/80 bg-muted/40 dark:bg-muted/30 px-1.5 py-0.5 rounded border border-border/50 w-fit">
                                 {appFee > 0 && <span>App: {formatCurrency(appFee)}</span>}
-                                {channelFee > 0 && <span>• PG: {formatCurrency(channelFee)}</span>}
+                                {appFee > 0 && channelFee > 0 && <span className="text-muted-foreground/40">•</span>}
+                                {channelFee > 0 && <span>PG: {formatCurrency(channelFee)}</span>}
                             </div>
                         ) : (
                             <span className="text-[10px] text-muted-foreground/60 italic">
