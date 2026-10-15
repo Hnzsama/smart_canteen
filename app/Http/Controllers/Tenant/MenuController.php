@@ -194,10 +194,10 @@ class MenuController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('menus', 'public');
+            $path = $this->storeUploadedFile($request->file('image_file'), 'menus');
             $imagePath = '/storage/'.$path;
         } elseif ($request->hasFile('image')) {
-            $path = $request->file('image')->store('menus', 'public');
+            $path = $this->storeUploadedFile($request->file('image'), 'menus');
             $imagePath = '/storage/'.$path;
         } elseif (is_string($request->input('image')) && ! empty($request->input('image'))) {
             $imagePath = $request->input('image');
@@ -319,10 +319,10 @@ class MenuController extends Controller
 
         $imagePath = $menu->image;
         if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('menus', 'public');
+            $path = $this->storeUploadedFile($request->file('image_file'), 'menus');
             $imagePath = '/storage/'.$path;
         } elseif ($request->hasFile('image')) {
-            $path = $request->file('image')->store('menus', 'public');
+            $path = $this->storeUploadedFile($request->file('image'), 'menus');
             $imagePath = '/storage/'.$path;
         } elseif ($request->has('image') && is_string($request->input('image'))) {
             $imagePath = $request->input('image');
@@ -496,7 +496,7 @@ class MenuController extends Controller
 
             return back()->with('toast', $toast);
         } catch (Throwable $e) {
-            Log::error('Gagal pulihkan menu tenant: '.$e->getMessage(), ['exception' => $e, 'menu_id' => $id]);
+            Log::error('Gagal pulihkan menu tenant: '.$e->getMessage(), ['exception' => $e, 'menu_id' => $menu->id]);
 
             $toast = [
                 'type' => 'error',
@@ -506,5 +506,30 @@ class MenuController extends Controller
 
             return back()->with('toast', $toast);
         }
+    }
+
+    /**
+     * Store an uploaded file safely, with automatic fallback when PHP finfo extension is not installed (e.g. aaPanel).
+     */
+    protected function storeUploadedFile($file, string $directory): string
+    {
+        $extension = $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = \Illuminate\Support\Str::random(40).'.'.strtolower($extension);
+
+        if (class_exists('finfo')) {
+            try {
+                return $file->storeAs($directory, $filename, 'public');
+            } catch (\Throwable $e) {
+                // If finfo still throws an error internally, fallback to move
+            }
+        }
+
+        $targetDir = storage_path('app/public/'.trim($directory, '/'));
+        if (! is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+        $file->move($targetDir, $filename);
+
+        return trim($directory, '/').'/'.$filename;
     }
 }

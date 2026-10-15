@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -72,18 +73,18 @@ class SettingsController extends Controller
         ]);
 
         if ($request->hasFile('banner_file')) {
-            $path = $request->file('banner_file')->store('tenants/banners', 'public');
+            $path = $this->storeUploadedFile($request->file('banner_file'), 'tenants/banners');
             $validated['banner_image'] = Storage::url($path);
         }
 
         if ($request->hasFile('logo_file')) {
-            $path = $request->file('logo_file')->store('tenants/logos', 'public');
+            $path = $this->storeUploadedFile($request->file('logo_file'), 'tenants/logos');
             $validated['logo_image'] = Storage::url($path);
             $validated['image'] = Storage::url($path);
         }
 
         if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('tenants/logos', 'public');
+            $path = $this->storeUploadedFile($request->file('image_file'), 'tenants/logos');
             $validated['image'] = Storage::url($path);
         }
 
@@ -129,5 +130,30 @@ class SettingsController extends Controller
             'type' => 'success',
             'message' => "Status toko sekarang {$statusText}!",
         ]);
+    }
+
+    /**
+     * Store an uploaded file safely, with automatic fallback when PHP finfo extension is not installed (e.g. aaPanel).
+     */
+    protected function storeUploadedFile($file, string $directory): string
+    {
+        $extension = $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = Str::random(40).'.'.strtolower($extension);
+
+        if (class_exists('finfo')) {
+            try {
+                return $file->storeAs($directory, $filename, 'public');
+            } catch (\Throwable $e) {
+                // If finfo still throws an error internally, fallback to move
+            }
+        }
+
+        $targetDir = storage_path('app/public/'.trim($directory, '/'));
+        if (! is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+        $file->move($targetDir, $filename);
+
+        return trim($directory, '/').'/'.$filename;
     }
 }
