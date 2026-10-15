@@ -1,13 +1,19 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Head, usePage, router } from '@inertiajs/react';
 import {
+    AlertCircle,
     Building2,
     Clock,
+    CreditCard,
+    Eye,
+    EyeOff,
     Image as ImageIcon,
+    Info,
     Loader2,
     Phone,
     Save,
     Settings,
+    ShieldCheck,
     Star,
     Store,
     Upload,
@@ -37,6 +43,12 @@ type TenantSettingsData = {
     logo_image: string;
     rating: number;
     reviews_count: number;
+    midtrans_merchant_id?: string;
+    midtrans_client_key?: string;
+    has_midtrans_server_key?: boolean;
+    midtrans_is_production?: boolean;
+    midtrans_is_active?: boolean;
+    has_active_midtrans?: boolean;
 };
 
 type Props = {
@@ -61,6 +73,14 @@ export default function TenantSettings({ tenant }: Props) {
     const [logoPreview, setLogoPreview] = useState(tenant?.logo_image || tenant?.image || '');
     const [rawLogoSrc, setRawLogoSrc] = useState<string>('');
     const [isLogoCropperOpen, setIsLogoCropperOpen] = useState(false);
+
+    // Midtrans Payment Gateway credentials
+    const [midtransMerchantId, setMidtransMerchantId] = useState(tenant?.midtrans_merchant_id || '');
+    const [midtransClientKey, setMidtransClientKey] = useState(tenant?.midtrans_client_key || '');
+    const [midtransServerKey, setMidtransServerKey] = useState('');
+    const [midtransIsProduction, setMidtransIsProduction] = useState<boolean>(tenant?.midtrans_is_production ?? false);
+    const [midtransIsActive, setMidtransIsActive] = useState<boolean>(tenant?.midtrans_is_active ?? true);
+    const [showServerKey, setShowServerKey] = useState(false);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isTogglingOpen, setIsTogglingOpen] = useState(false);
@@ -125,7 +145,15 @@ export default function TenantSettings({ tenant }: Props) {
             is_open: isOpen,
             banner_image: bannerUrl.trim() || null,
             logo_image: logoUrl.trim() || null,
+            midtrans_merchant_id: midtransMerchantId.trim() || null,
+            midtrans_client_key: midtransClientKey.trim() || null,
+            midtrans_is_production: midtransIsProduction,
+            midtrans_is_active: midtransIsActive,
         };
+
+        if (midtransServerKey.trim()) {
+            payload.midtrans_server_key = midtransServerKey.trim();
+        }
 
         if (bannerFile) {
             payload.banner_file = bannerFile;
@@ -298,6 +326,162 @@ export default function TenantSettings({ tenant }: Props) {
                                 </div>
                             </div>
 
+                            {/* Midtrans Cashless Gateway Configuration Card */}
+                            <div className="rounded-xl border border-border/70 bg-card p-5 sm:p-6 shadow-sm space-y-5">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
+                                    <div className="space-y-0.5">
+                                        <div className="flex items-center gap-2">
+                                            <CreditCard className="h-4 w-4 text-amber-500" />
+                                            <span className="text-sm font-bold text-foreground">
+                                                Integrasi Pembayaran Cashless (Midtrans)
+                                            </span>
+                                            {tenant.has_active_midtrans ? (
+                                                <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
+                                                    Aktif (Midtrans + Tunai)
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="outline" className="text-muted-foreground text-[10px]">
+                                                    Eksklusif Tunai (Cash Only)
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">
+                                            Hubungkan akun merchant Midtrans toko Anda untuk menerima pembayaran QRIS, GoPay, ShopeePay, dan VA secara langsung.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 self-start sm:self-auto bg-muted/40 px-3 py-1.5 rounded-lg border border-border/40">
+                                        <Label htmlFor="midtrans-active-switch" className="text-xs font-semibold cursor-pointer">
+                                            {midtransIsActive ? 'Gateway Aktif' : 'Nonaktif'}
+                                        </Label>
+                                        <Switch
+                                            id="midtrans-active-switch"
+                                            checked={midtransIsActive}
+                                            onCheckedChange={setMidtransIsActive}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Centralized Fee Governance Notice */}
+                                <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-3 flex items-start gap-2.5 text-xs text-blue-700 dark:text-blue-300">
+                                    <Info className="h-4 w-4 shrink-0 text-blue-500 mt-0.5" />
+                                    <div className="space-y-1">
+                                        <span className="font-semibold block">Tata Kelola Tarif Terpusat (Standardisasi Kampus)</span>
+                                        <p className="text-[11px] leading-relaxed text-blue-600 dark:text-blue-300/90">
+                                            Biaya Layanan Aplikasi (<code className="font-mono">app_fee</code>) dan Biaya Payment Gateway (<code className="font-mono">channel_fee</code>) dikelola secara terpusat oleh Admin Universitas. Stand Anda tidak perlu membebankan biaya tambahan sepihak kepada mahasiswa.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 pt-1">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="midtrans-merchant-id" className="text-xs font-semibold">
+                                                Merchant ID (Opsional)
+                                            </Label>
+                                            <Input
+                                                id="midtrans-merchant-id"
+                                                placeholder="Cth: G123456789"
+                                                value={midtransMerchantId}
+                                                onChange={(e) => setMidtransMerchantId(e.target.value)}
+                                                className="h-10 text-xs sm:text-sm font-mono"
+                                            />
+                                            {errors.midtrans_merchant_id && (
+                                                <span className="text-[11px] text-destructive font-medium">
+                                                    {errors.midtrans_merchant_id}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="midtrans-mode" className="text-xs font-semibold flex items-center justify-between">
+                                                <span>Environment Gateway</span>
+                                                <Badge variant="outline" className="text-[10px] uppercase font-mono">
+                                                    {midtransIsProduction ? 'Production Live' : 'Sandbox Testing'}
+                                                </Badge>
+                                            </Label>
+                                            <div className="flex items-center justify-between h-10 px-3 rounded-md border border-input bg-background">
+                                                <span className="text-xs text-muted-foreground font-medium">
+                                                    {midtransIsProduction ? 'Gunakan Transaksi Nyata (Production)' : 'Gunakan Simulasi (Sandbox)'}
+                                                </span>
+                                                <Switch
+                                                    id="midtrans-mode"
+                                                    checked={midtransIsProduction}
+                                                    onCheckedChange={setMidtransIsProduction}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="midtrans-client-key" className="text-xs font-semibold flex items-center gap-1.5">
+                                            <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                                            Midtrans Client Key
+                                        </Label>
+                                        <Input
+                                            id="midtrans-client-key"
+                                            placeholder="Cth: SB-Mid-client-xxxxxxxxxxxx"
+                                            value={midtransClientKey}
+                                            onChange={(e) => setMidtransClientKey(e.target.value)}
+                                            className="h-10 text-xs sm:text-sm font-mono"
+                                        />
+                                        {errors.midtrans_client_key && (
+                                            <span className="text-[11px] text-destructive font-medium">
+                                                {errors.midtrans_client_key}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="midtrans-server-key" className="text-xs font-semibold flex items-center gap-1.5">
+                                                <ShieldCheck className="h-3.5 w-3.5 text-amber-500" />
+                                                Midtrans Server Key (Rahasia & Terenkripsi)
+                                            </Label>
+                                            {tenant.has_midtrans_server_key && !midtransServerKey && (
+                                                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                                                    ✓ Server key tersimpan rapi
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="relative">
+                                            <Input
+                                                id="midtrans-server-key"
+                                                type={showServerKey ? 'text' : 'password'}
+                                                placeholder={
+                                                    tenant.has_midtrans_server_key
+                                                        ? '•••••••••••••••••••••••• (Isi hanya jika ingin mengganti)'
+                                                        : 'Cth: SB-Mid-server-xxxxxxxxxxxx'
+                                                }
+                                                value={midtransServerKey}
+                                                onChange={(e) => setMidtransServerKey(e.target.value)}
+                                                className="h-10 text-xs sm:text-sm font-mono pr-10"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowServerKey(!showServerKey)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                                title={showServerKey ? 'Sembunyikan' : 'Tampilkan'}
+                                            >
+                                                {showServerKey ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
+                                                )}
+                                            </button>
+                                        </div>
+                                        {errors.midtrans_server_key && (
+                                            <span className="text-[11px] text-destructive font-medium">
+                                                {errors.midtrans_server_key}
+                                            </span>
+                                        )}
+                                        <p className="text-[11px] text-muted-foreground">
+                                            Server key akan dienkripsi menggunakan standar AES-256 sebelum disimpan di database dan tidak akan pernah dibocorkan ke browser.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="flex items-center justify-end gap-3 pt-2">
                                 <Button
                                     type="submit"
@@ -309,7 +493,7 @@ export default function TenantSettings({ tenant }: Props) {
                                     ) : (
                                         <Save className="h-4 w-4" />
                                     )}
-                                    <span>Simpan Perubahan Profil Stand</span>
+                                    <span>Simpan Perubahan Pengaturan & Pembayaran</span>
                                 </Button>
                             </div>
                         </form>

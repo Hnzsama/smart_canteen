@@ -4657,7 +4657,7 @@ class TenantSeeder extends Seeder
             $rating = round(4.5 + (($idx % 5) * 0.1), 2);
             $reviewsCount = 20 + (($idx * 7) % 80);
 
-            $tenant = Tenant::query()->firstOrCreate(
+            $tenant = Tenant::query()->updateOrCreate(
                 ['name' => $tenantInfo['name']],
                 [
                     'slug' => Str::slug($tenantInfo['name']),
@@ -4671,6 +4671,11 @@ class TenantSeeder extends Seeder
                     'is_open' => true,
                     'rating' => $rating,
                     'reviews_count' => $reviewsCount,
+                    'midtrans_merchant_id' => $idx === 0 ? 'G123456789' : null,
+                    'midtrans_client_key' => $idx === 0 ? (config('services.midtrans.client_key') ?? 'SB-Mid-client-demo-123') : null,
+                    'midtrans_server_key' => $idx === 0 ? (config('services.midtrans.server_key') ?? 'SB-Mid-server-demo-456') : null,
+                    'midtrans_is_production' => false,
+                    'midtrans_is_active' => $idx === 0,
                 ]
             );
 

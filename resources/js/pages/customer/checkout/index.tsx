@@ -1,8 +1,10 @@
+import { useEffect, useMemo } from 'react';
 import { Head } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CreditCard, Banknote, Store } from 'lucide-react';
 import StudentLayout from '@/layouts/student-layout';
 import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import CheckoutBottomBar from './components/checkout-bottom-bar';
 import CheckoutCostBreakdown from './components/checkout-cost-breakdown';
 import CheckoutEmptyState from './components/checkout-empty-state';
@@ -20,9 +22,19 @@ export default function StudentCheckout({
     bankTransferMethods = [],
     eWalletMethods = [],
     appFee = 1000,
+    tenants = [],
 }: CheckoutProps) {
-    const { cartItems, setCartItems, totalCartPrice } = useCart();
+    const { cartItems, setCartItems, totalCartPrice, cartTenantId, cartTenantName } = useCart();
     const foodFallback = '/images/food-placeholder.jpg';
+
+    // Identify tenant capabilities for the single-stand cart
+    const currentTenant = useMemo(() => {
+        if (!cartTenantId) return null;
+        return tenants.find((t) => t.id === cartTenantId) || null;
+    }, [cartTenantId, tenants]);
+
+    const hasMidtrans = currentTenant ? Boolean(currentTenant.has_midtrans) : true;
+    const activeTenantName = cartTenantName || currentTenant?.name || 'Stand Kantin';
 
     // Hook for form inputs, payment selection, and POST checkout request
     const {
@@ -44,6 +56,14 @@ export default function StudentCheckout({
         paymentInfo,
         handleProcessCheckout,
     } = useCheckoutProcess({ cartItems, setCartItems });
+
+    // Automatically enforce cash if tenant has no active Midtrans gateway
+    useEffect(() => {
+        if (!hasMidtrans && selectedMethodCategory !== 'cash') {
+            setSelectedMethodCategory('cash');
+            setSelectedChannelCode('cash');
+        }
+    }, [hasMidtrans, selectedMethodCategory, setSelectedMethodCategory, setSelectedChannelCode]);
 
     // Hook for cart item updates, deletion, and clipboard copy
     const { copiedText, handleUpdateQty, handleRemoveItem, handleCopy } = useCheckoutCartActions({
@@ -70,6 +90,11 @@ export default function StudentCheckout({
     });
 
     const handleSelectPaymentMethod = (category: 'qris' | 'va' | 'cash', code: string) => {
+        if (!hasMidtrans && category !== 'cash') {
+            setSelectedMethodCategory('cash');
+            setSelectedChannelCode('cash');
+            return;
+        }
         setSelectedMethodCategory(category);
         setSelectedChannelCode(code);
     };
@@ -95,9 +120,42 @@ export default function StudentCheckout({
                             <ArrowLeft className="size-5" />
                         </Button>
                         <h1 className="text-lg font-black tracking-tight text-foreground">
-                            Confirm Order
+                            Konfirmasi Pesanan
                         </h1>
                     </div>
+                </div>
+
+                {/* Stand Header & Payment Capability Card */}
+                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm space-y-2">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="size-8 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                                <Store className="size-4" />
+                            </div>
+                            <div>
+                                <span className="text-xs text-muted-foreground block font-medium">Stand Terpilih</span>
+                                <h3 className="text-sm font-extrabold text-foreground">{activeTenantName}</h3>
+                            </div>
+                        </div>
+
+                        {hasMidtrans ? (
+                            <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold gap-1">
+                                <CreditCard className="size-3" />
+                                <span>QRIS & Tunai</span>
+                            </Badge>
+                        ) : (
+                            <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-bold gap-1">
+                                <Banknote className="size-3" />
+                                <span>Khusus Tunai</span>
+                            </Badge>
+                        )}
+                    </div>
+
+                    {!hasMidtrans && (
+                        <div className="rounded-xl bg-muted/40 p-2.5 text-[11px] text-muted-foreground leading-relaxed border border-border/40">
+                            💡 Stand ini belum mengaktifkan payment gateway digital. Pembayaran akan diproses secara <span className="font-semibold text-foreground">Tunai di Kasir Stand</span> saat pesanan siap diambil.
+                        </div>
+                    )}
                 </div>
 
                 {/* Dining Option Segmented Tab */}
@@ -151,6 +209,8 @@ export default function StudentCheckout({
                 selectedMethodCategory={selectedMethodCategory}
                 selectedChannelCode={selectedChannelCode}
                 onSelectMethod={handleSelectPaymentMethod}
+                hasMidtrans={hasMidtrans}
+                tenantName={activeTenantName}
             />
 
             {/* In-App Payment Instructions Modal */}

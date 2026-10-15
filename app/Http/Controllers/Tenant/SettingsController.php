@@ -34,6 +34,12 @@ class SettingsController extends Controller
                 'logo_image' => $tenant->logo_image ?? '',
                 'rating' => (float) $tenant->rating,
                 'reviews_count' => (int) $tenant->reviews_count,
+                'midtrans_merchant_id' => $tenant->midtrans_merchant_id ?? '',
+                'midtrans_client_key' => $tenant->midtrans_client_key ?? '',
+                'has_midtrans_server_key' => ! empty($tenant->midtrans_server_key),
+                'midtrans_is_production' => (bool) $tenant->midtrans_is_production,
+                'midtrans_is_active' => (bool) $tenant->midtrans_is_active,
+                'has_active_midtrans' => $tenant->hasActiveMidtrans(),
             ],
         ]);
     }
@@ -58,6 +64,11 @@ class SettingsController extends Controller
             'image_file' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'banner_file' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'logo_file' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+            'midtrans_merchant_id' => ['nullable', 'string', 'max:100'],
+            'midtrans_client_key' => ['nullable', 'string', 'max:255'],
+            'midtrans_server_key' => ['nullable', 'string', 'max:255'],
+            'midtrans_is_production' => ['nullable', 'boolean'],
+            'midtrans_is_active' => ['nullable', 'boolean'],
         ]);
 
         if ($request->hasFile('banner_file')) {
@@ -76,13 +87,25 @@ class SettingsController extends Controller
             $validated['image'] = Storage::url($path);
         }
 
+        // Only update server_key if a new value was explicitly provided or cleared
+        if ($request->has('midtrans_server_key')) {
+            $newServerKey = $request->input('midtrans_server_key');
+            if ($newServerKey === null || trim($newServerKey) === '') {
+                $validated['midtrans_server_key'] = null;
+            } else {
+                $validated['midtrans_server_key'] = trim($newServerKey);
+            }
+        } else {
+            unset($validated['midtrans_server_key']);
+        }
+
         unset($validated['banner_file'], $validated['logo_file'], $validated['image_file']);
 
         $tenant->update($validated);
 
         return back()->with('toast', [
             'type' => 'success',
-            'message' => 'Pengaturan toko berhasil diperbarui!',
+            'message' => 'Pengaturan toko dan integrasi pembayaran berhasil diperbarui!',
         ]);
     }
 

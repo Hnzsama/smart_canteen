@@ -11,6 +11,7 @@ use App\Models\Menu;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PaymentMethod;
+use App\Models\Tenant;
 use App\Services\MidtransService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -40,22 +41,28 @@ class CheckoutController extends Controller
 
         $appFee = (float) AppSetting::get('app_fee', '1000');
 
-        $isProduction = config('midtrans.is_production', false);
-        $snapUrl = $isProduction
-            ? 'https://app.midtrans.com/snap/snap.js'
-            : 'https://app.sandbox.midtrans.com/snap/snap.js';
+        $tenants = Tenant::query()
+            ->where('is_active', true)
+            ->get(['id', 'name', 'slug', 'is_open', 'is_active', 'midtrans_is_active', 'midtrans_client_key', 'midtrans_server_key', 'midtrans_is_production'])
+            ->map(fn ($t) => [
+                'id' => $t->id,
+                'name' => $t->name,
+                'slug' => $t->slug,
+                'is_open' => (bool) $t->is_open,
+                'has_midtrans' => $t->hasActiveMidtrans(),
+                'midtrans_client_key' => $t->midtrans_client_key,
+            ]);
 
         return Inertia::render('customer/checkout/index', [
             'bankTransferMethods' => $bankTransferMethods,
             'eWalletMethods' => $eWalletMethods,
             'appFee' => $appFee,
-            'midtransClientKey' => config('midtrans.client_key'),
-            'midtransSnapUrl' => $snapUrl,
+            'tenants' => $tenants,
         ]);
     }
 
     /**
-     * Store new checkout order and generate Midtrans Snap Token if cashless.
+     * Store new checkout order with single-tenant enforcement and centralized fee calculation.
      */
     public function store(Request $request, MidtransService $midtransService): JsonResponse
     {
@@ -77,10 +84,11 @@ class CheckoutController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $appFee = (float) AppSetting::get('app_fee', '1000');
+        // Validate that all items belong to a single tenant
+        $tenantIds = [];
+        $preparedItems = [];
+        $subtotal = 0;
 
-        // Group item rows by menu's tenant_id and validate tenant/menu status
-        $itemsByTenant = [];
         foreach ($validated['items'] as $itemData) {
             $menu = Menu::with('tenant')->find($itemData['menu_id']);
             if (! $menu) {
@@ -98,143 +106,149 @@ class CheckoutController extends Controller
                 $tenantName = $tenant ? $tenant->name : 'Stand Kantin';
 
                 return response()->json([
-                    'message' => "Stand '{$tenantName}' sedang tutup. Silakan hapus item dari stand ini untuk melanjutkan.",
+                    'message' => "Stand '{$tenantName}' sedang tutup. Silakan periksa kembali keranjang Anda.",
                 ], 422);
             }
 
-            $tenantId = $menu->tenant_id;
-            if (! isset($itemsByTenant[$tenantId])) {
-                $itemsByTenant[$tenantId] = [];
-            }
-            $itemsByTenant[$tenantId][] = [
+            $tenantIds[$menu->tenant_id] = true;
+            $itemPrice = (float) $itemData['price'];
+            $subtotal += $itemPrice;
+
+            $preparedItems[] = [
                 'menu' => $menu,
                 'qty' => (int) $itemData['qty'],
-                'price' => (float) $itemData['price'],
+                'price' => $itemPrice,
                 'choices' => $itemData['choices'] ?? [],
                 'note' => $itemData['note'] ?? null,
             ];
         }
 
-        if (empty($itemsByTenant)) {
+        if (count($tenantIds) > 1) {
+            return response()->json([
+                'message' => 'Pesanan hanya dapat memuat menu dari 1 stand kantin per transaksi.',
+            ], 422);
+        }
+
+        if (empty($preparedItems)) {
             return response()->json(['message' => 'Tidak ada item menu valid dalam keranjang.'], 422);
         }
 
-        $createdOrders = [];
+        $tenantId = array_key_first($tenantIds);
+        $tenant = Tenant::findOrFail($tenantId);
+
+        // Enforce payment method compatibility with tenant's Midtrans configuration
+        $paymentMethodEnum = $validated['payment_method'] === 'cash'
+            ? PaymentMethodEnum::Cash
+            : PaymentMethodEnum::Cashless;
+
+        if ($paymentMethodEnum === PaymentMethodEnum::Cashless && ! $tenant->hasActiveMidtrans()) {
+            return response()->json([
+                'message' => "Stand '{$tenant->name}' saat ini hanya melayani pembayaran Tunai (Cash di Stand).",
+            ], 422);
+        }
+
+        // Centralized Fee Governance (Admin Controlled)
+        $appFee = ($paymentMethodEnum === PaymentMethodEnum::Cash)
+            ? 0.0
+            : (float) AppSetting::get('app_fee', '1000');
+
+        $channelCode = $validated['payment_channel_code'] ?? null;
+        $channelFee = 0.0;
+
+        if ($paymentMethodEnum === PaymentMethodEnum::Cashless && $channelCode) {
+            $paymentMethodModel = PaymentMethod::where('code', $channelCode)->where('is_active', true)->first();
+            if ($paymentMethodModel) {
+                if ($paymentMethodModel->fee_type === 'fixed') {
+                    $channelFee = (float) $paymentMethodModel->fee_amount;
+                } else {
+                    $channelFee = round(($subtotal * (float) $paymentMethodModel->fee_amount) / 100, 2);
+                }
+            }
+        }
+
+        $totalAmount = $subtotal + $appFee + $channelFee;
+
+        $createdOrder = null;
 
         DB::transaction(function () use (
             $validated,
             $user,
+            $tenantId,
+            $subtotal,
             $appFee,
-            $itemsByTenant,
-            &$createdOrders
+            $channelFee,
+            $totalAmount,
+            $paymentMethodEnum,
+            $channelCode,
+            $preparedItems,
+            &$createdOrder
         ) {
-            $paymentMethodEnum = $validated['payment_method'] === 'cash'
-                ? PaymentMethodEnum::Cash
-                : PaymentMethodEnum::Cashless;
+            $orderNumber = 'ORD-'.date('Ymd').'-'.strtoupper(Str::random(6));
+            $pickupCode = 'PKP-'.rand(100, 999);
 
-            $channelCode = $validated['payment_channel_code'] ?? null;
-            $paymentMethodModel = null;
-            if ($channelCode) {
-                $paymentMethodModel = PaymentMethod::where('code', $channelCode)->first();
-            }
+            $order = Order::create([
+                'order_number' => $orderNumber,
+                'pickup_code' => $pickupCode,
+                'user_id' => $user->id,
+                'tenant_id' => $tenantId,
+                'subtotal_amount' => $subtotal,
+                'app_fee' => $appFee,
+                'channel_fee' => $channelFee,
+                'total_amount' => $totalAmount,
+                'payment_method' => $paymentMethodEnum,
+                'payment_channel_code' => $channelCode,
+                'dining_option' => $validated['dining_option'],
+                'payment_status' => PaymentStatus::Unpaid,
+                'status' => OrderStatus::Pending,
+                'notes' => $validated['notes'] ?? null,
+            ]);
 
-            foreach ($itemsByTenant as $tenantId => $tenantItems) {
-                $subtotal = 0;
-                foreach ($tenantItems as $ti) {
-                    $subtotal += $ti['price'];
-                }
-
-                // App fee is 0 for cash payment, otherwise global app fee
-                $effectiveAppFee = ($paymentMethodEnum === PaymentMethodEnum::Cash) ? 0.0 : $appFee;
-
-                // Calculate channel fee for this tenant order
-                $channelFee = 0;
-                if ($paymentMethodEnum === PaymentMethodEnum::Cashless && $paymentMethodModel) {
-                    if ($paymentMethodModel->fee_type === 'fixed') {
-                        $channelFee = (float) $paymentMethodModel->fee_amount;
-                    } else {
-                        $channelFee = round(($subtotal * (float) $paymentMethodModel->fee_amount) / 100, 2);
-                    }
-                }
-
-                $totalAmount = $subtotal + $effectiveAppFee + $channelFee;
-
-                $orderNumber = 'ORD-'.date('Ymd').'-'.strtoupper(Str::random(6));
-                $pickupCode = 'PKP-'.rand(100, 999);
-
-                $order = Order::create([
-                    'order_number' => $orderNumber,
-                    'pickup_code' => $pickupCode,
-                    'user_id' => $user->id,
-                    'tenant_id' => $tenantId,
-                    'subtotal_amount' => $subtotal,
-                    'app_fee' => $effectiveAppFee,
-                    'channel_fee' => $channelFee,
-                    'total_amount' => $totalAmount,
-                    'payment_method' => $paymentMethodEnum,
-                    'payment_channel_code' => $channelCode,
-                    'dining_option' => $validated['dining_option'],
-                    'payment_status' => PaymentStatus::Unpaid,
-                    'status' => OrderStatus::Pending,
-                    'notes' => $validated['notes'] ?? null,
+            foreach ($preparedItems as $ti) {
+                $menuObj = $ti['menu'];
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'menu_id' => $menuObj->id,
+                    'menu_name' => $menuObj->name,
+                    'price' => $ti['price'] / $ti['qty'],
+                    'quantity' => $ti['qty'],
+                    'subtotal' => $ti['price'],
+                    'options' => $ti['choices'],
+                    'note' => $ti['note'],
                 ]);
-
-                foreach ($tenantItems as $ti) {
-                    $menuObj = $ti['menu'];
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'menu_id' => $menuObj->id,
-                        'menu_name' => $menuObj->name,
-                        'price' => $ti['price'] / $ti['qty'],
-                        'quantity' => $ti['qty'],
-                        'subtotal' => $ti['price'],
-                        'options' => $ti['choices'],
-                        'note' => $ti['note'],
-                    ]);
-                }
-
-                $createdOrders[] = $order;
             }
+
+            $createdOrder = $order;
         });
 
-        $primaryOrder = $createdOrders[0] ?? null;
         $paymentInfo = null;
 
-        if ($primaryOrder && $validated['payment_method'] === 'cashless') {
-            $channelCode = $validated['payment_channel_code'] ?? 'qris';
-            foreach ($createdOrders as $ord) {
-                try {
-                    $details = $midtransService->chargeCoreApi($ord, $channelCode);
-                    $ord->update(['payment_details' => $details]);
-                    if ($ord->id === $primaryOrder->id) {
-                        $paymentInfo = $details;
-                    }
-                } catch (Exception $e) {
-                    // Fallback payment details array if charge error
-                    $fallbackDetails = [
-                        'type' => $channelCode === 'qris' ? 'qris' : 'bank_transfer',
-                        'channel_code' => $channelCode,
-                        'channel_name' => strtoupper($channelCode),
-                        'va_number' => '82710'.sprintf('%08d', $ord->id + 1000),
-                        'qr_url' => 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=MIDTRANS-'.$ord->order_number,
-                    ];
-                    $ord->update(['payment_details' => $fallbackDetails]);
-                    if ($ord->id === $primaryOrder->id) {
-                        $paymentInfo = $fallbackDetails;
-                    }
-                }
+        if ($createdOrder && $paymentMethodEnum === PaymentMethodEnum::Cashless) {
+            $selectedChannel = $channelCode ?? 'qris';
+            try {
+                $details = $midtransService->chargeCoreApi($createdOrder, $selectedChannel);
+                $createdOrder->update(['payment_details' => $details]);
+                $paymentInfo = $details;
+            } catch (Exception $e) {
+                // Fallback payment details if SDK simulation
+                $fallbackDetails = [
+                    'type' => $selectedChannel === 'qris' ? 'qris' : 'bank_transfer',
+                    'channel_code' => $selectedChannel,
+                    'channel_name' => strtoupper($selectedChannel),
+                    'va_number' => '82710'.sprintf('%08d', $createdOrder->id + 1000),
+                    'qr_url' => 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=MIDTRANS-'.$createdOrder->order_number,
+                ];
+                $createdOrder->update(['payment_details' => $fallbackDetails]);
+                $paymentInfo = $fallbackDetails;
             }
         }
 
-        $redirectUrl = $primaryOrder
-            ? route('orders.payment', $primaryOrder->id)
-            : route('orders.index');
+        $redirectUrl = route('orders.payment', $createdOrder->id);
 
         return response()->json([
             'success' => true,
             'message' => 'Pesanan berhasil dibuat.',
-            'orders' => $createdOrders,
-            'primary_order_id' => $primaryOrder?->id,
+            'orders' => [$createdOrder],
+            'primary_order_id' => $createdOrder->id,
             'payment_info' => $paymentInfo,
             'redirect_url' => $redirectUrl,
         ]);

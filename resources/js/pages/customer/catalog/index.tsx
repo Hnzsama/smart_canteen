@@ -17,6 +17,7 @@ import { useMenuFiltering } from './hooks/use-menu-filtering';
 import { useMenuOptionsModal } from './hooks/use-menu-options-modal';
 import { CatalogProps, TenantItem, TimeMode } from './types';
 import { detectInitialTimeMode } from './utils/catalog-utils';
+import { SwitchTenantModal } from '@/components/switch-tenant-modal';
 
 export default function StudentCatalog({
     tenants = [],
@@ -98,6 +99,9 @@ export default function StudentCatalog({
         setCartItems,
         isCartDrawerOpen,
         setIsCartDrawerOpen,
+        switchTenantData,
+        confirmSwitchTenant,
+        cancelSwitchTenant,
     } = useMenuOptionsModal(userFavorites);
 
     const timeRowTitles: Record<TimeMode, { title: string; icon: React.ElementType }> = {
@@ -274,6 +278,15 @@ export default function StudentCatalog({
                 onClose={() => setSelectedMenuModal(null)}
                 onAddToCart={handleAddToCart}
                 calculateModalTotalPrice={calculateModalTotalPrice}
+            />
+
+            {/* Switch Tenant Confirmation Modal */}
+            <SwitchTenantModal
+                isOpen={switchTenantData.isOpen}
+                onClose={cancelSwitchTenant}
+                onConfirm={confirmSwitchTenant}
+                currentTenantName={switchTenantData.currentTenantName}
+                newTenantName={switchTenantData.newTenantName}
             />
         </>
     );

@@ -10,10 +10,20 @@ export type PaymentMethodItem = {
     is_active: boolean;
 };
 
+export type TenantPaymentCapability = {
+    id: number;
+    name: string;
+    slug: string;
+    is_open: boolean;
+    has_midtrans: boolean;
+    midtrans_client_key?: string | null;
+};
+
 export type CheckoutProps = {
     bankTransferMethods?: PaymentMethodItem[];
     eWalletMethods?: PaymentMethodItem[];
     appFee?: number;
+    tenants?: TenantPaymentCapability[];
 };
 
 export type PaymentInfoState = {
@@ -27,4 +37,3 @@ export type PaymentInfoState = {
     qr_string?: string;
     instructions?: string[];
 };
-

@@ -5,15 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class MidtransCallbackController extends Controller
 {
     /**
      * Handle incoming notification webhook callback from Midtrans.
      */
-    public function handleCallback(MidtransService $midtransService): JsonResponse
+    public function handleCallback(Request $request, MidtransService $midtransService): JsonResponse
     {
-        $success = $midtransService->handleNotification();
+        $success = $midtransService->handleNotification($request->all());
 
         if (! $success) {
             return response()->json([

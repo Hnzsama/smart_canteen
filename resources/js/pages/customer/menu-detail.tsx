@@ -23,6 +23,7 @@ import {
     UtensilsCrossed,
 } from 'lucide-react';
 import { addToCart } from '@/hooks/use-cart';
+import { SwitchTenantModal } from '@/components/switch-tenant-modal';
 import { toast } from 'sonner';
 import StudentLayout from '@/layouts/student-layout';
 import { Badge } from '@/components/ui/badge';
@@ -156,6 +157,9 @@ export default function MenuDetail({ menu, related_menus = [] }: MenuDetailProps
         return base * itemQuantity;
     };
 
+    const [switchTenantModalOpen, setSwitchTenantModalOpen] = useState(false);
+    const [switchTenantNames, setSwitchTenantNames] = useState({ current: '', new: '' });
+
     const handleAddToCart = () => {
         if (!menu.is_tenant_open) {
             toast.error('Stand ini sedang tutup!', {
@@ -163,9 +167,42 @@ export default function MenuDetail({ menu, related_menus = [] }: MenuDetailProps
             });
             return;
         }
-        addToCart(menu as any, itemQuantity, calculateTotalPrice(), selectedChoices, orderNote);
+
+        const result = addToCart(
+            menu as any,
+            itemQuantity,
+            calculateTotalPrice(),
+            selectedChoices,
+            orderNote,
+            false
+        );
+
+        if (result.requiresConfirmation) {
+            setSwitchTenantNames({
+                current: result.currentTenantName || 'Stand Sebelumnya',
+                new: result.newTenantName || (menu as any).tenant_name || 'Stand Baru',
+            });
+            setSwitchTenantModalOpen(true);
+            return;
+        }
+
         toast.success(`${menu.name} (${itemQuantity} porsi) ditambahkan!`, {
             description: 'Menu tersimpan di keranjang belanja.',
+        });
+    };
+
+    const handleConfirmSwitchTenant = () => {
+        addToCart(
+            menu as any,
+            itemQuantity,
+            calculateTotalPrice(),
+            selectedChoices,
+            orderNote,
+            true
+        );
+        setSwitchTenantModalOpen(false);
+        toast.success(`Keranjang diganti ke stand ${switchTenantNames.new}!`, {
+            description: `${menu.name} (${itemQuantity} porsi) berhasil ditambahkan.`,
         });
     };
 
@@ -614,6 +651,15 @@ export default function MenuDetail({ menu, related_menus = [] }: MenuDetailProps
                     </Button>
                 </div>
             </div>
+
+            {/* Switch Tenant Confirmation Modal */}
+            <SwitchTenantModal
+                isOpen={switchTenantModalOpen}
+                onClose={() => setSwitchTenantModalOpen(false)}
+                onConfirm={handleConfirmSwitchTenant}
+                currentTenantName={switchTenantNames.current}
+                newTenantName={switchTenantNames.new}
+            />
         </>
     );
 }

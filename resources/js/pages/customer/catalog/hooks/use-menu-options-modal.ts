@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useCart } from '@/hooks/use-cart';
+import { useCart, addToCart } from '@/hooks/use-cart';
 import { MenuItem } from '../types';
-import { areChoicesEqual } from '../utils/catalog-utils';
 
 export function useMenuOptionsModal(initialUserFavorites: number[] = []) {
     const [selectedMenuModal, setSelectedMenuModal] = useState<MenuItem | null>(null);
@@ -19,7 +18,25 @@ export function useMenuOptionsModal(initialUserFavorites: number[] = []) {
     });
     const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
 
-    const { cartItems, setCartItems, totalCartCount, totalCartPrice } = useCart();
+    // Single-tenant cart boundary modal state
+    const [switchTenantData, setSwitchTenantData] = useState<{
+        isOpen: boolean;
+        currentTenantName: string;
+        newTenantName: string;
+        pendingItem?: {
+            menu: MenuItem;
+            qty: number;
+            price: number;
+            choices: Record<string, { name: string; price: number }>;
+            note: string;
+        };
+    }>({
+        isOpen: false,
+        currentTenantName: '',
+        newTenantName: '',
+    });
+
+    const { cartItems, setCartItems, totalCartCount, totalCartPrice, cartTenantId, cartTenantName, clearCart } = useCart();
 
     const toggleFavorite = async (e: React.MouseEvent, menuId: number) => {
         e.stopPropagation();
@@ -69,40 +86,55 @@ export function useMenuOptionsModal(initialUserFavorites: number[] = []) {
         if (!selectedMenuModal) return;
         const total = calculateModalTotalPrice();
 
-        setCartItems((prev) => {
-            const existingIndex = prev.findIndex(
-                (item) =>
-                    item.menu.id === selectedMenuModal.id &&
-                    areChoicesEqual(item.choices, selectedChoices) &&
-                    (item.note || '').trim() === orderNote.trim()
-            );
+        const result = addToCart(
+            selectedMenuModal,
+            itemQuantity,
+            total,
+            selectedChoices,
+            orderNote,
+            false
+        );
 
-            if (existingIndex > -1) {
-                const updated = [...prev];
-                const existing = updated[existingIndex];
-                const newQty = existing.qty + itemQuantity;
-                const unitPrice = total / itemQuantity;
-                updated[existingIndex] = {
-                    ...existing,
-                    qty: newQty,
-                    price: unitPrice * newQty,
-                };
-                return updated;
-            } else {
-                return [
-                    ...prev,
-                    {
-                        menu: selectedMenuModal,
-                        qty: itemQuantity,
-                        price: total,
-                        choices: selectedChoices,
-                        note: orderNote,
-                    },
-                ];
-            }
-        });
+        if (result.requiresConfirmation) {
+            setSwitchTenantData({
+                isOpen: true,
+                currentTenantName: result.currentTenantName || 'Stand Sebelumnya',
+                newTenantName: result.newTenantName || 'Stand Baru',
+                pendingItem: {
+                    menu: selectedMenuModal,
+                    qty: itemQuantity,
+                    price: total,
+                    choices: selectedChoices,
+                    note: orderNote,
+                },
+            });
+            return;
+        }
 
         setSelectedMenuModal(null);
+    };
+
+    const confirmSwitchTenant = () => {
+        if (switchTenantData.pendingItem) {
+            const { menu, qty, price, choices, note } = switchTenantData.pendingItem;
+            addToCart(menu, qty, price, choices, note, true);
+        }
+        setSwitchTenantData({
+            isOpen: false,
+            currentTenantName: '',
+            newTenantName: '',
+            pendingItem: undefined,
+        });
+        setSelectedMenuModal(null);
+    };
+
+    const cancelSwitchTenant = () => {
+        setSwitchTenantData({
+            isOpen: false,
+            currentTenantName: '',
+            newTenantName: '',
+            pendingItem: undefined,
+        });
     };
 
     return {
@@ -121,9 +153,15 @@ export function useMenuOptionsModal(initialUserFavorites: number[] = []) {
         handleAddToCart,
         cartItems,
         setCartItems,
+        clearCart,
+        cartTenantId,
+        cartTenantName,
         totalCartCount,
         totalCartPrice,
         isCartDrawerOpen,
         setIsCartDrawerOpen,
+        switchTenantData,
+        confirmSwitchTenant,
+        cancelSwitchTenant,
     };
 }

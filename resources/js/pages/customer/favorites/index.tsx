@@ -9,6 +9,7 @@ import MenuOptionsDialog from '../catalog/components/menu-options-dialog';
 import CartDrawer from '../catalog/components/cart-drawer';
 import { useMenuOptionsModal } from '../catalog/hooks/use-menu-options-modal';
 import { MenuItem } from '../catalog/types';
+import { SwitchTenantModal } from '@/components/switch-tenant-modal';
 
 interface FavoritesIndexProps {
     favoriteMenus?: MenuItem[];
@@ -40,6 +41,9 @@ export default function FavoritesIndex({
         totalCartCount,
         isCartDrawerOpen,
         setIsCartDrawerOpen,
+        switchTenantData,
+        confirmSwitchTenant,
+        cancelSwitchTenant,
     } = useMenuOptionsModal(userFavorites);
 
     // Filter list based on current active favorites state
@@ -132,6 +136,15 @@ export default function FavoritesIndex({
                 cartItems={cartItems}
                 setCartItems={setCartItems}
                 foodFallback={foodFallback}
+            />
+
+            {/* Switch Tenant Confirmation Modal */}
+            <SwitchTenantModal
+                isOpen={switchTenantData.isOpen}
+                onClose={cancelSwitchTenant}
+                onConfirm={confirmSwitchTenant}
+                currentTenantName={switchTenantData.currentTenantName}
+                newTenantName={switchTenantData.newTenantName}
             />
         </>
     );

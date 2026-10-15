@@ -33,39 +33,39 @@ Dokumen ini adalah **panduan eksekusi teknis (Technical Implementation Plan & Ch
 ## 📋 Checklist & Tahapan Implementasi (Step-by-Step)
 
 ```
-[ ] Phase 1: Database & Model Layer (Fondasi Data & Keamanan Kredensial)
-    [ ] 1.1 Buat Migration penambahan kolom Midtrans di tabel `tenants`
-    [ ] 1.2 Update Model `Tenant.php` (casts enkripsi, fillable, helper methods)
-    [ ] 1.3 Update `TenantSeeder.php` dengan variasi toko (Midtrans vs Cash-only)
-    [ ] 1.4 Verifikasi tabel `payment_methods` & seeders fee admin
+[x] Phase 1: Database & Model Layer (Fondasi Data & Keamanan Kredensial)
+    [x] 1.1 Buat Migration penambahan kolom Midtrans di tabel `tenants`
+    [x] 1.2 Update Model `Tenant.php` (casts enkripsi, fillable, helper methods)
+    [x] 1.3 Update `TenantSeeder.php` dengan variasi toko (Midtrans vs Cash-only)
+    [x] 1.4 Verifikasi tabel `payment_methods` & seeders fee admin
 
-[ ] Phase 2: Gateway & Service Engine (Backend Core)
-    [ ] 2.1 Refactor `MidtransService.php` (Dynamic SDK Configuration per Tenant)
-    [ ] 2.2 Implementasi verifikasi signature dinamis per tenant
-    [ ] 2.3 Refactor `MidtransCallbackController.php` (Dynamic webhook listener)
+[x] Phase 2: Gateway & Service Engine (Backend Core)
+    [x] 2.1 Refactor `MidtransService.php` (Dynamic SDK Configuration per Tenant)
+    [x] 2.2 Implementasi verifikasi signature dinamis per tenant
+    [x] 2.3 Refactor `MidtransCallbackController.php` (Dynamic webhook listener)
 
-[ ] Phase 3: Tenant Portal (Dashboard Pengaturan Merchant)
-    [ ] 3.1 Validasi form pengaturan Midtrans di `Tenant/SettingsController.php`
-    [ ] 3.2 Buat Form UI Pengaturan Midtrans di `resources/js/pages/tenant/settings/index.tsx`
-    [ ] 3.3 Validasi bahwa form tenant TIDAK BISA mengedit tarif service fee / gateway fee
+[x] Phase 3: Tenant Portal (Dashboard Pengaturan Merchant)
+    [x] 3.1 Validasi form pengaturan Midtrans di `Tenant/SettingsController.php`
+    [x] 3.2 Buat Form UI Pengaturan Midtrans di `resources/js/pages/tenant/settings.tsx`
+    [x] 3.3 Validasi bahwa form tenant TIDAK BISA mengedit tarif service fee / gateway fee
 
-[ ] Phase 4: Frontend Cart & Single-Tenant Policy
-    [ ] 4.1 Refactor hook `use-cart.ts` (Enforce single tenant ID state)
-    [ ] 4.2 Buat komponen Modal Konfirmasi Ganti Toko (`SwitchTenantModal.tsx`)
-    [ ] 4.3 Integrasikan proteksi ganti toko pada halaman katalog menu
+[x] Phase 4: Frontend Cart & Single-Tenant Policy
+    [x] 4.1 Refactor hook `use-cart.ts` (Enforce single tenant ID state)
+    [x] 4.2 Buat komponen Modal Konfirmasi Ganti Toko (`SwitchTenantModal.tsx`)
+    [x] 4.3 Integrasikan proteksi ganti toko pada halaman katalog menu
 
-[ ] Phase 5: Customer Checkout & Dynamic Payment Selector
-    [ ] 5.1 Refactor `Customer/CheckoutController.php` (Kalkulasi fee admin & single-order)
-    [ ] 5.2 Refactor UI Halaman Checkout (`resources/js/pages/customer/checkout/index.tsx`)
-    [ ] 5.3 Implementasi selector metode pembayaran dinamis (Cash vs Midtrans)
-    [ ] 5.4 Penanganan Snap Token Popup vs Direct Cash Redirect
+[x] Phase 5: Customer Checkout & Dynamic Payment Selector
+    [x] 5.1 Refactor `Customer/CheckoutController.php` (Kalkulasi fee admin & single-order)
+    [x] 5.2 Refactor UI Halaman Checkout (`resources/js/pages/customer/checkout/index.tsx`)
+    [x] 5.3 Implementasi selector metode pembayaran dinamis (Cash vs Midtrans)
+    [x] 5.4 Penanganan Snap Token Popup vs Direct Cash Redirect
 
-[ ] Phase 6: Pengujian End-to-End & Validasi Keamanan
-    [ ] 6.1 Fresh migration & seed: `php artisan migrate:fresh --seed`
-    [ ] 6.2 Uji Skenario A: Checkout di Toko Tanpa Midtrans (Cash Only, channel_fee = 0)
-    [ ] 6.3 Uji Skenario B: Checkout di Toko Dengan Midtrans (Cashless & Cash, fee sesuai admin)
-    [ ] 6.4 Uji Skenario C: Webhook Callback dengan Tenant Server Key
-    [ ] 6.5 Uji Skenario D: Proteksi switch tenant pada keranjang belanja
+[x] Phase 6: Pengujian End-to-End & Validasi Keamanan
+    [x] 6.1 Fresh migration & seed: `php artisan migrate:fresh --seed`
+    [x] 6.2 Uji Skenario A: Checkout di Toko Tanpa Midtrans (Cash Only, channel_fee = 0)
+    [x] 6.3 Uji Skenario B: Checkout di Toko Dengan Midtrans (Cashless & Cash, fee sesuai admin)
+    [x] 6.4 Uji Skenario C: Webhook Callback dengan Tenant Server Key
+    [x] 6.5 Uji Skenario D: Proteksi switch tenant pada keranjang belanja
 ```
 
 ---
