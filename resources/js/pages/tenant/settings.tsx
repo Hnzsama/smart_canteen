@@ -4,12 +4,18 @@ import {
     AlertCircle,
     Building2,
     Check,
+    ChevronDown,
+    ChevronUp,
     Clock,
+    Copy,
     CreditCard,
+    ExternalLink,
     Eye,
     EyeOff,
+    HelpCircle,
     Image as ImageIcon,
     Info,
+    Link as LinkIcon,
     Loader2,
     Phone,
     Save,
@@ -83,6 +89,26 @@ export default function TenantSettings({ tenant }: Props) {
     const [midtransIsProduction, setMidtransIsProduction] = useState<boolean>(tenant?.midtrans_is_production ?? false);
     const [midtransIsActive, setMidtransIsActive] = useState<boolean>(tenant?.midtrans_is_active ?? true);
     const [showServerKey, setShowServerKey] = useState(false);
+    const [copiedCallback, setCopiedCallback] = useState(false);
+    const [showMidtransGuide, setShowMidtransGuide] = useState(true);
+
+    const handleCopyCallback = () => {
+        const callbackUrl = typeof window !== 'undefined'
+            ? `${window.location.origin}/api/midtrans/callback`
+            : '/api/midtrans/callback';
+
+        if (navigator?.clipboard?.writeText) {
+            navigator.clipboard.writeText(callbackUrl).then(() => {
+                setCopiedCallback(true);
+                toast.success('URL Callback Midtrans berhasil disalin ke clipboard!');
+                setTimeout(() => setCopiedCallback(false), 2500);
+            }).catch(() => {
+                toast.error('Gagal menyalin URL, silakan salin secara manual.');
+            });
+        } else {
+            toast.info(callbackUrl, { description: 'Salin URL callback di atas.' });
+        }
+    };
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isTogglingOpen, setIsTogglingOpen] = useState(false);
@@ -502,6 +528,142 @@ export default function TenantSettings({ tenant }: Props) {
                                         <p className="text-[11px] text-muted-foreground">
                                             Server key akan dienkripsi menggunakan standar AES-256 sebelum disimpan di database dan tidak akan pernah dibocorkan ke browser.
                                         </p>
+                                    </div>
+
+                                    {/* Midtrans Webhook / Callback Notification URL */}
+                                    <div className="space-y-1.5 pt-3 border-t border-border/50">
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="midtrans-callback-url" className="text-xs font-semibold flex items-center gap-1.5">
+                                                <LinkIcon className="h-3.5 w-3.5 text-primary" />
+                                                URL Notifikasi Webhook (Salin & Tautkan ke Midtrans)
+                                            </Label>
+                                            <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20 font-semibold">
+                                                Wajib Dipasang di Midtrans
+                                            </Badge>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <div className="relative flex-1">
+                                                <Input
+                                                    id="midtrans-callback-url"
+                                                    readOnly
+                                                    value={
+                                                        typeof window !== 'undefined'
+                                                            ? `${window.location.origin}/api/midtrans/callback`
+                                                            : 'https://domain-anda.com/api/midtrans/callback'
+                                                    }
+                                                    className="h-10 text-xs sm:text-sm font-mono bg-muted/40 pr-20 select-all cursor-text"
+                                                    onClick={(e) => (e.target as HTMLInputElement).select()}
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                onClick={handleCopyCallback}
+                                                variant="secondary"
+                                                className="h-10 px-3.5 gap-1.5 text-xs font-semibold shrink-0 border border-border/60 hover:bg-muted"
+                                            >
+                                                {copiedCallback ? (
+                                                    <>
+                                                        <Check className="h-3.5 w-3.5 text-emerald-500" />
+                                                        <span className="text-emerald-500">Tersalin!</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                                                        <span>Salin URL</span>
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </div>
+                                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                            Tempelkan URL ini di Dashboard Midtrans Anda pada menu <strong>Settings → Configuration → Payment Notification URL</strong> agar sistem otomatis memverifikasi pesanan lunas saat mahasiswa membayar.
+                                        </p>
+                                    </div>
+
+                                    {/* Interactive Step-by-Step Guide & Hints */}
+                                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3 mt-3">
+                                        <div
+                                            className="flex items-center justify-between cursor-pointer select-none"
+                                            onClick={() => setShowMidtransGuide(!showMidtransGuide)}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <HelpCircle className="h-4 w-4 text-primary" />
+                                                <span className="text-xs font-bold text-foreground">
+                                                    Petunjuk: Cara Mengambil Access Key & Menautkan Callback Midtrans
+                                                </span>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-7 w-7 p-0 text-muted-foreground"
+                                            >
+                                                {showMidtransGuide ? (
+                                                    <ChevronUp className="h-4 w-4" />
+                                                ) : (
+                                                    <ChevronDown className="h-4 w-4" />
+                                                )}
+                                            </Button>
+                                        </div>
+
+                                        {showMidtransGuide && (
+                                            <div className="space-y-3 pt-2 text-xs border-t border-primary/10">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    {/* Langkah 1 */}
+                                                    <div className="p-3 rounded-lg bg-card border border-border/60 space-y-1.5 shadow-2xs">
+                                                        <div className="flex items-center gap-2 font-bold text-primary">
+                                                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[11px]">1</span>
+                                                            <span>Ambil Access Key di Midtrans</span>
+                                                        </div>
+                                                        <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-[11px] pl-1 leading-relaxed">
+                                                            <li>
+                                                                Buka{' '}
+                                                                <a
+                                                                    href={midtransIsProduction ? 'https://dashboard.midtrans.com' : 'https://dashboard.sandbox.midtrans.com'}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-primary hover:underline font-medium inline-flex items-center gap-0.5"
+                                                                >
+                                                                    Dashboard Midtrans ({midtransIsProduction ? 'Production' : 'Sandbox'})
+                                                                    <ExternalLink className="h-2.5 w-2.5" />
+                                                                </a>
+                                                            </li>
+                                                            <li>Masuk ke menu <strong>Settings</strong> → <strong>Access Keys</strong> di sidebar kiri.</li>
+                                                            <li>Salin <strong>Merchant ID</strong>, <strong>Client Key</strong>, dan <strong>Server Key</strong>.</li>
+                                                            <li>Tempelkan ke formulir di atas.</li>
+                                                        </ol>
+                                                    </div>
+
+                                                    {/* Langkah 2 */}
+                                                    <div className="p-3 rounded-lg bg-card border border-border/60 space-y-1.5 shadow-2xs">
+                                                        <div className="flex items-center gap-2 font-bold text-primary">
+                                                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[11px]">2</span>
+                                                            <span>Tautkan URL Callback (Notification)</span>
+                                                        </div>
+                                                        <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-[11px] pl-1 leading-relaxed">
+                                                            <li>Di Dashboard Midtrans, buka menu <strong>Settings</strong> → <strong>Configuration</strong>.</li>
+                                                            <li>
+                                                                Klik tombol <strong>Salin URL</strong> di atas, lalu tempelkan ke kolom <strong>Payment Notification URL</strong>.
+                                                            </li>
+                                                            <li>
+                                                                (Opsional) Isi <strong>Finish Redirect URL</strong> dengan:{' '}
+                                                                <code className="text-[10px] bg-muted px-1 py-0.5 rounded font-mono select-all">
+                                                                    {typeof window !== 'undefined' ? `${window.location.origin}/orders` : '/orders'}
+                                                                </code>
+                                                            </li>
+                                                            <li>Klik tombol <strong>Update</strong> di bagian paling bawah halaman Midtrans untuk menyimpan.</li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-700 dark:text-emerald-300">
+                                                    <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                                    <span>
+                                                        Setelah kedua langkah di atas selesai, klik <strong>Simpan Pengaturan</strong> di bawah. Toko Anda langsung siap menerima pembayaran QRIS, E-Wallet, dan VA tanpa konfirmasi manual!
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
