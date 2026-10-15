@@ -15,46 +15,48 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $tenants = Tenant::query()->orderBy('id')->get();
+        // Pre-hash password once for ultra-fast seeding
+        $password = Hash::make('password');
 
-        // 1. Admin System
-        $admin = User::query()->firstOrCreate(
+        // 1. Tepat 2 Admin System
+        $admin1 = User::query()->firstOrCreate(
             ['email' => 'admin@feb.ac.id'],
             [
                 'name' => 'Admin FEB',
-                'password' => Hash::make('password'),
+                'password' => $password,
                 'email_verified_at' => now(),
             ]
         );
-        $admin->assignRole(UserRole::Admin->value);
+        $admin1->syncRoles([UserRole::Admin->value]);
 
         $admin2 = User::query()->firstOrCreate(
             ['email' => 'supervisor@feb.ac.id'],
             [
                 'name' => 'Supervisor Kantin FEB',
-                'password' => Hash::make('password'),
+                'password' => $password,
                 'email_verified_at' => now(),
             ]
         );
-        $admin2->assignRole(UserRole::Admin->value);
+        $admin2->syncRoles([UserRole::Admin->value]);
 
-        // 2. Tenant Staff / Owner for all tenants
-        $tenantStaffData = [
-            0 => ['name' => 'Bu Siti (Kantin FEB)', 'email' => 'tenant@feb.ac.id'],
-            1 => ['name' => 'Pengelola Dapur Nusantara', 'email' => 'tenant2@feb.ac.id'],
-            2 => ['name' => 'Pengelola Kopi & Minuman FEB', 'email' => 'kopi@feb.ac.id'],
-            3 => ['name' => 'Mas Rian (Ayam Geprek Juara)', 'email' => 'geprek@feb.ac.id'],
-            4 => ['name' => 'Mas Dono (Bakso & Mie Ayam)', 'email' => 'bakso@feb.ac.id'],
-            5 => ['name' => 'Chef Hendra (Dimsum Corner)', 'email' => 'dimsum@feb.ac.id'],
-            6 => ['name' => 'Mbak Maya (Juice Corner)', 'email' => 'juice@feb.ac.id'],
-            7 => ['name' => 'Cak Malik (Penyetan Lamongan)', 'email' => 'cakmalik@feb.ac.id'],
-            8 => ['name' => 'Bang Jay (Roti Bakar FEB)', 'email' => 'rotibakar@feb.ac.id'],
+        // 2. Tenant Staff / Owner untuk 100 tenant
+        $tenants = Tenant::query()->orderBy('id')->get();
+        $specialTenantEmails = [
+            'kantin-bu-siti-feb' => ['name' => 'Bu Siti (Kantin FEB)', 'email' => 'tenant@feb.ac.id'],
+            'dapur-nusantara-feb' => ['name' => 'Pengelola Dapur Nusantara', 'email' => 'tenant2@feb.ac.id'],
+            'kopi-minuman-feb' => ['name' => 'Pengelola Kopi & Minuman FEB', 'email' => 'kopi@feb.ac.id'],
+            'ayam-geprek-juara-kampus' => ['name' => 'Mas Rian (Ayam Geprek Juara)', 'email' => 'geprek@feb.ac.id'],
+            'bakso-mie-ayam-mas-dono' => ['name' => 'Mas Dono (Bakso & Mie Ayam)', 'email' => 'bakso@feb.ac.id'],
+            'dimsum-corner-feb' => ['name' => 'Chef Hendra (Dimsum Corner)', 'email' => 'dimsum@feb.ac.id'],
+            'juice-corner-mbak-maya' => ['name' => 'Mbak Maya (Juice Corner)', 'email' => 'juice@feb.ac.id'],
+            'penyetan-lamongan-cak-malik' => ['name' => 'Cak Malik (Penyetan Lamongan)', 'email' => 'cakmalik@feb.ac.id'],
+            'roti-bakar-feb-bang-jay' => ['name' => 'Bang Jay (Roti Bakar FEB)', 'email' => 'rotibakar@feb.ac.id'],
         ];
 
-        foreach ($tenants as $idx => $tenant) {
-            $staff = $tenantStaffData[$idx] ?? [
-                'name' => 'Pengelola '.$tenant->name,
-                'email' => 'staff'.$tenant->id.'@feb.ac.id',
+        foreach ($tenants as $tenant) {
+            $staff = $specialTenantEmails[$tenant->slug] ?? [
+                'name' => 'Pengelola ' . $tenant->name,
+                'email' => 'staff' . $tenant->id . '@feb.ac.id',
             ];
 
             $user = User::query()->firstOrCreate(
@@ -62,51 +64,58 @@ class UserSeeder extends Seeder
                 [
                     'name' => $staff['name'],
                     'tenant_id' => $tenant->id,
-                    'password' => Hash::make('password'),
+                    'password' => $password,
                     'email_verified_at' => now(),
                 ]
             );
-            $user->assignRole(UserRole::Tenant->value);
+            $user->tenant_id = $tenant->id;
+            $user->save();
+            $user->syncRoles([UserRole::Tenant->value]);
         }
 
-        // 3. Mahasiswa (Customers)
-        $mahasiswaList = [
-            ['name' => 'Ahmad Mahasiswa FEB', 'email' => 'mahasiswa@feb.ac.id'],
-            ['name' => 'Budi Santoso', 'email' => 'budi@feb.ac.id'],
-            ['name' => 'Siti Nurhaliza', 'email' => 'siti.nur@student.feb.ac.id'],
-            ['name' => 'Rizky Ramadhan', 'email' => 'rizky.r@student.feb.ac.id'],
-            ['name' => 'Putri Ayu Lestari', 'email' => 'putri.ayu@student.feb.ac.id'],
-            ['name' => 'Dimas Anggara', 'email' => 'dimas.a@student.feb.ac.id'],
-            ['name' => 'Anisa Rahmawati', 'email' => 'anisa.r@student.feb.ac.id'],
-            ['name' => 'Farhan Pratama', 'email' => 'farhan.p@student.feb.ac.id'],
-            ['name' => 'Tiara Andini', 'email' => 'tiara.a@student.feb.ac.id'],
-            ['name' => 'Kevin Sanjaya', 'email' => 'kevin.s@student.feb.ac.id'],
-            ['name' => 'Nabila Syakieb', 'email' => 'nabila.s@student.feb.ac.id'],
-            ['name' => 'Aditya Wicaksono', 'email' => 'aditya.w@student.feb.ac.id'],
-            ['name' => 'Maya Indah Permata', 'email' => 'maya.i@student.feb.ac.id'],
-            ['name' => 'Daffa Alfarizi', 'email' => 'daffa.a@student.feb.ac.id'],
-            ['name' => 'Salsa Bila', 'email' => 'salsa.b@student.feb.ac.id'],
-            ['name' => 'Rio Dewanto', 'email' => 'rio.d@student.feb.ac.id'],
-            ['name' => 'Fitri Handayani', 'email' => 'fitri.h@student.feb.ac.id'],
-            ['name' => 'Bagas Maulana', 'email' => 'bagas.m@student.feb.ac.id'],
-            ['name' => 'Citra Kirana', 'email' => 'citra.k@student.feb.ac.id'],
-            ['name' => 'Eko Prasetyo', 'email' => 'eko.p@student.feb.ac.id'],
-            ['name' => 'Gita Gutawa', 'email' => 'gita.g@student.feb.ac.id'],
-            ['name' => 'Haikal Kamil', 'email' => 'haikal.k@student.feb.ac.id'],
-            ['name' => 'Indah Permatasari', 'email' => 'indah.p@student.feb.ac.id'],
-            ['name' => 'Joko Anwar', 'email' => 'joko.a@student.feb.ac.id'],
+        // 3. Tepat 100 Mahasiswa
+        $mahasiswaNames = [
+            'Ahmad Mahasiswa FEB', 'Budi Santoso', 'Siti Nurhaliza', 'Rizky Ramadhan', 'Putri Ayu Lestari',
+            'Dimas Anggara', 'Anisa Rahmawati', 'Farhan Pratama', 'Tiara Andini', 'Kevin Sanjaya',
+            'Nabila Syakieb', 'Aditya Wicaksono', 'Maya Indah Permata', 'Daffa Alfarizi', 'Salsa Bila',
+            'Rio Dewanto', 'Fitri Handayani', 'Bagas Maulana', 'Citra Kirana', 'Eko Prasetyo',
+            'Gita Gutawa', 'Haikal Kamil', 'Indah Permatasari', 'Joko Anwar', 'Alifia Zahra',
+            'Bayu Segara', 'Cynthia Dewi', 'Doni Tata Pradita', 'Erina Gudono', 'Fajar Alfian',
+            'Galih Ginanjar', 'Hana Saraswati', 'Irfan Bachdim', 'Jessica Mila', 'Kurnia Meiga',
+            'Larasati Nugroho', 'Muhammad Ridwan', 'Nadia Vega', 'Oki Setiana', 'Prilly Latuconsina',
+            'Qonita Isman', 'Raffi Ahmad', 'Syifa Hadju', 'Taufik Hidayat', 'Umar Wirahadi',
+            'Vanesha Prescilla', 'Wahyu Subo Seto', 'Xavier Marks', 'Yoga Pratama', 'Zaskia Sungkar',
+            'Agung Hercules', 'Bella Saphira', 'Chandra Liow', 'Dian Sastrowardoyo', 'Endah N Rhesa',
+            'Fachri Albar', 'Gading Marten', 'Hesti Purwadinata', 'Indra Bekti', 'Jefri Nichol',
+            'Kaesang Pangarep', 'Luna Maya', 'Marcell Siahaan', 'Nicholas Saputra', 'Onadio Leonardo',
+            'Pevita Pearce', 'Raditya Dika', 'Sule Prikitiw', 'Tara Basro', 'Uus Kartobi',
+            'Vino G Bastian', 'Wulan Guritno', 'Yayan Ruhian', 'Zulham Zamrun', 'Ardhito Pramono',
+            'Baim Wong', 'Chelsea Islan', 'Desta Mahendra', 'Enzy Storia', 'Fedi Nuril',
+            'Giring Ganesha', 'Hanggini Purinda', 'Isyana Sarasvati', 'Judika Sihotang', 'Kunto Aji',
+            'Lesti Kejora', 'Maudy Ayunda', 'Najwa Shihab', 'Omesh Ananda', 'Pamungkas',
+            'Raisa Andriana', 'Sal Priadi', 'Tulus Rusydi', 'Uut Permatasari', 'Vidi Aldiano',
+            'Wira Nagara', 'Yura Yunita', 'Ziva Magnolya', 'Angga Yunanda', 'Brisia Jodie',
         ];
 
-        foreach ($mahasiswaList as $mhs) {
+        // Pastikan pas 100
+        $mahasiswaNames = array_slice($mahasiswaNames, 0, 100);
+
+        foreach ($mahasiswaNames as $index => $name) {
+            $email = match ($index) {
+                0 => 'mahasiswa@feb.ac.id',
+                1 => 'budi@feb.ac.id',
+                default => 'mhs' . ($index + 1) . '@student.feb.ac.id',
+            };
+
             $user = User::query()->firstOrCreate(
-                ['email' => $mhs['email']],
+                ['email' => $email],
                 [
-                    'name' => $mhs['name'],
-                    'password' => Hash::make('password'),
+                    'name' => $name,
+                    'password' => $password,
                     'email_verified_at' => now(),
                 ]
             );
-            $user->assignRole(UserRole::Mahasiswa->value);
+            $user->syncRoles([UserRole::Mahasiswa->value]);
         }
     }
 }
