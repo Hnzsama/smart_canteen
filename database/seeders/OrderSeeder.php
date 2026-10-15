@@ -43,110 +43,112 @@ class OrderSeeder extends Seeder
         Order::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // 1. Skenario Cashless Midtrans (Selesai / Completed)
+        // 1. Skenario Cashless Midtrans VA (Contoh spesifik: PKP-646 Rp 16.000 + Rp 1.000 + Rp 4.000 = Rp 21.000)
         $order1 = Order::query()->create([
-            'order_number' => 'SC-'.now()->format('Ymd').'-0001',
-            'pickup_code' => 'FEB-1001',
-            'user_id' => $mahasiswa->id,
+            'order_number' => 'ORD-'.now()->format('Ymd').'-DMJUZK',
+            'pickup_code' => 'PKP-646',
+            'user_id' => $budi ? $budi->id : $mahasiswa->id,
             'tenant_id' => $tenant1->id,
-            'subtotal_amount' => 26000.00,
+            'subtotal_amount' => 16000.00,
             'app_fee' => 1000.00,
-            'channel_fee' => 0.00,
-            'total_amount' => 27000.00,
+            'channel_fee' => 4000.00,
+            'total_amount' => 21000.00,
             'payment_method' => PaymentMethod::Cashless,
-            'payment_channel_code' => 'qris',
+            'payment_channel_code' => 'bca_va',
             'dining_option' => 'dine_in',
             'payment_status' => PaymentStatus::Paid,
             'status' => OrderStatus::Completed,
-            'snap_token' => 'snap-demo-token-12345',
-            'paid_at' => now()->subHours(3),
-            'processing_at' => now()->subHours(3)->addMinutes(5),
-            'ready_at' => now()->subHours(3)->addMinutes(20),
-            'completed_at' => now()->subHours(2)->addMinutes(45),
+            'snap_token' => 'snap-demo-token-va-646',
+            'paid_at' => now()->subMinutes(25),
+            'processing_at' => now()->subMinutes(20),
+            'ready_at' => now()->subMinutes(10),
+            'completed_at' => now()->subMinutes(3),
+            'created_at' => now()->subMinutes(26),
+            'updated_at' => now()->subMinutes(3),
         ]);
 
         $item1 = $menus->first();
         OrderItem::query()->create([
             'order_id' => $order1->id,
-            'menu_id' => $item1->id,
-            'menu_name' => $item1->name,
-            'price' => $item1->price,
+            'menu_id' => $item1 ? $item1->id : 1,
+            'menu_name' => 'Nasi Rames Telur Balado',
+            'price' => 16000.00,
             'quantity' => 1,
-            'subtotal' => $item1->price,
+            'subtotal' => 16000.00,
         ]);
 
-        if ($menus->count() > 1) {
-            $item2 = $menus->get(1);
-            OrderItem::query()->create([
-                'order_id' => $order1->id,
-                'menu_id' => $item2->id,
-                'menu_name' => $item2->name,
-                'price' => $item2->price,
-                'quantity' => 1,
-                'subtotal' => $item2->price,
-            ]);
-        }
-
-        // 2. Skenario Cash (Selesai / Completed)
+        // 2. Skenario Cash (Tunai di Kasir - Tanpa potongan)
         $order2 = Order::query()->create([
-            'order_number' => 'SC-'.now()->format('Ymd').'-0002',
-            'pickup_code' => 'FEB-8821',
-            'user_id' => $budi ? $budi->id : $mahasiswa->id,
+            'order_number' => 'SC-'.now()->format('Ymd').'-00319',
+            'pickup_code' => 'FEB-002319',
+            'user_id' => $mahasiswa->id,
             'tenant_id' => $tenant1->id,
-            'subtotal_amount' => 14000.00,
-            'app_fee' => 1000.00,
+            'subtotal_amount' => 33000.00,
+            'app_fee' => 0.00,
             'channel_fee' => 0.00,
-            'total_amount' => 15000.00,
+            'total_amount' => 33000.00,
             'payment_method' => PaymentMethod::Cash,
             'payment_channel_code' => 'cash',
             'dining_option' => 'take_away',
             'payment_status' => PaymentStatus::Paid,
             'status' => OrderStatus::Completed,
             'snap_token' => null,
-            'paid_at' => now()->subHours(2)->addMinutes(5),
-            'processing_at' => now()->subHours(2)->addMinutes(5),
-            'ready_at' => now()->subHours(2)->addMinutes(20),
-            'completed_at' => now()->subHours(1)->addMinutes(30),
+            'paid_at' => now()->subHours(1)->addMinutes(15),
+            'processing_at' => now()->subHours(1)->addMinutes(20),
+            'ready_at' => now()->subHours(1)->addMinutes(35),
+            'completed_at' => now()->subHours(1)->addMinutes(50),
+            'created_at' => now()->subHours(1)->addMinutes(10),
+            'updated_at' => now()->subHours(1)->addMinutes(50),
         ]);
 
         OrderItem::query()->create([
             'order_id' => $order2->id,
-            'menu_id' => $item1->id,
-            'menu_name' => $item1->name,
-            'price' => 15000.00,
+            'menu_id' => $menus->count() > 1 ? $menus->get(1)->id : ($item1 ? $item1->id : 1),
+            'menu_name' => 'Nasi Rendang Sapi Empuk',
+            'price' => 25000.00,
             'quantity' => 1,
-            'subtotal' => 15000.00,
+            'subtotal' => 25000.00,
+        ]);
+        OrderItem::query()->create([
+            'order_id' => $order2->id,
+            'menu_id' => $menus->count() > 2 ? $menus->get(2)->id : ($item1 ? $item1->id : 1),
+            'menu_name' => 'Tempe Mendoan Hangat',
+            'price' => 8000.00,
+            'quantity' => 1,
+            'subtotal' => 8000.00,
         ]);
 
-        // 3. Skenario Selesai (Completed)
+        // 3. Skenario QRIS Cashless (Fee QRIS Rp 700 + App fee Rp 1.000)
         $order3 = Order::query()->create([
-            'order_number' => 'SC-'.now()->format('Ymd').'-0003',
-            'pickup_code' => 'FEB-9901',
-            'user_id' => $mahasiswa->id,
+            'order_number' => 'SC-'.now()->format('Ymd').'-00173',
+            'pickup_code' => 'FEB-002173',
+            'user_id' => $budi ? $budi->id : $mahasiswa->id,
             'tenant_id' => $tenant1->id,
-            'subtotal_amount' => 12000.00,
-            'app_fee' => 0.00,
-            'channel_fee' => 0.00,
-            'total_amount' => 12000.00,
+            'subtotal_amount' => 50000.00,
+            'app_fee' => 1000.00,
+            'channel_fee' => 700.00,
+            'total_amount' => 51700.00,
             'payment_method' => PaymentMethod::Cashless,
-            'payment_channel_code' => 'gopay',
+            'payment_channel_code' => 'qris',
             'dining_option' => 'dine_in',
             'payment_status' => PaymentStatus::Paid,
             'status' => OrderStatus::Completed,
-            'snap_token' => 'snap-completed-token-999',
+            'snap_token' => 'snap-qris-demo-173',
             'paid_at' => now()->subHours(2),
             'processing_at' => now()->subHours(2)->addMinutes(5),
             'ready_at' => now()->subHours(2)->addMinutes(20),
             'completed_at' => now()->subHours(1)->addMinutes(45),
+            'created_at' => now()->subHours(2)->addMinutes(2),
+            'updated_at' => now()->subHours(1)->addMinutes(45),
         ]);
 
         OrderItem::query()->create([
             'order_id' => $order3->id,
-            'menu_id' => $item1->id,
-            'menu_name' => $item1->name,
-            'price' => 12000.00,
-            'quantity' => 1,
-            'subtotal' => 12000.00,
+            'menu_id' => $item1 ? $item1->id : 1,
+            'menu_name' => 'Nasi Rendang Sapi Empuk',
+            'price' => 25000.00,
+            'quantity' => 2,
+            'subtotal' => 50000.00,
         ]);
 
         // 4. Seeding 550 realistic orders across all 100 tenants and 100 students
@@ -253,8 +255,22 @@ class OrderSeeder extends Seeder
                     ];
                 }
 
-                $appFee = 1000.00;
-                $channelFee = ($paymentMethod === PaymentMethod::Cashless && rand(1, 2) === 1) ? 500.00 : 0.00;
+                if ($paymentMethod === PaymentMethod::Cashless) {
+                    $channel = Arr::random($paymentChannels);
+                    $appFee = 1000.00;
+                    if (str_ends_with($channel, '_va')) {
+                        // Fee Bank Virtual Account Midtrans
+                        $channelFee = 4000.00;
+                    } else {
+                        // Fee QRIS / E-Wallet Midtrans
+                        $channelFee = 700.00;
+                    }
+                } else {
+                    $channel = 'cash';
+                    $appFee = 0.00;
+                    $channelFee = 0.00;
+                }
+
                 $totalAmount = $subtotalAmount + $appFee + $channelFee;
 
                 $orderNumber = 'SC-'.$orderDate->format('Ymd').'-'.str_pad((string) $i, 5, '0', STR_PAD_LEFT);
@@ -270,7 +286,7 @@ class OrderSeeder extends Seeder
                     'channel_fee' => $channelFee,
                     'total_amount' => $totalAmount,
                     'payment_method' => $paymentMethod,
-                    'payment_channel_code' => $paymentMethod === PaymentMethod::Cashless ? Arr::random($paymentChannels) : 'cash',
+                    'payment_channel_code' => $channel,
                     'dining_option' => Arr::random($diningOptions),
                     'payment_status' => $paymentStatus,
                     'status' => $status,
