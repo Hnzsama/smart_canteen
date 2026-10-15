@@ -3,6 +3,7 @@ import { Head, usePage, router } from '@inertiajs/react';
 import {
     AlertCircle,
     Building2,
+    Check,
     Clock,
     CreditCard,
     Eye,
@@ -20,6 +21,7 @@ import {
     Utensils,
     X,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { ImageCropperModal } from '@/components/image-cropper-modal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -84,6 +86,7 @@ export default function TenantSettings({ tenant }: Props) {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isTogglingOpen, setIsTogglingOpen] = useState(false);
+    const [isJustSaved, setIsJustSaved] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleBannerFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -123,7 +126,16 @@ export default function TenantSettings({ tenant }: Props) {
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    setIsOpen(!isOpen);
+                    const nextOpen = !isOpen;
+                    setIsOpen(nextOpen);
+                    toast.success(`Status stand berhasil diubah menjadi ${nextOpen ? 'BUKA 🟢' : 'TUTUP 🔴'}!`, {
+                        description: nextOpen
+                            ? 'Stand Anda sekarang aktif dan dapat menerima pesanan pelanggan.'
+                            : 'Stand Anda ditandai tutup di katalog menu.',
+                    });
+                },
+                onError: () => {
+                    toast.error('Gagal memperbarui status buka/tutup stand!');
                 },
                 onFinish: () => {
                     setIsTogglingOpen(false);
@@ -165,9 +177,21 @@ export default function TenantSettings({ tenant }: Props) {
         router.post(updateSettingsRoute().url, payload, {
             forceFormData: true,
             preserveScroll: true,
+            onSuccess: () => {
+                setIsSubmitting(false);
+                setIsJustSaved(true);
+                setTimeout(() => setIsJustSaved(false), 3000);
+                toast.success('Pengaturan stand & pembayaran berhasil disimpan!', {
+                    description: 'Profil toko, jam operasional, dan integrasi Midtrans telah diperbarui.',
+                });
+            },
             onError: (errs) => {
                 setIsSubmitting(false);
                 setErrors(errs);
+                const firstError = Object.values(errs)[0];
+                toast.error(firstError || 'Gagal menyimpan pengaturan stand!', {
+                    description: 'Silakan periksa kembali formulir input Anda.',
+                });
             },
             onFinish: () => {
                 setIsSubmitting(false);
@@ -486,14 +510,26 @@ export default function TenantSettings({ tenant }: Props) {
                                 <Button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="h-10 px-6 gap-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm"
+                                    className={`h-10 px-6 gap-2 text-xs font-bold transition-all shadow-sm ${
+                                        isJustSaved
+                                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                            : 'bg-amber-500 hover:bg-amber-600 text-white'
+                                    }`}
                                 >
                                     {isSubmitting ? (
                                         <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : isJustSaved ? (
+                                        <Check className="h-4 w-4" />
                                     ) : (
                                         <Save className="h-4 w-4" />
                                     )}
-                                    <span>Simpan Perubahan Pengaturan & Pembayaran</span>
+                                    <span>
+                                        {isSubmitting
+                                            ? 'Menyimpan Perubahan...'
+                                            : isJustSaved
+                                            ? 'Perubahan Berhasil Disimpan!'
+                                            : 'Simpan Perubahan Pengaturan & Pembayaran'}
+                                    </span>
                                 </Button>
                             </div>
                         </form>
