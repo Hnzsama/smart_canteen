@@ -28,11 +28,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
-        // URL::forceScheme('https');
+        URL::forceScheme('https');
 
-        // if (app()->isProduction()) {
-        //     Vite::useBuildDirectory('../../build');
-        // }
+        if (app()->isProduction()) {
+            Vite::useBuildDirectory('../../build');
+        }
     }
 
     /**
