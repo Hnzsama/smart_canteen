@@ -168,9 +168,8 @@ class CheckoutController extends Controller
 
         $totalAmount = $subtotal + $appFee + $channelFee;
 
-        $createdOrder = null;
-
-        DB::transaction(function () use (
+        /** @var Order $createdOrder */
+        $createdOrder = DB::transaction(function () use (
             $validated,
             $user,
             $tenantId,
@@ -180,9 +179,8 @@ class CheckoutController extends Controller
             $totalAmount,
             $paymentMethodEnum,
             $channelCode,
-            $preparedItems,
-            &$createdOrder
-        ) {
+            $preparedItems
+        ): Order {
             $orderNumber = 'ORD-'.date('Ymd').'-'.strtoupper(Str::random(6));
             $pickupCode = 'PKP-'.rand(100, 999);
 
@@ -217,7 +215,7 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            $createdOrder = $order;
+            return $order;
         });
 
         $paymentInfo = null;

@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/polyfills.php';
+
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;

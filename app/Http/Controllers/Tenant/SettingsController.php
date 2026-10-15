@@ -74,18 +74,18 @@ class SettingsController extends Controller
 
         if ($request->hasFile('banner_file')) {
             $path = $this->storeUploadedFile($request->file('banner_file'), 'tenants/banners');
-            $validated['banner_image'] = Storage::url($path);
+            $validated['banner_image'] = '/storage/'.ltrim($path, '/');
         }
 
         if ($request->hasFile('logo_file')) {
             $path = $this->storeUploadedFile($request->file('logo_file'), 'tenants/logos');
-            $validated['logo_image'] = Storage::url($path);
-            $validated['image'] = Storage::url($path);
+            $validated['logo_image'] = '/storage/'.ltrim($path, '/');
+            $validated['image'] = '/storage/'.ltrim($path, '/');
         }
 
         if ($request->hasFile('image_file')) {
             $path = $this->storeUploadedFile($request->file('image_file'), 'tenants/logos');
-            $validated['image'] = Storage::url($path);
+            $validated['image'] = '/storage/'.ltrim($path, '/');
         }
 
         // Only update server_key if a new value was explicitly provided or cleared
