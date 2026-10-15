@@ -79,8 +79,8 @@ class OrderSeeder extends Seeder
 
         // 2. Skenario Cash (Tunai di Kasir - Tanpa potongan)
         $order2 = Order::query()->create([
-            'order_number' => 'SC-'.now()->format('Ymd').'-00319',
-            'pickup_code' => 'FEB-002319',
+            'order_number' => 'ORD-'.now()->format('Ymd').'-CSH319',
+            'pickup_code' => 'PKP-319',
             'user_id' => $mahasiswa->id,
             'tenant_id' => $tenant1->id,
             'subtotal_amount' => 33000.00,
@@ -120,8 +120,8 @@ class OrderSeeder extends Seeder
 
         // 3. Skenario QRIS Cashless (Fee QRIS Rp 700 + App fee Rp 1.000)
         $order3 = Order::query()->create([
-            'order_number' => 'SC-'.now()->format('Ymd').'-00173',
-            'pickup_code' => 'FEB-002173',
+            'order_number' => 'ORD-'.now()->format('Ymd').'-QRS173',
+            'pickup_code' => 'PKP-173',
             'user_id' => $budi ? $budi->id : $mahasiswa->id,
             'tenant_id' => $tenant1->id,
             'subtotal_amount' => 50000.00,
