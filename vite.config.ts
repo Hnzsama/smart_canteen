@@ -7,7 +7,11 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import path from 'node:path';
 import { defineConfig, lazyPlugins, loadEnv } from 'vite-plus';
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, process.cwd(), '');
+    const isProduction = env.APP_ENV === 'production';
+    const outDir = isProduction ? '../build' : 'public/build';
+
     return {
         plugins: lazyPlugins(() => [
             laravel({
@@ -30,7 +34,7 @@ export default defineConfig(() => {
             }),
         ]),
         build: {
-            outDir: 'public/build',
+            outDir,
             emptyOutDir: true,
         },
         server: {
