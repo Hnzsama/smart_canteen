@@ -186,58 +186,58 @@ export default function TenantDetail({ tenant, categories = [], menus = [] }: Te
                         <ArrowLeft className="h-4 w-4" />
                         <span>Kembali ke Katalog</span>
                     </Button>
-
-                    <Badge
-                        variant="outline"
-                        className={
-                            tenant.is_open
-                                ? 'text-[10px] font-bold text-emerald-300 border-emerald-800/40 bg-emerald-950/40'
-                                : 'text-[10px] font-bold bg-destructive text-destructive-foreground'
-                        }
-                    >
-                        {tenant.is_open ? 'STAND BUKA' : 'STAND TUTUP'}
-                    </Badge>
                 </div>
 
                 {/* Stand Header Card */}
                 <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs relative">
-                    <div className="h-24 w-full bg-gradient-to-r from-primary/80 to-primary relative overflow-hidden">
+                    <div className="relative h-32 sm:h-36 w-full bg-muted/40 overflow-hidden">
                         <img
                             src={tenant.banner_image || tenant.image || tenantFallback}
                             alt={tenant.name}
-                            className="h-full w-full object-cover opacity-40"
+                            className="h-full w-full object-cover"
                             onError={(e) => {
                                 (e.target as HTMLImageElement).src = tenantFallback;
                             }}
                         />
+                        <div className="absolute top-2.5 right-2.5">
+                            <Badge
+                                className={`text-[10px] font-bold border-none shadow-xs ${
+                                    tenant.is_open
+                                        ? 'bg-emerald-500 text-white'
+                                        : 'bg-rose-500 text-white'
+                                }`}
+                            >
+                                {tenant.is_open ? 'BUKA' : 'TUTUP'}
+                            </Badge>
+                        </div>
                     </div>
 
-                    <div className="p-4 pt-0 relative space-y-3">
-                        <div className="-mt-10 flex items-end justify-between">
+                    <div className="p-4 space-y-2.5 relative pt-6">
+                        <div className="absolute -top-7 left-4 h-14 w-14 rounded-2xl border-2 border-background bg-card overflow-hidden shadow-md">
                             <img
                                 src={tenant.logo_image || tenant.image || tenantFallback}
                                 alt={tenant.name}
-                                className="h-16 w-16 rounded-2xl object-cover border-4 border-card shadow-md bg-muted"
+                                className="h-full w-full object-cover"
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src = tenantFallback;
                                 }}
                             />
+                        </div>
 
-                            <div className="flex items-center gap-1 bg-muted/80 border border-border/60 text-foreground text-xs px-3 py-1 rounded-full font-bold shadow-2xs mt-11">
+                        <div className="flex items-center justify-between gap-2 pt-1">
+                            <h1 className="text-lg font-black text-foreground truncate min-w-0">{tenant.name}</h1>
+                            <div className="flex items-center gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-0.5 rounded-full text-xs font-bold shrink-0">
                                 <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0" />
                                 <span>{tenant.rating.toFixed(1)}</span>
                                 <span className="text-[10px] text-muted-foreground font-normal">({tenant.reviews_count} ulasan)</span>
                             </div>
                         </div>
 
-                        <div className="space-y-1">
-                            <h1 className="text-lg font-black text-foreground">{tenant.name}</h1>
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                                {tenant.description || 'Stand kuliner favorit di Kantin FEB Universitas.'}
-                            </p>
-                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                            {tenant.description || 'Stand kuliner favorit di Kantin FEB Universitas.'}
+                        </p>
 
-                        <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground font-mono pt-1 border-t border-border">
+                        <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground font-mono pt-2 border-t border-border/60">
                             <span className="flex items-center gap-1">
                                 <Clock className="h-3.5 w-3.5 text-primary" />
                                 Operasional: {tenant.opening_hours || '08:00 - 17:00'}
