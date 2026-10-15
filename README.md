@@ -102,7 +102,8 @@ Seluruh spesifikasi teknis dan aturan bisnis terdokumentasi lengkap di folder `d
 14. 📄 [13-development-rules.md](file:///home/darbi/Projects/smart_canteen/docs/13-development-rules.md) — Rules Pengembangan & Prinsip Vibe Coding
 15. 📄 [14-out-of-scope.md](file:///home/darbi/Projects/smart_canteen/docs/14-out-of-scope.md) — Fitur Di Luar Scope
 16. 📄 [15-acceptance-criteria.md](file:///home/darbi/Projects/smart_canteen/docs/15-acceptance-criteria.md) — Kriteria Keterterimaan (Definition of Done)
-17. 📄 [16-rab.md](file:///home/darbi/Projects/smart_canteen/docs/16-rab.md) — Breakdown Rencana Anggaran Biaya & Timeline
+17. 📄 [16-rab.md](docs/16-rab.md) — Breakdown Rencana Anggaran Biaya & Timeline
+18. 📄 [17-multi-tenant-midtrans-architecture.md](docs/17-multi-tenant-midtrans-architecture.md) — **Arsitektur Multi-Tenant Midtrans Per Toko & Fallback Tunai (Cash)**
 
 ---
 

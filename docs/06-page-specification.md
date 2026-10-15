@@ -17,7 +17,7 @@ Dokumen ini mendeskripsikan seluruh halaman dalam sistem beserta komponen, rute 
 
 ### 1.3 Halaman Checkout (`/checkout`)
 * **Rute / Component:** `resources/js/pages/checkout/index.tsx`
-* **Elemen:** Rincian Item per Stand, Edit Jumlah / Hapus Item, Input Catatan Khusus, Ringkasan Pembayaran (Subtotal, Biaya Admin, Total Tagihan), Radio Button Metode Pembayaran (Cashless Midtrans vs Cash Tunai), Opsi Santap (*Dine In* / *Takeaway*), Tombol "Buat Pesanan".
+* **Elemen:** Rincian Item Stand Terpilih, Edit Jumlah / Hapus Item, Input Catatan Khusus, Ringkasan Pembayaran (Subtotal, Biaya Admin, Total Tagihan), Radio Button Metode Pembayaran (Sesuai kapabilitas stand: Cashless Midtrans vs Cash Tunai), Opsi Santap (*Dine In* / *Takeaway*), Tombol "Buat Pesanan".
 
 ### 1.4 Halaman Pembayaran & Digital Pickup Pass (`/orders/{order}/payment`)
 * **Rute / Component:** `resources/js/pages/orders/payment.tsx` & `resources/js/pages/orders/show.tsx`

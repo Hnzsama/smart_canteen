@@ -15,7 +15,7 @@ Dokumen ini mendefinisikan seluruh spesifikasi fitur fungsional aplikasi Smart C
 * **F-MHS-04 Katalog Tenant & Filter Kategori:** Halaman utama (`/catalog`) menampilkan promo banner carousel, daftar stand kantin, dan filter kategori global (*Makanan Utama*, *Minuman*, *Camilan*).
 * **F-MHS-05 Detail Stand Kantin:** Halaman profil stand (`/{tenant:slug}`) menampilkan banner header, logo, jam operasional, status buka/tutup, ulasan bintang, dan menu khusus stand.
 * **F-MHS-06 Modal Detail Menu & Catatan Pesanan:** Tampilan modal hidangan berukuran besar, pengatur kuantitas porsi (`+`/`-`), dan input teks catatan khusus pesanan ke penjual.
-* **F-MHS-07 Floating Cart Bar & Multi-Stand Checkout:** Bilah keranjang melayang di bawah layar saat item > 0, dan halaman checkout (`/checkout`) yang mendukung pengelompokan pesanan multi-stand.
+* **F-MHS-07 Floating Cart Bar & Single-Tenant Checkout (Standar ShopeeFood):** Bilah keranjang melayang di bawah layar saat item > 0, dan halaman checkout (`/checkout`) yang menerapkan keranjang tunggal terfokus per-stand dengan konfirmasi reset jika berpindah stand (standar ShopeeFood / GoFood).
 
 ### 1.3 Pembayaran & Tracking Status
 * **F-MHS-08 Dual Payment Engine:**
